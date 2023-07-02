@@ -137,3 +137,13 @@ void Window::reload_window_surface()
     FATAL_BOII("Unable to reload window surface: %s", SDL_GetError());
   }
 }
+
+void Window::update_rects(SDL_Rect* rects, int rects_count)
+{
+  SDL_UpdateWindowSurfaceRects(_window, rects, rects_count);
+}
+
+void Window::update()
+{
+  SDL_UpdateWindowSurface(_window);
+}

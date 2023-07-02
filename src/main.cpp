@@ -40,13 +40,40 @@ int main(int argc, char** argv)
       }
       if(event.type == SDL_WINDOWEVENT)
       {
-        if(event.window.type == SDL_WINDOWEVENT_RESIZED)
+        if(event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
           window->reload_window_surface();
           CairoContext::get_instance()->reload_context(*window);
         }
       }
     }
+
+    // Rendering
+    double xc = 220.0;
+    double yc = 240.0;
+    double radius = 200.0;
+    double angle1 = 45.0 * (M_PI / 180.0);
+    double angle2 = 180.0 * (M_PI / 180.0);
+
+    cairo_t* cr = CairoContext::get_instance()->get_context();
+    cairo_set_source_rgba(cr, 0, 0, 0, 1.0);
+    cairo_set_line_width(cr, 10.0);
+    cairo_arc(cr, xc, yc, radius, angle1, angle2);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgba(cr, 1, 0.2, 0.2, 0.6);
+    cairo_set_line_width(cr, 6.0);
+
+    cairo_arc(cr, xc, yc, 10.0, 0, 2 * M_PI);
+    cairo_fill(cr);
+
+    cairo_arc(cr, xc, yc, radius, angle1, angle1);
+    cairo_line_to(cr, xc, yc);
+    cairo_arc(cr, xc, yc, radius, angle2, angle2);
+    cairo_line_to(cr, xc, yc);
+    cairo_stroke(cr);
+
+    window->update();
   }
 
   CairoContext::delete_instance();

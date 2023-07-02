@@ -60,6 +60,14 @@ public:
   ///        this should be called when window is resized.
   void reload_window_surface();
 
+  /// @brief Updates given rectangle portions in window.
+  /// @param rects pointer to SDL_Rect array.
+  /// @param rects_count length of the SDL_Rect array.
+  void update_rects(SDL_Rect* rects, int rects_count);
+
+  /// @brief Updates window surface (i.e swaps the updated window surface).
+  void update();
+
 private:
   /// @brief window width
   uint16 _width;
