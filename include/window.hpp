@@ -67,7 +67,7 @@ private:
 
   /// @brief pointer to SDL_Window
   SDL_Window* _window;
-  
+
   /// @brief pointer to window's surface
   SDL_Surface* _window_surface;
 };

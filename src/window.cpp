@@ -81,6 +81,7 @@ bool Window::set_icon(const char* icon_path)
   }
   SDL_SetWindowIcon(_window, rocket_icon);
   SDL_FreeSurface(rocket_icon);
+  return true;
 }
 
 bool Window::set_dark_theme()
