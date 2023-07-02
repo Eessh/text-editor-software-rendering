@@ -100,6 +100,11 @@ std::string& Window::title()
   return _title;
 }
 
+SDL_Surface* Window::surface()
+{
+  return _window_surface;
+}
+
 bool Window::set_icon(const char* icon_path)
 {
   SDL_Surface* rocket_icon = SDL_LoadBMP(icon_path);

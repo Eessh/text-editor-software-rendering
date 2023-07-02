@@ -43,6 +43,10 @@ public:
   /// @return Returns reference to window title.
   std::string& title();
 
+  /// @brief Window's surface.
+  /// @return Returns pointer to window's surface.
+  SDL_Surface* surface();
+
   /// @brief Sets window icon in windows and linux, icon should be BMP format.
   /// @param icon_path icon file path.
   /// @return returns false if icon cannot be found at given path.
@@ -78,4 +82,6 @@ private:
 
   /// @brief pointer to cairo context
   cairo_t* _cairo_context;
+
+  friend class CairoContext;
 };
