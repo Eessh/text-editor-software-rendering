@@ -152,6 +152,11 @@ bool Window::set_dark_theme()
   return false;
 }
 
+cairo_t* Window::cairo_context()
+{
+  return _cairo_context;
+}
+
 void Window::reload_cairo_context()
 {
   _window_surface = SDL_GetWindowSurface(_window);
