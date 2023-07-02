@@ -1,3 +1,4 @@
+#include "../include/cairo_context.hpp"
 #include "../include/macros.hpp"
 #include "../include/sdl2.hpp"
 #include "../include/window.hpp"
@@ -16,11 +17,15 @@ int main(int argc, char** argv)
   SDL_GetCurrentDisplayMode(0, &display_mode);
 
   // Creating window
-  Window window("Text Editor - Software Rendering",
-                0.8 * display_mode.w,
-                0.8 * display_mode.h);
-  window.set_icon("assets/images/rocket.bmp");
-  window.set_dark_theme();
+  Window* window = new Window("Text Editor - Software Rendering",
+                              0.8 * display_mode.w,
+                              0.8 * display_mode.h);
+  window->set_icon("assets/images/rocket.bmp");
+  window->set_dark_theme();
+
+  // Creating cairo context
+  CairoContext::create_instance();
+  CairoContext::get_instance()->initialize(*window);
 
   // main loop
   while(1)
@@ -33,9 +38,19 @@ int main(int argc, char** argv)
         SDL_Quit();
         return 0;
       }
+      if(event.type == SDL_WINDOWEVENT)
+      {
+        if(event.window.type == SDL_WINDOWEVENT_RESIZED)
+        {
+          window->reload_window_surface();
+          CairoContext::get_instance()->reload_context(*window);
+        }
+      }
     }
   }
 
+  CairoContext::delete_instance();
+  delete window;
   SDL_Quit();
 
   return 0;
