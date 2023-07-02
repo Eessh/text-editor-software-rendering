@@ -56,13 +56,9 @@ public:
   /// @return returns false if cannot be set (on platforms linux, macos).
   bool set_dark_theme();
 
-  /// @brief Window's cairo context.
-  /// @return Returns pointer to window's cairo context.
-  cairo_t* cairo_context();
-
   /// @brief Reloads the cairo context of window,
   ///        this should be called when window is resized.
-  void reload_cairo_context();
+  void reload_window_surface();
 
 private:
   /// @brief window width
@@ -79,9 +75,6 @@ private:
 
   /// @brief pointer to window's surface
   SDL_Surface* _window_surface;
-
-  /// @brief pointer to cairo context
-  cairo_t* _cairo_context;
 
   friend class CairoContext;
 };
