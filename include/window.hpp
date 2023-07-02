@@ -30,8 +30,16 @@ public:
   /// @return Returns const reference to window title.
   const std::string& title() const;
 
+  /// @brief Set window width.
+  /// @return Returns reference to window width.
   uint16& width();
+
+  /// @brief Set window height.
+  /// @return Returns reference to window height.
   uint16& height();
+
+  /// @brief Set window title.
+  /// @return Returns reference to window title.
   std::string& title();
 
   /// @brief Sets window icon in windows and linux, icon should be BMP format.
@@ -43,15 +51,23 @@ public:
   /// @return returns false if cannot be set (on platforms linux, macos).
   bool set_dark_theme();
 
+  /// @brief Reloads the window surface,
+  ///        this should be called when window is resized.
+  void reload_window_surface();
+
 private:
   /// @brief window width
   uint16 _width;
+
   /// @brief window height
   uint16 _height;
+
   /// @brief window title
   std::string _title;
+
   /// @brief pointer to SDL_Window
   SDL_Window* _window;
+  
   /// @brief pointer to window's surface
   SDL_Surface* _window_surface;
 };

@@ -121,3 +121,12 @@ bool Window::set_dark_theme()
 #endif
   return false;
 }
+
+void Window::reload_window_surface()
+{
+  _window_surface = SDL_GetWindowSurface(_window);
+  if(!_window_surface)
+  {
+    FATAL_BOII("Unable to reload window surface: %s", SDL_GetError());
+  }
+}
