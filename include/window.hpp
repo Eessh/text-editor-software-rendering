@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "cairo.hpp"
 #include "sdl2.hpp"
 #include "types.hpp"
 
@@ -51,9 +52,9 @@ public:
   /// @return returns false if cannot be set (on platforms linux, macos).
   bool set_dark_theme();
 
-  /// @brief Reloads the window surface,
+  /// @brief Reloads the cairo context of window,
   ///        this should be called when window is resized.
-  void reload_window_surface();
+  void reload_cairo_context();
 
 private:
   /// @brief window width
@@ -70,4 +71,7 @@ private:
 
   /// @brief pointer to window's surface
   SDL_Surface* _window_surface;
+
+  /// @brief pointer to cairo context
+  cairo_t* _cairo_context;
 };
