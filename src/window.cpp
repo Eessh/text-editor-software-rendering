@@ -12,7 +12,6 @@ Window::Window(const std::string& title,
   , _height(height)
   , _window(nullptr)
   , _window_surface(nullptr)
-  , _cairo_context(nullptr)
 {
   _window = SDL_CreateWindow(_title.c_str(),
                              SDL_WINDOWPOS_CENTERED,
@@ -37,36 +36,13 @@ Window::Window(const std::string& title,
     exit(1);
   }
 
-  cairo_surface_t* cairo_surface =
-    cairo_image_surface_create_for_data((unsigned char*)_window_surface->pixels,
-                                        CAIRO_FORMAT_RGB24,
-                                        _window_surface->w,
-                                        _window_surface->h,
-                                        _window_surface->pitch);
-  if(!cairo_surface)
-  {
-    FATAL_BOII("Unable to create cairo surface for window!");
-    SDL_DestroyWindow(_window);
-    SDL_Quit();
-    exit(1);
-  }
-  cairo_surface_set_device_scale(cairo_surface, 1, 1);
-
-  _cairo_context = cairo_create(cairo_surface);
-  if(!_cairo_context)
-  {
-    FATAL_BOII("Unable to create cairo context for window!");
-    cairo_surface_destroy(cairo_surface);
-    SDL_DestroyWindow(_window);
-    SDL_Quit();
-    exit(1);
-  }
-  cairo_surface_destroy(cairo_surface);
+  // White background
+  SDL_FillRect(
+    _window_surface, NULL, SDL_MapRGB(_window_surface->format, 255, 255, 255));
 }
 
 Window::~Window()
 {
-  cairo_destroy(_cairo_context);
   SDL_DestroyWindow(_window);
 }
 
@@ -98,6 +74,11 @@ uint16& Window::height()
 std::string& Window::title()
 {
   return _title;
+}
+
+SDL_Surface* Window::surface()
+{
+  return _window_surface;
 }
 
 bool Window::set_icon(const char* icon_path)
@@ -152,28 +133,23 @@ bool Window::set_dark_theme()
   return false;
 }
 
-cairo_t* Window::cairo_context()
-{
-  return _cairo_context;
-}
-
-void Window::reload_cairo_context()
+void Window::reload_window_surface()
 {
   _window_surface = SDL_GetWindowSurface(_window);
   if(!_window_surface)
   {
     FATAL_BOII("Unable to reload window surface: %s", SDL_GetError());
   }
+  SDL_FillRect(
+    _window_surface, NULL, SDL_MapRGB(_window_surface->format, 255, 255, 255));
+}
 
-  cairo_destroy(_cairo_context);
-  cairo_surface_t* cairo_surface =
-    cairo_image_surface_create_for_data((unsigned char*)_window_surface->pixels,
-                                        CAIRO_FORMAT_RGB24,
-                                        _window_surface->w,
-                                        _window_surface->h,
-                                        _window_surface->pitch);
-  cairo_surface_set_device_scale(cairo_surface, 1, 1);
+void Window::update_rects(SDL_Rect* rects, int rects_count)
+{
+  SDL_UpdateWindowSurfaceRects(_window, rects, rects_count);
+}
 
-  _cairo_context = cairo_create(cairo_surface);
-  cairo_surface_destroy(cairo_surface);
+void Window::update()
+{
+  SDL_UpdateWindowSurface(_window);
 }
