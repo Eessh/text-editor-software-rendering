@@ -1,11 +1,37 @@
+#include <fstream>
+#include <string>
+#include <vector>
 #include "../include/cairo_context.hpp"
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
 #include "../include/window.hpp"
 
+/// @brief Reads file contents as lines.
+/// @param file_path path to file.
+/// @return Returns pointer to vector of strings,
+///         this memory should be freed by the user.
+std::vector<std::string>* read_file(const std::string& file_path);
+
 int main(int argc, char** argv)
 {
+  // Checking arguments
+  if(argc < 2)
+  {
+    FATAL_BOII("Error: No file is provided as argument.");
+    INFO_BOII("Usage: text-editor-software-rendering.exe <file_path>");
+    exit(1);
+  }
+
+  // Loading file contents
+  std::string file_path(argv[1]);
+  std::vector<std::string>* contents = read_file(file_path);
+  if(!contents)
+  {
+    FATAL_BOII("Unable to load file: %s", argv[1]);
+    exit(1);
+  }
+
   // Initializing SDL
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
   {
@@ -43,6 +69,9 @@ int main(int argc, char** argv)
     {
       if(event.type == SDL_QUIT)
       {
+        delete contents;
+        CairoContext::delete_instance();
+        delete window;
         SDL_Quit();
         return 0;
       }
@@ -98,9 +127,27 @@ int main(int argc, char** argv)
     redraw = false;
   }
 
+  delete contents;
   CairoContext::delete_instance();
   delete window;
   SDL_Quit();
 
   return 0;
+}
+
+std::vector<std::string>* read_file(const std::string& file_path)
+{
+  std::ifstream file(file_path);
+  if(file.is_open())
+  {
+    auto* contents = new std::vector<std::string>();
+    while(file.good())
+    {
+      contents->push_back("");
+      std::getline(file, contents->back());
+    }
+    return contents;
+  }
+  log_error("Unable to open file: %s", file_path.c_str());
+  return nullptr;
 }
