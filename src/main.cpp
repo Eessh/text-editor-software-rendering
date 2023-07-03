@@ -51,6 +51,7 @@ int main(int argc, char** argv)
         {
           window->reload_window_surface();
           CairoContext::get_instance()->reload_context(*window);
+          CairoContext::get_instance()->set_context_font("JetBrainsMono", 18);
           redraw = true;
         }
       }
@@ -95,7 +96,6 @@ int main(int argc, char** argv)
     cairo_move_to(cr, 500, 500);
     // cairo_move_to(cr, 50, 50 + text_extents.height);
     cairo_set_source_rgb(cr, 0, 0, 0);
-    CairoContext::get_instance()->set_context_font("JetBrainsMono", 18);
     cairo_show_text(cr, text);
 
     window->update();
