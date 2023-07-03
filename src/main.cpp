@@ -1,5 +1,6 @@
 #include "../include/cairo_context.hpp"
 #include "../include/macros.hpp"
+#include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
 #include "../include/window.hpp"
 
@@ -90,13 +91,7 @@ int main(int argc, char** argv)
     cairo_close_path(cr);
 
     // Rendering text
-    const char text[] = "Hola!";
-    // cairo_text_extents_t text_extents;
-    // cairo_text_extents(cr, text, &text_extents);
-    cairo_move_to(cr, 500, 500);
-    // cairo_move_to(cr, 50, 50 + text_extents.height);
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_show_text(cr, text);
+    RocketRender::text(50, 50, "Hola!", {0, 0, 0, 255});
 
     window->update();
 
