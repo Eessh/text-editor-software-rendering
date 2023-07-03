@@ -27,7 +27,14 @@ int main(int argc, char** argv)
   CairoContext::create_instance();
   CairoContext::get_instance()->initialize(*window);
 
+  // Loading font
+  CairoContext::get_instance()->load_font(
+    "JetBrainsMono",
+    "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf");
+  CairoContext::get_instance()->set_context_font("JetBrainsMono", 18);
+
   // main loop
+  bool redraw = true;
   while(1)
   {
     SDL_Event event;
@@ -44,8 +51,14 @@ int main(int argc, char** argv)
         {
           window->reload_window_surface();
           CairoContext::get_instance()->reload_context(*window);
+          redraw = true;
         }
       }
+    }
+
+    if(!redraw)
+    {
+      continue;
     }
 
     // Rendering
@@ -73,7 +86,21 @@ int main(int argc, char** argv)
     cairo_line_to(cr, xc, yc);
     cairo_stroke(cr);
 
+    cairo_close_path(cr);
+
+    // Rendering text
+    const char text[] = "Hola!";
+    // cairo_text_extents_t text_extents;
+    // cairo_text_extents(cr, text, &text_extents);
+    cairo_move_to(cr, 500, 500);
+    // cairo_move_to(cr, 50, 50 + text_extents.height);
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    CairoContext::get_instance()->set_context_font("JetBrainsMono", 18);
+    cairo_show_text(cr, text);
+
     window->update();
+
+    redraw = false;
   }
 
   CairoContext::delete_instance();

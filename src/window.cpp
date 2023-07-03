@@ -35,6 +35,10 @@ Window::Window(const std::string& title,
     SDL_Quit();
     exit(1);
   }
+
+  // White background
+  SDL_FillRect(
+    _window_surface, NULL, SDL_MapRGB(_window_surface->format, 255, 255, 255));
 }
 
 Window::~Window()
@@ -136,6 +140,8 @@ void Window::reload_window_surface()
   {
     FATAL_BOII("Unable to reload window surface: %s", SDL_GetError());
   }
+  SDL_FillRect(
+    _window_surface, NULL, SDL_MapRGB(_window_surface->format, 255, 255, 255));
 }
 
 void Window::update_rects(SDL_Rect* rects, int rects_count)
