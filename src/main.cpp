@@ -68,23 +68,25 @@ int main(int argc, char** argv)
                      &font_extents);
 
   // Initial render
-  window->clear_with_color({255, 255, 255, 255});
-  float32 y = 0.0f;
-  for(const std::string& line : *contents)
   {
-    if(y < 0 && -y > font_extents.height)
+    window->clear_with_color({255, 255, 255, 255});
+    float32 y = 0.0f;
+    for(const std::string& line : *contents)
     {
+      if(y < 0 && -y > font_extents.height)
+      {
+        y += font_extents.height;
+        continue;
+      }
+      RocketRender::text(0, y, line, {0, 0, 0, 255});
       y += font_extents.height;
-      continue;
+      if(y > window->height())
+      {
+        break;
+      }
     }
-    RocketRender::text(0, y, line, {0, 0, 0, 255});
-    y += font_extents.height;
-    if(y > window->height())
-    {
-      break;
-    }
+    window->update();
   }
-  window->update();
 
   // main loop
   bool redraw = false, fingerdown = false;
@@ -124,7 +126,7 @@ int main(int argc, char** argv)
           scroll_y_target = 0.0f;
         }
         if(scroll_y_target <
-          -static_cast<float32>(contents->size()) * font_extents.height)
+           -static_cast<float32>(contents->size()) * font_extents.height)
         {
           scroll_y_target =
             -static_cast<float32>(contents->size()) * font_extents.height;
