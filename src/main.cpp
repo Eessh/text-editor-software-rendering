@@ -58,10 +58,11 @@ int main(int argc, char** argv)
   CairoContext::get_instance()->load_font(
     "JetBrainsMono",
     "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf");
-  CairoContext::get_instance()->set_context_font("JetBrainsMono", 18);
+  CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
 
   // main loop
   bool redraw = true;
+  float32 scroll_y_offset = 0;
   while(1)
   {
     SDL_Event event;
@@ -81,9 +82,14 @@ int main(int argc, char** argv)
         {
           window->reload_window_surface();
           CairoContext::get_instance()->reload_context(*window);
-          CairoContext::get_instance()->set_context_font("JetBrainsMono", 18);
+          CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
           redraw = true;
         }
+      }
+      if(event.type == SDL_MOUSEWHEEL)
+      {
+        scroll_y_offset += event.wheel.preciseY;
+        redraw = true;
       }
     }
 
@@ -93,34 +99,62 @@ int main(int argc, char** argv)
     }
 
     // Rendering
-    double xc = 220.0;
-    double yc = 240.0;
-    double radius = 200.0;
-    double angle1 = 45.0 * (M_PI / 180.0);
-    double angle2 = 180.0 * (M_PI / 180.0);
+    // double xc = 220.0;
+    // double yc = 240.0;
+    // double radius = 200.0;
+    // double angle1 = 45.0 * (M_PI / 180.0);
+    // double angle2 = 180.0 * (M_PI / 180.0);
 
-    cairo_t* cr = CairoContext::get_instance()->get_context();
-    cairo_set_source_rgba(cr, 0, 0, 0, 1.0);
-    cairo_set_line_width(cr, 10.0);
-    cairo_arc(cr, xc, yc, radius, angle1, angle2);
-    cairo_stroke(cr);
+    // cairo_t* cr = CairoContext::get_instance()->get_context();
+    // cairo_set_source_rgba(cr, 0, 0, 0, 1.0);
+    // cairo_set_line_width(cr, 10.0);
+    // cairo_arc(cr, xc, yc, radius, angle1, angle2);
+    // cairo_stroke(cr);
 
-    cairo_set_source_rgba(cr, 1, 0.2, 0.2, 0.6);
-    cairo_set_line_width(cr, 6.0);
+    // cairo_set_source_rgba(cr, 1, 0.2, 0.2, 0.6);
+    // cairo_set_line_width(cr, 6.0);
 
-    cairo_arc(cr, xc, yc, 10.0, 0, 2 * M_PI);
-    cairo_fill(cr);
+    // cairo_arc(cr, xc, yc, 10.0, 0, 2 * M_PI);
+    // cairo_fill(cr);
 
-    cairo_arc(cr, xc, yc, radius, angle1, angle1);
-    cairo_line_to(cr, xc, yc);
-    cairo_arc(cr, xc, yc, radius, angle2, angle2);
-    cairo_line_to(cr, xc, yc);
-    cairo_stroke(cr);
+    // cairo_arc(cr, xc, yc, radius, angle1, angle1);
+    // cairo_line_to(cr, xc, yc);
+    // cairo_arc(cr, xc, yc, radius, angle2, angle2);
+    // cairo_line_to(cr, xc, yc);
+    // cairo_stroke(cr);
 
-    cairo_close_path(cr);
+    // cairo_close_path(cr);
 
     // Rendering text
-    RocketRender::text(50, 50, "Hola!", {0, 0, 0, 255});
+    // RocketRender::text(50, 50, "Hola!", {0, 0, 0, 255});
+
+    window->clear_with_color({255, 255, 255, 255});
+
+    float32 y = scroll_y_offset;
+    for(const std::string& line : *contents)
+    {
+      // cairo_text_extents_t text_extents;
+      // cairo_text_extents(
+      // CairoContext::get_instance()->get_context(), line.c_str(), &text_extents);
+      // if(y < 0 && -y > text_extents.height)
+      // {
+      //   y += text_extents.height;
+      //   continue;
+      // }
+      cairo_font_extents_t font_extents;
+      cairo_font_extents(CairoContext::get_instance()->get_context(), &font_extents);
+      if(y < 0 && -y > font_extents.height)
+      {
+        y += font_extents.height;
+        continue;
+      }
+      RocketRender::text(0, y, line, {0, 0, 0, 255});
+      y += font_extents.height;
+      if(y > window->height())
+      {
+        break;
+      }
+    }
 
     window->update();
 

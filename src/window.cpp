@@ -133,6 +133,13 @@ bool Window::set_dark_theme()
   return false;
 }
 
+void Window::clear_with_color(const SDL_Color& color)
+{
+  SDL_FillRect(_window_surface,
+               NULL,
+               SDL_MapRGB(_window_surface->format, color.r, color.g, color.b));
+}
+
 void Window::reload_window_surface()
 {
   _window_surface = SDL_GetWindowSurface(_window);

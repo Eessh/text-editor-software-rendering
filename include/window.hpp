@@ -60,6 +60,8 @@ public:
   ///        this should be called when window is resized.
   void reload_window_surface();
 
+  void clear_with_color(const SDL_Color& color);
+
   /// @brief Updates given rectangle portions in window.
   /// @param rects pointer to SDL_Rect array.
   /// @param rects_count length of the SDL_Rect array.
