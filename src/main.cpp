@@ -63,10 +63,13 @@ int main(int argc, char** argv)
   // main loop
   bool redraw = true;
   float32 scroll_y_offset = 0;
+  uint8 wait_time = 250;
   while(1)
   {
+    double frame_start_time =
+      SDL_GetPerformanceCounter() / (double)SDL_GetPerformanceFrequency();
     SDL_Event event;
-    if(SDL_WaitEvent(&event))
+    if(SDL_PollEvent(&event))
     {
       if(event.type == SDL_QUIT)
       {
@@ -93,72 +96,50 @@ int main(int argc, char** argv)
       }
     }
 
-    if(!redraw)
+    if(redraw)
     {
-      continue;
-    }
+      window->clear_with_color({255, 255, 255, 255});
 
-    // Rendering
-    // double xc = 220.0;
-    // double yc = 240.0;
-    // double radius = 200.0;
-    // double angle1 = 45.0 * (M_PI / 180.0);
-    // double angle2 = 180.0 * (M_PI / 180.0);
-
-    // cairo_t* cr = CairoContext::get_instance()->get_context();
-    // cairo_set_source_rgba(cr, 0, 0, 0, 1.0);
-    // cairo_set_line_width(cr, 10.0);
-    // cairo_arc(cr, xc, yc, radius, angle1, angle2);
-    // cairo_stroke(cr);
-
-    // cairo_set_source_rgba(cr, 1, 0.2, 0.2, 0.6);
-    // cairo_set_line_width(cr, 6.0);
-
-    // cairo_arc(cr, xc, yc, 10.0, 0, 2 * M_PI);
-    // cairo_fill(cr);
-
-    // cairo_arc(cr, xc, yc, radius, angle1, angle1);
-    // cairo_line_to(cr, xc, yc);
-    // cairo_arc(cr, xc, yc, radius, angle2, angle2);
-    // cairo_line_to(cr, xc, yc);
-    // cairo_stroke(cr);
-
-    // cairo_close_path(cr);
-
-    // Rendering text
-    // RocketRender::text(50, 50, "Hola!", {0, 0, 0, 255});
-
-    window->clear_with_color({255, 255, 255, 255});
-
-    float32 y = scroll_y_offset;
-    for(const std::string& line : *contents)
-    {
-      // cairo_text_extents_t text_extents;
-      // cairo_text_extents(
-      // CairoContext::get_instance()->get_context(), line.c_str(), &text_extents);
-      // if(y < 0 && -y > text_extents.height)
-      // {
-      //   y += text_extents.height;
-      //   continue;
-      // }
-      cairo_font_extents_t font_extents;
-      cairo_font_extents(CairoContext::get_instance()->get_context(), &font_extents);
-      if(y < 0 && -y > font_extents.height)
+      float32 y = scroll_y_offset;
+      for(const std::string& line : *contents)
       {
+        // cairo_text_extents_t text_extents;
+        // cairo_text_extents(
+        // CairoContext::get_instance()->get_context(), line.c_str(), &text_extents);
+        // if(y < 0 && -y > text_extents.height)
+        // {
+        //   y += text_extents.height;
+        //   continue;
+        // }
+        cairo_font_extents_t font_extents;
+        cairo_font_extents(CairoContext::get_instance()->get_context(),
+                           &font_extents);
+        if(y < 0 && -y > font_extents.height)
+        {
+          y += font_extents.height;
+          continue;
+        }
+        RocketRender::text(0, y, line, {0, 0, 0, 255});
         y += font_extents.height;
-        continue;
+        if(y > window->height())
+        {
+          break;
+        }
       }
-      RocketRender::text(0, y, line, {0, 0, 0, 255});
-      y += font_extents.height;
-      if(y > window->height())
-      {
-        break;
-      }
+
+      window->update();
+      redraw = false;
+    }
+    else
+    {
+      SDL_WaitEventTimeout(NULL, wait_time);
     }
 
-    window->update();
-
-    redraw = false;
+    double frame_end_time =
+      SDL_GetPerformanceCounter() / (double)SDL_GetPerformanceFrequency();
+    double time_elapsed = frame_end_time - frame_start_time;
+    INFO_BOII("Frame time: %lf", time_elapsed);
+    SDL_Delay((1 / (60 - time_elapsed)) * 1000);
   }
 
   delete contents;
