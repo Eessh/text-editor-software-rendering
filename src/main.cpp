@@ -13,6 +13,8 @@
 ///         this memory should be freed by the user.
 std::vector<std::string>* read_file(const std::string& file_path);
 
+bool animator(float32* animatable, const float32* target);
+
 int main(int argc, char** argv)
 {
   // Checking arguments
@@ -60,10 +62,34 @@ int main(int argc, char** argv)
     "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf");
   CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
 
+  // Font extents
+  cairo_font_extents_t font_extents;
+  cairo_font_extents(CairoContext::get_instance()->get_context(),
+                     &font_extents);
+  
+  // Initial render
+  window->clear_with_color({255, 255, 255, 255});
+  float32 y = 0.0f;
+  for(const std::string& line : *contents)
+  {
+    if(y < 0 && -y > font_extents.height)
+    {
+      y += font_extents.height;
+      continue;
+    }
+    RocketRender::text(0, y, line, {0, 0, 0, 255});
+    y += font_extents.height;
+    if(y > window->height())
+    {
+      break;
+    }
+  }
+  window->update();
+
   // main loop
-  bool redraw = true;
-  float32 scroll_y_offset = 0;
-  uint8 wait_time = 250;
+  bool redraw = false;
+  float32 scroll_y_offset = 0.0f, scroll_y_target = 0.0f;
+  uint8 scroll_sensitivity = 20, wait_time = 250;
   while(1)
   {
     double frame_start_time =
@@ -91,10 +117,22 @@ int main(int argc, char** argv)
       }
       if(event.type == SDL_MOUSEWHEEL)
       {
-        scroll_y_offset += event.wheel.preciseY;
-        redraw = true;
+        scroll_y_target +=
+          static_cast<float32>(scroll_sensitivity) * event.wheel.preciseY;
+        if(scroll_y_target > 0)
+        {
+          scroll_y_target = 0.0f;
+        }
+        if(scroll_y_target <
+           -static_cast<float32>(contents->size()) * font_extents.height)
+        {
+          scroll_y_target =
+            -static_cast<float32>(contents->size()) * font_extents.height;
+        }
       }
     }
+
+    redraw = animator(&scroll_y_offset, &scroll_y_target);
 
     if(redraw)
     {
@@ -111,9 +149,6 @@ int main(int argc, char** argv)
         //   y += text_extents.height;
         //   continue;
         // }
-        cairo_font_extents_t font_extents;
-        cairo_font_extents(CairoContext::get_instance()->get_context(),
-                           &font_extents);
         if(y < 0 && -y > font_extents.height)
         {
           y += font_extents.height;
@@ -165,4 +200,22 @@ std::vector<std::string>* read_file(const std::string& file_path)
   }
   log_error("Unable to open file: %s", file_path.c_str());
   return nullptr;
+}
+
+bool animator(float32* animatable, const float32* target)
+{
+  const float32 delta = *target - *animatable;
+  if(delta == 0)
+  {
+    return false;
+  }
+
+  if(abs(delta) < 0.1f)
+  {
+    *animatable = *animatable + delta;
+    return true;
+  }
+
+  *animatable += delta * 0.2f;
+  return true;
 }
