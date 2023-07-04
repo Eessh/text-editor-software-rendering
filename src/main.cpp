@@ -66,7 +66,7 @@ int main(int argc, char** argv)
   cairo_font_extents_t font_extents;
   cairo_font_extents(CairoContext::get_instance()->get_context(),
                      &font_extents);
-  
+
   // Initial render
   window->clear_with_color({255, 255, 255, 255});
   float32 y = 0.0f;
@@ -87,9 +87,9 @@ int main(int argc, char** argv)
   window->update();
 
   // main loop
-  bool redraw = false;
+  bool redraw = false, fingerdown = false;
   float32 scroll_y_offset = 0.0f, scroll_y_target = 0.0f;
-  uint8 scroll_sensitivity = 20, wait_time = 250;
+  uint8 scroll_sensitivity = 40, wait_time = 250;
   while(1)
   {
     double frame_start_time =
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
         SDL_Quit();
         return 0;
       }
-      if(event.type == SDL_WINDOWEVENT)
+      else if(event.type == SDL_WINDOWEVENT)
       {
         if(event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
           redraw = true;
         }
       }
-      if(event.type == SDL_MOUSEWHEEL)
+      else if(event.type == SDL_MOUSEWHEEL)
       {
         scroll_y_target +=
           static_cast<float32>(scroll_sensitivity) * event.wheel.preciseY;
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
           scroll_y_target = 0.0f;
         }
         if(scroll_y_target <
-           -static_cast<float32>(contents->size()) * font_extents.height)
+          -static_cast<float32>(contents->size()) * font_extents.height)
         {
           scroll_y_target =
             -static_cast<float32>(contents->size()) * font_extents.height;
@@ -216,6 +216,6 @@ bool animator(float32* animatable, const float32* target)
     return true;
   }
 
-  *animatable += delta * 0.2f;
+  *animatable += delta * 0.4f;
   return true;
 }
