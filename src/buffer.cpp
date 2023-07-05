@@ -46,9 +46,40 @@ bool Buffer::load_from_file(const std::string& filepath) noexcept
   }
 }
 
+uint32 Buffer::length() const noexcept
+{
+  return _lines.size();
+}
+
+int32 Buffer::line_length(const uint32& line_index) const noexcept
+{
+  if(line_index >= _lines.size()) [[unlikely]]
+  {
+    ERROR_BOII("Accessing line length with line_index out of bounds!");
+    return -1;
+  }
+  else [[likely]]
+  {
+    return _lines[line_index].size();
+  }
+}
+
 const std::vector<std::string>& Buffer::lines() const noexcept
 {
   return _lines;
+}
+
+const std::string& Buffer::line(const uint32& line_index) const noexcept
+{
+  if(line_index >= _lines.size()) [[unlikely]]
+  {
+    ERROR_BOII("Accessing line with line_index out of bounds!");
+    return "";
+  }
+  else [[likely]]
+  {
+    return _lines[line_index];
+  }
 }
 
 std::pair<uint32, int32> Buffer::cursor_coords() const noexcept

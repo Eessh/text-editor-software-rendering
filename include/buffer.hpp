@@ -24,7 +24,14 @@ public:
 
   [[nodiscard]] bool load_from_file(const std::string& filepath) noexcept;
 
+  [[nodiscard]] uint32 length() const noexcept;
+
+  [[nodiscard]] int32 line_length(const uint32& line_index) const noexcept;
+
   [[nodiscard]] const std::vector<std::string>& lines() const noexcept;
+
+  [[nodiscard]] const std::string&
+  line(const uint32& line_index) const noexcept;
 
   [[nodiscard]] std::pair<uint32, int32> cursor_coords() const noexcept;
 
