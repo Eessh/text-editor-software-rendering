@@ -116,6 +116,12 @@ int main(int argc, char** argv)
           CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
           redraw = true;
         }
+        // these should be handled in linux
+        else if(event.window.event == SDL_WINDOWEVENT_EXPOSED ||
+                event.window.event == SDL_WINDOWEVENT_SHOWN)
+        {
+          redraw = true;
+        }
       }
       else if(event.type == SDL_MOUSEWHEEL)
       {
