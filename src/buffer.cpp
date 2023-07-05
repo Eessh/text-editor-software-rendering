@@ -1,7 +1,8 @@
 #include "../include/buffer.hpp"
+#include <fstream>
 #include "../include/macros.hpp"
 
-Buffer::Buffer()
+Buffer::Buffer() noexcept
   : _cursor_row(0)
   , _cursor_col(-1)
   , _has_selection(false)
@@ -9,7 +10,7 @@ Buffer::Buffer()
   , _lines({""})
 {}
 
-Buffer::Buffer(const std::string& init_string)
+Buffer::Buffer(const std::string& init_string) noexcept
   : _cursor_row(0)
   , _cursor_col(-1)
   , _has_selection(false)
@@ -17,7 +18,7 @@ Buffer::Buffer(const std::string& init_string)
   , _lines({init_string})
 {}
 
-Buffer::Buffer(const std::vector<std::string>& lines)
+Buffer::Buffer(const std::vector<std::string>& lines) noexcept
   : _cursor_row(0)
   , _cursor_col(-1)
   , _has_selection(false)
@@ -25,9 +26,24 @@ Buffer::Buffer(const std::vector<std::string>& lines)
   , _lines(lines)
 {}
 
-bool Buffer::load_from_file(const std::string& filepath)
+bool Buffer::load_from_file(const std::string& filepath) noexcept
 {
-  // TODO
+  std::ifstream file(filepath);
+  if(file.is_open()) [[likely]]
+  {
+    _lines.clear();
+    while(file.good())
+    {
+      _lines.emplace_back("");
+      std::getline(file, _lines.back());
+    }
+    return true;
+  }
+  else [[unlikely]]
+  {
+    ERROR_BOII("Unable to open file: %s", filepath.c_str());
+    return false;
+  }
 }
 
 const std::vector<std::string>& Buffer::lines() const noexcept

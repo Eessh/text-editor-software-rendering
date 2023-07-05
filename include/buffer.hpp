@@ -8,16 +8,16 @@ class Buffer
 {
 public:
   /// @brief Default constructor.
-  Buffer();
+  Buffer() noexcept;
 
   /// @brief Creates buffer with the given string.
   /// @param init_string const reference to the string
   ///        with which the buffer should be initialized.
-  Buffer(const std::string& init_string);
+  Buffer(const std::string& init_string) noexcept;
 
   /// @brief Creates buffer with given lines.
   /// @param lines const reference to vector of strings.
-  Buffer(const std::vector<std::string>& lines);
+  Buffer(const std::vector<std::string>& lines) noexcept;
 
   /// @brief Destructor
   ~Buffer() = default;
