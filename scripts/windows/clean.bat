@@ -3,6 +3,9 @@
 echo Cleaning distributables ...
 del /q dist\windows\*.exe >nul 2>&1
 
+echo Cleaning compiled resources ...
+del /q res.res >nul 2>&1
+
 echo Cleaning executables ...
 del /q bin\Debug\*.exe >nul 2>&1
 del /q bin\Release\*.exe >nul 2>&1

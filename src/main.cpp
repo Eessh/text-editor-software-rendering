@@ -169,11 +169,19 @@ int main(int argc, char** argv)
       {
         float32 content_height =
           contents->size() * font_extents.height + window->height();
-        float32 scrollbar_edge_padding = 4.0f;
+        float32 scrollbar_edge_padding = 2.0f;
         float32 viewport_height = window->height() - 2 * scrollbar_edge_padding;
         float32 ratio = viewport_height / content_height;
-        float32 scrollbar_width = 8.0f,
-                scrollbar_height = ratio * viewport_height;
+        float32 scrollbar_min_height = 18.0f;
+        float32 scrollbar_width = 8.0f;
+        float32 scrollbar_height = ratio * viewport_height;
+        if(scrollbar_height < scrollbar_min_height)
+        {
+          // re-calculating scrollbar height with adjusted metrics
+          viewport_height -= scrollbar_min_height - scrollbar_height;
+          ratio = viewport_height / content_height;
+          scrollbar_height = scrollbar_min_height;
+        }
         RocketRender::rectangle_rounded(
           window->width() - scrollbar_width - scrollbar_edge_padding,
           -scroll_y_offset * ratio + scrollbar_edge_padding,
