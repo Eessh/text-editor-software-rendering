@@ -91,7 +91,7 @@ int main(int argc, char** argv)
   // main loop
   bool redraw = false, fingerdown = false;
   float32 scroll_y_offset = 0.0f, scroll_y_target = 0.0f;
-  uint8 scroll_sensitivity = 50, wait_time = 250;
+  uint8 scroll_sensitivity = 80, wait_time = 250;
   while(1)
   {
     double frame_start_time =
