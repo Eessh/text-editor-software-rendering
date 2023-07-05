@@ -111,7 +111,7 @@ int main(int argc, char** argv)
       {
         if(event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
-          window->reload_window_surface();
+          window->handle_resize(event);
           CairoContext::get_instance()->reload_context(*window);
           CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
           redraw = true;
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
       }
     }
 
-    redraw = animator(&scroll_y_offset, &scroll_y_target);
+    redraw = redraw || animator(&scroll_y_offset, &scroll_y_target);
 
     if(redraw)
     {

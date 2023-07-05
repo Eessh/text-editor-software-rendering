@@ -56,6 +56,8 @@ public:
   /// @return returns false if cannot be set (on platforms linux, macos).
   bool set_dark_theme();
 
+  void handle_resize(const SDL_Event& event);
+
   /// @brief Reloads the cairo context of window,
   ///        this should be called when window is resized.
   void reload_window_surface();

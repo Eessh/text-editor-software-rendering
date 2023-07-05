@@ -133,6 +133,13 @@ bool Window::set_dark_theme()
   return false;
 }
 
+void Window::handle_resize(const SDL_Event& event)
+{
+  _width = event.window.data1;
+  _height = event.window.data2;
+  this->reload_window_surface();
+}
+
 void Window::clear_with_color(const SDL_Color& color)
 {
   SDL_FillRect(_window_surface,
