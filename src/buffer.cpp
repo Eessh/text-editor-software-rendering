@@ -30,25 +30,25 @@ bool Buffer::load_from_file(const std::string& filepath)
   // TODO
 }
 
-const std::vector<std::string>& Buffer::lines() const
+const std::vector<std::string>& Buffer::lines() const noexcept
 {
   return _lines;
 }
 
-std::pair<uint32, int32> Buffer::cursor_coords() const
+std::pair<uint32, int32> Buffer::cursor_coords() const noexcept
 {
   return std::make_pair(_cursor_row, _cursor_col);
 }
 
-bool Buffer::has_selection() const
+bool Buffer::has_selection() const noexcept
 {
   return _has_selection;
 }
 
 const std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>&
-Buffer::selection() const
+Buffer::selection() const noexcept
 {
-  if(!_has_selection)
+  if(!_has_selection) [[unlikely]]
   {
     ERROR_BOII("Called GET selection, when buffer has no selection!");
   }

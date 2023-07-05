@@ -22,17 +22,17 @@ public:
   /// @brief Destructor
   ~Buffer() = default;
 
-  [[nodiscard]] bool load_from_file(const std::string& filepath);
+  [[nodiscard]] bool load_from_file(const std::string& filepath) noexcept;
 
-  [[nodiscard]] const std::vector<std::string>& lines() const;
+  [[nodiscard]] const std::vector<std::string>& lines() const noexcept;
 
-  [[nodiscard]] std::pair<uint32, int32> cursor_coords() const;
+  [[nodiscard]] std::pair<uint32, int32> cursor_coords() const noexcept;
 
-  [[nodiscard]] bool has_selection() const;
+  [[nodiscard]] bool has_selection() const noexcept;
 
   [[nodiscard]] const std::pair<std::pair<uint32, int32>,
                                 std::pair<uint32, int32>>&
-  selection() const;
+  selection() const noexcept;
 
 private:
   uint32 _cursor_row;
