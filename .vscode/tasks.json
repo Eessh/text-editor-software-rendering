@@ -10,6 +10,9 @@
       "windows": {
         "command": ".\\scripts\\windows\\gen_makefiles.bat"
       },
+      "linux": {
+        "command": "./scripts/linux/gen_makefiles.sh"
+      },
       "group": "build"
     },
     {
@@ -19,6 +22,9 @@
       "windows": {
         "command": ".\\scripts\\windows\\build_and_run_debug.bat"
       },
+      "linux": {
+        "command": "./scripts/linux/build_and_run_debug.sh"
+      },
       "group": "build"
     },
     {
@@ -27,6 +33,9 @@
       "command": "",
       "windows": {
         "command": ".\\scripts\\windows\\build_and_run_release.bat"
+      },
+      "linux": {
+        "command": "./scripts/linux/build_and_run_release.sh"
       },
       "group": "build"
     },
@@ -46,6 +55,9 @@
       "windows": {
         "command": ".\\scripts\\windows\\format_code.bat"
       },
+      "linux": {
+        "command": "./scripts/linux/format_code.sh"
+      },
       "group": "build"
     },
     {
@@ -54,6 +66,9 @@
       "command": "",
       "windows": {
         "command": ".\\scripts\\windows\\clean.bat"
+      },
+      "linux": {
+        "command": "./scripts/linux/clean.sh"
       },
       "group": "build"
     },
