@@ -38,3 +38,5 @@ Makefile
 # Mine :)
 *.sublime-workspace
 .lite_project.lua
+bin/Debug/text-editor-software-rendering
+bin/Release/text-editor-software-rendering
