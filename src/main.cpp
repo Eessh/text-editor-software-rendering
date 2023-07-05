@@ -167,7 +167,8 @@ int main(int argc, char** argv)
       // drawing scrollbar
       if(contents->size() * font_extents.height > window->height())
       {
-        float32 content_height = contents->size() * font_extents.height;
+        float32 content_height =
+          contents->size() * font_extents.height + window->height();
         float32 viewport_height = window->height();
         float32 ratio = viewport_height / content_height;
         float32 scrollbar_width = 8.0f,
