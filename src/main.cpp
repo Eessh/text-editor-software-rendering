@@ -91,7 +91,7 @@ int main(int argc, char** argv)
   // main loop
   bool redraw = false, fingerdown = false;
   float32 scroll_y_offset = 0.0f, scroll_y_target = 0.0f;
-  uint8 scroll_sensitivity = 40, wait_time = 250;
+  uint8 scroll_sensitivity = 50, wait_time = 250;
   while(1)
   {
     double frame_start_time =
@@ -162,6 +162,22 @@ int main(int argc, char** argv)
         {
           break;
         }
+      }
+
+      // drawing scrollbar
+      if(contents->size() * font_extents.height > window->height())
+      {
+        float32 content_height = contents->size() * font_extents.height;
+        float32 viewport_height = window->height();
+        float32 ratio = viewport_height / content_height;
+        float32 scrollbar_width = 8.0f,
+                scrollbar_height = ratio * viewport_height;
+        RocketRender::rectangle_rounded(window->width() - scrollbar_width,
+                                        -scroll_y_offset * ratio,
+                                        scrollbar_width,
+                                        scrollbar_height,
+                                        scrollbar_width / 2,
+                                        {128, 64, 64, 128});
       }
 
       window->update();
