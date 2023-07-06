@@ -101,3 +101,70 @@ Buffer::selection() const noexcept
   }
   return _selection;
 }
+
+void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
+{
+  switch(command)
+  {
+  case BufferCursorCommand::MOVE_LEFT: {
+    if(_cursor_col > -1)
+    {
+      _cursor_col--;
+      return;
+    }
+
+    if(_cursor_row == 0)
+    {
+      return;
+    }
+
+    --_cursor_row;
+    _cursor_col = _lines[_cursor_row].size() - 1;
+    break;
+  }
+  case BufferCursorCommand::MOVE_RIGHT: {
+    if(_cursor_col < _lines[_cursor_row].size() - 1)
+    {
+      _cursor_col++;
+      return;
+    }
+
+    if(_cursor_row == _lines.size() - 1)
+    {
+      return;
+    }
+
+    ++_cursor_row;
+    _cursor_col = 0;
+    break;
+  }
+  case BufferCursorCommand::MOVE_UP: {
+    if(_cursor_row == 0)
+    {
+      return;
+    }
+
+    --_cursor_row;
+    if(_lines[_cursor_row].size() - 1 < _cursor_col)
+    {
+      _cursor_col = _lines[_cursor_row].size() - 1;
+    }
+    break;
+  }
+  case BufferCursorCommand::MOVE_DOWN: {
+    if(_cursor_row == _lines.size() - 1)
+    {
+      return;
+    }
+
+    ++_cursor_row;
+    if(_lines[_cursor_row].size() - 1 < _cursor_col)
+    {
+      _cursor_col = _lines[_cursor_row].size() - 1;
+    }
+    break;
+  }
+  default:
+    break;
+  }
+}

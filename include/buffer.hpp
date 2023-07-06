@@ -4,6 +4,14 @@
 #include <vector>
 #include "types.hpp"
 
+typedef enum class BufferCursorCommand
+{
+  MOVE_LEFT,
+  MOVE_RIGHT,
+  MOVE_UP,
+  MOVE_DOWN,
+} BufferCursorCommand;
+
 class Buffer
 {
 public:
@@ -61,6 +69,8 @@ public:
   [[nodiscard]] const std::pair<std::pair<uint32, int32>,
                                 std::pair<uint32, int32>>&
   selection() const noexcept;
+
+  void execute_cursor_command(const BufferCursorCommand& command) noexcept;
 
 private:
   /// @brief Cursor row.

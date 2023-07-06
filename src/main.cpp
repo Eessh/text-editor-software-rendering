@@ -132,6 +132,29 @@ int main(int argc, char** argv)
             -static_cast<float32>(buffer.length()) * font_extents.height;
         }
       }
+      else if(event.type == SDL_KEYDOWN)
+      {
+        if(event.key.keysym.sym == SDLK_LEFT)
+        {
+          buffer.execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+          redraw = true;
+        }
+        else if(event.key.keysym.sym == SDLK_RIGHT)
+        {
+          buffer.execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+          redraw = true;
+        }
+        else if(event.key.keysym.sym == SDLK_UP)
+        {
+          buffer.execute_cursor_command(BufferCursorCommand::MOVE_UP);
+          redraw = true;
+        }
+        else if(event.key.keysym.sym == SDLK_DOWN)
+        {
+          buffer.execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+          redraw = true;
+        }
+      }
     }
 
     redraw = redraw || animator(&scroll_y_offset, &scroll_y_target);
