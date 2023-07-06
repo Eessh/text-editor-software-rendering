@@ -1,17 +1,12 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "../include/buffer.hpp"
 #include "../include/cairo_context.hpp"
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
 #include "../include/window.hpp"
-
-/// @brief Reads file contents as lines.
-/// @param file_path path to file.
-/// @return Returns pointer to vector of strings,
-///         this memory should be freed by the user.
-std::vector<std::string>* read_file(const std::string& file_path);
 
 bool animator(float32* animatable, const float32* target);
 
@@ -25,10 +20,10 @@ int main(int argc, char** argv)
     exit(1);
   }
 
-  // Loading file contents
+  // Creating buffer
   std::string file_path(argv[1]);
-  std::vector<std::string>* contents = read_file(file_path);
-  if(!contents)
+  Buffer buffer;
+  if(!buffer.load_from_file(file_path))
   {
     FATAL_BOII("Unable to load file: %s", argv[1]);
     exit(1);
@@ -71,7 +66,7 @@ int main(int argc, char** argv)
   {
     window->clear_with_color({255, 255, 255, 255});
     float32 y = 0.0f;
-    for(const std::string& line : *contents)
+    for(const std::string& line : buffer.lines())
     {
       if(y < 0 && -y > font_extents.height)
       {
@@ -101,7 +96,6 @@ int main(int argc, char** argv)
     {
       if(event.type == SDL_QUIT)
       {
-        delete contents;
         CairoContext::delete_instance();
         delete window;
         SDL_Quit();
@@ -132,10 +126,10 @@ int main(int argc, char** argv)
           scroll_y_target = 0.0f;
         }
         if(scroll_y_target <
-           -static_cast<float32>(contents->size()) * font_extents.height)
+           -static_cast<float32>(buffer.length()) * font_extents.height)
         {
           scroll_y_target =
-            -static_cast<float32>(contents->size()) * font_extents.height;
+            -static_cast<float32>(buffer.length()) * font_extents.height;
         }
       }
     }
@@ -147,7 +141,7 @@ int main(int argc, char** argv)
       window->clear_with_color({255, 255, 255, 255});
 
       float32 y = scroll_y_offset;
-      for(const std::string& line : *contents)
+      for(const std::string& line : buffer.lines())
       {
         // cairo_text_extents_t text_extents;
         // cairo_text_extents(
@@ -171,10 +165,10 @@ int main(int argc, char** argv)
       }
 
       // drawing scrollbar
-      if(contents->size() * font_extents.height > window->height())
+      if(buffer.length() * font_extents.height > window->height())
       {
         float32 content_height =
-          contents->size() * font_extents.height + window->height();
+          buffer.length() * font_extents.height + window->height();
         float32 scrollbar_edge_padding = 2.0f;
         float32 viewport_height = window->height() - 2 * scrollbar_edge_padding;
         float32 ratio = viewport_height / content_height;
@@ -197,6 +191,15 @@ int main(int argc, char** argv)
           {128, 64, 64, 128});
       }
 
+      // drawring cursor
+      std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
+      RocketRender::rectangle_filled(
+        font_extents.max_x_advance * (cursor_coords.second + 1),
+        scroll_y_offset + font_extents.height * cursor_coords.first,
+        2,
+        font_extents.height,
+        {0, 0, 0, 255});
+
       window->update();
       redraw = false;
     }
@@ -212,29 +215,11 @@ int main(int argc, char** argv)
     SDL_Delay((1 / (60 - time_elapsed)) * 1000);
   }
 
-  delete contents;
   CairoContext::delete_instance();
   delete window;
   SDL_Quit();
 
   return 0;
-}
-
-std::vector<std::string>* read_file(const std::string& file_path)
-{
-  std::ifstream file(file_path);
-  if(file.is_open())
-  {
-    auto* contents = new std::vector<std::string>();
-    while(file.good())
-    {
-      contents->push_back("");
-      std::getline(file, contents->back());
-    }
-    return contents;
-  }
-  log_error("Unable to open file: %s", file_path.c_str());
-  return nullptr;
 }
 
 bool animator(float32* animatable, const float32* target)
