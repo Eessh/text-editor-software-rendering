@@ -123,7 +123,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
     break;
   }
   case BufferCursorCommand::MOVE_RIGHT: {
-    if(_cursor_col < _lines[_cursor_row].size() - 1)
+    if(_cursor_col < static_cast<int32>(_lines[_cursor_row].size() - 1))
     {
       _cursor_col++;
       return;
@@ -135,7 +135,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
     }
 
     ++_cursor_row;
-    _cursor_col = 0;
+    _cursor_col = -1;
     break;
   }
   case BufferCursorCommand::MOVE_UP: {
@@ -145,7 +145,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
     }
 
     --_cursor_row;
-    if(_lines[_cursor_row].size() - 1 < _cursor_col)
+    if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
     {
       _cursor_col = _lines[_cursor_row].size() - 1;
     }
@@ -158,7 +158,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
     }
 
     ++_cursor_row;
-    if(_lines[_cursor_row].size() - 1 < _cursor_col)
+    if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
     {
       _cursor_col = _lines[_cursor_row].size() - 1;
     }
