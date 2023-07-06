@@ -13,6 +13,7 @@ CairoContext::~CairoContext()
     cairo_font_face_destroy((*it).second);
   }
   cairo_destroy(_context);
+  FT_Done_FreeType(_freetype);
 }
 
 void CairoContext::create_instance()
@@ -91,6 +92,7 @@ bool CairoContext::load_font(const std::string& font_name_to_assign,
 
   cairo_font_face_t* ct = cairo_ft_font_face_create_for_ft_face(font, 0);
   _font_map.insert(std::make_pair(font_name_to_assign, ct));
+  FT_Done_Face(font);
   return true;
 }
 

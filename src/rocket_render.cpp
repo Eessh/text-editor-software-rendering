@@ -30,6 +30,7 @@ void RocketRender::rectangle_outlined(const int32& x,
                         (float)outline_color.b / 255.0,
                         (float)outline_color.a / 255.0);
   cairo_rectangle(cr, x, y, width, height);
+  cairo_stroke(cr);
 }
 
 void RocketRender::rectangle_rounded(const int32& x,
