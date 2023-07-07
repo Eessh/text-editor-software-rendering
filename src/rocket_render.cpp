@@ -67,11 +67,11 @@ void RocketRender::text(const int32& x,
                         (float)color.g / 255.0,
                         (float)color.b / 255.0,
                         (float)color.a / 255.0);
-  // cairo_text_extents_t text_extents;
-  // cairo_text_extents(cr, text.c_str(), &text_extents);
-  // cairo_move_to(cr, x, y + text_extents.height);
   cairo_font_extents_t font_extents;
   cairo_font_extents(cr, &font_extents);
-  cairo_move_to(cr, x, y + font_extents.height);
+  // cairo_text_extents_t text_extents;
+  // cairo_text_extents(cr, text.c_str(), &text_extents);
+  // cairo_move_to(cr, x, y + (font_extents.ascent-text_extents.height+font_extents.descent)/2-text_extents.y_bearing);
+  cairo_move_to(cr, x, y + font_extents.height-font_extents.descent);
   cairo_show_text(cr, text.c_str());
 }

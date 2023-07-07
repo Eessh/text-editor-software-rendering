@@ -3,6 +3,7 @@
 #if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
 #  include "../SDL2-2.26.5/x86_64-w64-mingw32/include/SDL2/SDL_syswm.h"
 #endif
+// #include "../include/freetype_context.hpp"
 
 Window::Window(const std::string& title,
                const uint16 width,
@@ -165,5 +166,27 @@ void Window::update_rects(SDL_Rect* rects, int rects_count)
 
 void Window::update()
 {
+  // Freetype testing
+  // FT_Bitmap glyph_bitmap = FreetypeContext::get_instance()->render_char('W');
+  // SDL_Surface* glyph_surface = SDL_CreateRGBSurfaceFrom(glyph_bitmap.buffer,
+  //                                                       glyph_bitmap.width,
+  //                                                       glyph_bitmap.rows,
+  //                                                       8,
+  //                                                       glyph_bitmap.pitch,
+  //                                                       0,
+  //                                                       0,
+  //                                                       0,
+  //                                                       0xFF);
+  // // SDL_Color colors[256];
+  // // for(int i = 0; i < 256; i++)
+  // // {
+  // //   colors[i].r = colors[i].g = colors[i].b = i;
+  // // }
+  // // SDL_SetPaletteColors(glyph_surface->format->palette, colors, 0, 256);
+  // SDL_SetSurfaceBlendMode(glyph_surface, SDL_BlendMode::SDL_BLENDMODE_NONE);
+  // SDL_Rect dest = {100, 100, 0, 0};
+  // SDL_BlitSurface(glyph_surface, nullptr, _window_surface, &dest);
+  // SDL_FreeSurface(glyph_surface);
+
   SDL_UpdateWindowSurface(_window);
 }

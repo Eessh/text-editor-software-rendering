@@ -3,6 +3,7 @@
 #include <vector>
 #include "../include/buffer.hpp"
 #include "../include/cairo_context.hpp"
+#include "../include/freetype_context.hpp"
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
@@ -55,7 +56,13 @@ int main(int argc, char** argv)
   CairoContext::get_instance()->load_font(
     "JetBrainsMono",
     "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf");
-  CairoContext::get_instance()->set_context_font("JetBrainsMono", 180);
+  CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
+
+  // Creating freetype context
+  FreetypeContext::create_instance();
+  FreetypeContext::get_instance()->initialize();
+  FreetypeContext::get_instance()->load_font(
+    "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf", 120);
 
   // Font extents
   cairo_font_extents_t font_extents;
@@ -75,7 +82,7 @@ int main(int argc, char** argv)
       }
       RocketRender::text(0, y, line, {0, 0, 0, 255});
       y += font_extents.height;
-      if(y > window->height())
+      if(y > static_cast<int16>(window->height()))
       {
         break;
       }
@@ -97,6 +104,7 @@ int main(int argc, char** argv)
       if(event.type == SDL_QUIT)
       {
         CairoContext::delete_instance();
+        FreetypeContext::delete_instance();
         delete window;
         SDL_Quit();
         return 0;
@@ -107,7 +115,7 @@ int main(int argc, char** argv)
         {
           window->handle_resize(event);
           CairoContext::get_instance()->reload_context(*window);
-          CairoContext::get_instance()->set_context_font("JetBrainsMono", 180);
+          CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
           redraw = true;
         }
         // these should be handled in linux
@@ -163,100 +171,127 @@ int main(int argc, char** argv)
     {
       window->clear_with_color({255, 255, 255, 255});
 
-      const char* text = "q-g-W-()-{}-;-.";
-      cairo_text_extents_t text_extents;
-      cairo_text_extents(
-        CairoContext::get_instance()->get_context(), text, &text_extents);
+      // visualizing extents
+      // const std::string text = "#include <fstream>";
+      // cairo_text_extents_t text_extents;
+      // cairo_text_extents(
+      //   CairoContext::get_instance()->get_context(), text.c_str(), &text_extents);
 
-      RocketRender::rectangle_outlined(0,
-                                       0,
-                                       text_extents.x_advance -
-                                         text_extents.x_bearing,
-                                       font_extents.height,
-                                       {0, 0, 0, 255});
+      // RocketRender::rectangle_outlined(0,
+      //                                  0,
+      //                                  text_extents.x_advance -
+      //                                    text_extents.x_bearing,
+      //                                  font_extents.height,
+      //                                  {0, 0, 0, 255});
+      
+      // // const char* text2 = "`1234567890-=~!@#$%^&*()_+";
+      // const std::string text2 = "abcdef";
+      // cairo_text_extents_t text_extents2;
+      // cairo_text_extents(
+      //   CairoContext::get_instance()->get_context(), text2.c_str(), &text_extents2);
 
-      DEBUG_BOII("font metrics: ascent = %lf, descent = %lf, height = %lf",
-                 font_extents.ascent,
-                 font_extents.descent,
-                 font_extents.height);
-      DEBUG_BOII("text metrics: height = %lf, width = %lf, x_advance = %lf, "
-                 "x_bearing = %lf, y_advance = %lf, y_bearing = %lf",
-                 text_extents.height,
-                 text_extents.width,
-                 text_extents.x_advance,
-                 text_extents.x_bearing,
-                 text_extents.y_advance,
-                 text_extents.y_bearing);
-      cairo_move_to(CairoContext::get_instance()->get_context(),
-                    -text_extents.x_bearing,
-                    2 * text_extents.height + text_extents.y_bearing);
-      cairo_show_text(CairoContext::get_instance()->get_context(), text);
+      // RocketRender::rectangle_outlined(0,
+      //                                  font_extents.height+10,
+      //                                  text_extents2.x_advance -
+      //                                    text_extents2.x_bearing,
+      //                                  font_extents.height,
+      //                                  {0, 0, 0, 255});
+
+      // DEBUG_BOII("font metrics: ascent = %lf, descent = %lf, height = %lf",
+      //            font_extents.ascent,
+      //            font_extents.descent,
+      //            font_extents.height);
+      // DEBUG_BOII("text metrics: height = %lf, width = %lf, x_advance = %lf, "
+      //            "x_bearing = %lf, y_advance = %lf, y_bearing = %lf",
+      //            text_extents.height,
+      //            text_extents.width,
+      //            text_extents.x_advance,
+      //            text_extents.x_bearing,
+      //            text_extents.y_advance,
+      //            text_extents.y_bearing);
+      // // float32 pen_x = 0.0f;
+      // // for (const char& c: text) {
+      // //   char str[2] = {c, '\0'};
+      // //   cairo_text_extents_t extents;
+      // //   cairo_t* cr = CairoContext::get_instance()->get_context();
+      // //   cairo_text_extents(cr, str, &extents);
+      // //   cairo_move_to(cr, pen_x+extents.x_bearing, font_extents.height-font_extents.descent);
+      // //   cairo_show_text(cr, str);
+      // //   pen_x += extents.x_advance;
+      // // }
+      // cairo_move_to(CairoContext::get_instance()->get_context(),
+      //               -text_extents.x_bearing,
+      //               font_extents.height-font_extents.descent);
+      // cairo_show_text(CairoContext::get_instance()->get_context(), text.c_str());
+
+      // cairo_move_to(CairoContext::get_instance()->get_context(),
+      //               -text_extents2.x_bearing,
+      //               font_extents.height+10+font_extents.ascent-text_extents2.height+font_extents.descent/2-text_extents2.y_bearing);
+      // cairo_show_text(CairoContext::get_instance()->get_context(), text2.c_str());
       // RocketRender::text(-text_extents.x_bearing,
       //                    text_extents.height + text_extents.y_bearing,
       //                    "q-g-f-i-W",
       //                    {0, 0, 0, 255});
 
-      // visualizing extents
+      int32 y = scroll_y_offset;
+      for(const std::string& line : buffer.lines())
+      {
+        // cairo_text_extents_t text_extents;
+        // cairo_text_extents(
+        // CairoContext::get_instance()->get_context(), line.c_str(), &text_extents);
+        // if(y < 0 && -y > text_extents.height)
+        // {
+        //   y += text_extents.height;
+        //   continue;
+        // }
+        if(y < 0 && -y > font_extents.height)
+        {
+          y += font_extents.height;
+          continue;
+        }
+        RocketRender::text(0, y, line, {0, 0, 0, 255});
+        y += font_extents.height;
+        if(y > window->height())
+        {
+          break;
+        }
+      }
 
-      // float32 y = scroll_y_offset;
-      // for(const std::string& line : buffer.lines())
-      // {
-      //   // cairo_text_extents_t text_extents;
-      //   // cairo_text_extents(
-      //   // CairoContext::get_instance()->get_context(), line.c_str(), &text_extents);
-      //   // if(y < 0 && -y > text_extents.height)
-      //   // {
-      //   //   y += text_extents.height;
-      //   //   continue;
-      //   // }
-      //   if(y < 0 && -y > font_extents.height)
-      //   {
-      //     y += font_extents.height;
-      //     continue;
-      //   }
-      //   RocketRender::text(0, y, line, {0, 0, 0, 255});
-      //   y += font_extents.height;
-      //   if(y > window->height())
-      //   {
-      //     break;
-      //   }
-      // }
+      // drawing scrollbar
+      if(buffer.length() * font_extents.height > window->height())
+      {
+        float32 content_height =
+          buffer.length() * font_extents.height + window->height();
+        float32 scrollbar_edge_padding = 2.0f;
+        float32 viewport_height = window->height() - 2 * scrollbar_edge_padding;
+        float32 ratio = viewport_height / content_height;
+        float32 scrollbar_min_height = 18.0f;
+        float32 scrollbar_width = 8.0f;
+        float32 scrollbar_height = ratio * viewport_height;
+        if(scrollbar_height < scrollbar_min_height)
+        {
+          // re-calculating scrollbar height with adjusted metrics
+          viewport_height -= scrollbar_min_height - scrollbar_height;
+          ratio = viewport_height / content_height;
+          scrollbar_height = scrollbar_min_height;
+        }
+        RocketRender::rectangle_rounded(
+          window->width() - scrollbar_width - scrollbar_edge_padding,
+          -scroll_y_offset * ratio + scrollbar_edge_padding,
+          scrollbar_width,
+          scrollbar_height,
+          scrollbar_width / 2,
+          {128, 64, 64, 128});
+      }
 
-      // // drawing scrollbar
-      // if(buffer.length() * font_extents.height > window->height())
-      // {
-      //   float32 content_height =
-      //     buffer.length() * font_extents.height + window->height();
-      //   float32 scrollbar_edge_padding = 2.0f;
-      //   float32 viewport_height = window->height() - 2 * scrollbar_edge_padding;
-      //   float32 ratio = viewport_height / content_height;
-      //   float32 scrollbar_min_height = 18.0f;
-      //   float32 scrollbar_width = 8.0f;
-      //   float32 scrollbar_height = ratio * viewport_height;
-      //   if(scrollbar_height < scrollbar_min_height)
-      //   {
-      //     // re-calculating scrollbar height with adjusted metrics
-      //     viewport_height -= scrollbar_min_height - scrollbar_height;
-      //     ratio = viewport_height / content_height;
-      //     scrollbar_height = scrollbar_min_height;
-      //   }
-      //   RocketRender::rectangle_rounded(
-      //     window->width() - scrollbar_width - scrollbar_edge_padding,
-      //     -scroll_y_offset * ratio + scrollbar_edge_padding,
-      //     scrollbar_width,
-      //     scrollbar_height,
-      //     scrollbar_width / 2,
-      //     {128, 64, 64, 128});
-      // }
-
-      // // drawring cursor
-      // std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
-      // RocketRender::rectangle_filled(
-      //   font_extents.max_x_advance * (cursor_coords.second + 1),
-      //   scroll_y_offset + font_extents.height * cursor_coords.first,
-      //   2,
-      //   font_extents.height,
-      //   {0, 0, 0, 255});
+      // drawring cursor
+      std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
+      RocketRender::rectangle_filled(
+        font_extents.max_x_advance * (cursor_coords.second + 1),
+        scroll_y_offset + font_extents.height * cursor_coords.first,
+        2,
+        font_extents.height,
+        {0, 0, 0, 255});
 
       window->update();
       redraw = false;
@@ -274,6 +309,7 @@ int main(int argc, char** argv)
   }
 
   CairoContext::delete_instance();
+  FreetypeContext::delete_instance();
   delete window;
   SDL_Quit();
 

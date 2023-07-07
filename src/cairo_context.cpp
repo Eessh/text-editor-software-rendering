@@ -90,9 +90,11 @@ bool CairoContext::load_font(const std::string& font_name_to_assign,
     return false;
   }
 
+  DEBUG_BOII("Font Face data: num_glyphs = %d", font->num_glyphs);
+
   cairo_font_face_t* ct = cairo_ft_font_face_create_for_ft_face(font, 0);
   _font_map.insert(std::make_pair(font_name_to_assign, ct));
-  FT_Done_Face(font);
+  // FT_Done_Face(font);
   return true;
 }
 
