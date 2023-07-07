@@ -163,79 +163,9 @@ int main(int argc, char** argv)
     {
       window->clear_with_color({255, 255, 255, 255});
 
-      // visualizing extents
-      // const std::string text = "#include <fstream>";
-      // cairo_text_extents_t text_extents;
-      // cairo_text_extents(
-      //   CairoContext::get_instance()->get_context(), text.c_str(), &text_extents);
-
-      // RocketRender::rectangle_outlined(0,
-      //                                  0,
-      //                                  text_extents.x_advance -
-      //                                    text_extents.x_bearing,
-      //                                  font_extents.height,
-      //                                  {0, 0, 0, 255});
-      
-      // // const char* text2 = "`1234567890-=~!@#$%^&*()_+";
-      // const std::string text2 = "abcdef";
-      // cairo_text_extents_t text_extents2;
-      // cairo_text_extents(
-      //   CairoContext::get_instance()->get_context(), text2.c_str(), &text_extents2);
-
-      // RocketRender::rectangle_outlined(0,
-      //                                  font_extents.height+10,
-      //                                  text_extents2.x_advance -
-      //                                    text_extents2.x_bearing,
-      //                                  font_extents.height,
-      //                                  {0, 0, 0, 255});
-
-      // DEBUG_BOII("font metrics: ascent = %lf, descent = %lf, height = %lf",
-      //            font_extents.ascent,
-      //            font_extents.descent,
-      //            font_extents.height);
-      // DEBUG_BOII("text metrics: height = %lf, width = %lf, x_advance = %lf, "
-      //            "x_bearing = %lf, y_advance = %lf, y_bearing = %lf",
-      //            text_extents.height,
-      //            text_extents.width,
-      //            text_extents.x_advance,
-      //            text_extents.x_bearing,
-      //            text_extents.y_advance,
-      //            text_extents.y_bearing);
-      // // float32 pen_x = 0.0f;
-      // // for (const char& c: text) {
-      // //   char str[2] = {c, '\0'};
-      // //   cairo_text_extents_t extents;
-      // //   cairo_t* cr = CairoContext::get_instance()->get_context();
-      // //   cairo_text_extents(cr, str, &extents);
-      // //   cairo_move_to(cr, pen_x+extents.x_bearing, font_extents.height-font_extents.descent);
-      // //   cairo_show_text(cr, str);
-      // //   pen_x += extents.x_advance;
-      // // }
-      // cairo_move_to(CairoContext::get_instance()->get_context(),
-      //               -text_extents.x_bearing,
-      //               font_extents.height-font_extents.descent);
-      // cairo_show_text(CairoContext::get_instance()->get_context(), text.c_str());
-
-      // cairo_move_to(CairoContext::get_instance()->get_context(),
-      //               -text_extents2.x_bearing,
-      //               font_extents.height+10+font_extents.ascent-text_extents2.height+font_extents.descent/2-text_extents2.y_bearing);
-      // cairo_show_text(CairoContext::get_instance()->get_context(), text2.c_str());
-      // RocketRender::text(-text_extents.x_bearing,
-      //                    text_extents.height + text_extents.y_bearing,
-      //                    "q-g-f-i-W",
-      //                    {0, 0, 0, 255});
-
       int32 y = scroll_y_offset;
       for(const std::string& line : buffer.lines())
       {
-        // cairo_text_extents_t text_extents;
-        // cairo_text_extents(
-        // CairoContext::get_instance()->get_context(), line.c_str(), &text_extents);
-        // if(y < 0 && -y > text_extents.height)
-        // {
-        //   y += text_extents.height;
-        //   continue;
-        // }
         if(y < 0 && -y > font_extents.height)
         {
           y += font_extents.height;
