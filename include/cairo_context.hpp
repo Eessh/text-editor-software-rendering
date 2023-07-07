@@ -74,7 +74,8 @@ private:
   FT_Library _freetype;
 
   /// @brief Fonts mapped to its name.
-  std::unordered_map<std::string, cairo_font_face_t*> _font_map;
+  std::unordered_map<std::string, std::pair<FT_Face, cairo_font_face_t*>>
+    _font_map;
 
   /// @brief Private constructor
   CairoContext();
