@@ -92,7 +92,7 @@ bool Buffer::has_selection() const noexcept
   return _has_selection;
 }
 
-const std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>&
+std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>
 Buffer::selection() const noexcept
 {
   if(!_has_selection) [[unlikely]]

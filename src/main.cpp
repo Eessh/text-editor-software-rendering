@@ -135,23 +135,56 @@ int main(int argc, char** argv)
       {
         if(event.key.keysym.sym == SDLK_LEFT)
         {
-          buffer.execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
-          redraw = true;
+          if(event.key.keysym.mod & KMOD_LSHIFT)
+          {
+            buffer.execute_selection_command(BufferSelectionCommand::MOVE_LEFT);
+            redraw = true;
+          }
+          else
+          {
+            buffer.execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+            redraw = true;
+          }
         }
         else if(event.key.keysym.sym == SDLK_RIGHT)
         {
-          buffer.execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
-          redraw = true;
+          if(event.key.keysym.mod & KMOD_LSHIFT)
+          {
+            buffer.execute_selection_command(
+              BufferSelectionCommand::MOVE_RIGHT);
+            redraw = true;
+          }
+          else
+          {
+            buffer.execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+            redraw = true;
+          }
         }
         else if(event.key.keysym.sym == SDLK_UP)
         {
-          buffer.execute_cursor_command(BufferCursorCommand::MOVE_UP);
-          redraw = true;
+          if(event.key.keysym.mod & KMOD_LSHIFT)
+          {
+            buffer.execute_selection_command(BufferSelectionCommand::MOVE_UP);
+            redraw = true;
+          }
+          else
+          {
+            buffer.execute_cursor_command(BufferCursorCommand::MOVE_UP);
+            redraw = true;
+          }
         }
         else if(event.key.keysym.sym == SDLK_DOWN)
         {
-          buffer.execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
-          redraw = true;
+          if(event.key.keysym.mod & KMOD_LSHIFT)
+          {
+            buffer.execute_selection_command(BufferSelectionCommand::MOVE_DOWN);
+            redraw = true;
+          }
+          else
+          {
+            buffer.execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+            redraw = true;
+          }
         }
       }
     }
@@ -205,7 +238,61 @@ int main(int argc, char** argv)
           {128, 64, 64, 128});
       }
 
-      // drawring cursor
+      // drawing selection
+      if(buffer.has_selection())
+      {
+        auto selection = buffer.selection();
+        TRACE_BOII("sorted selection: {(%d, %d), (%d, %d)}",
+                   selection.first.first,
+                   selection.first.second,
+                   selection.second.first,
+                   selection.second.second);
+        if(selection.first.first == selection.second.first)
+        {
+          // drawing only selections on single line
+          RocketRender::rectangle_filled(
+            (selection.first.second + 1) * font_extents.max_x_advance,
+            selection.first.first * font_extents.height,
+            (selection.second.second - selection.first.second) *
+              font_extents.max_x_advance,
+            font_extents.height,
+            {0, 255, 0, 128});
+        }
+        else
+        {
+          // multiline selection
+          // drawing first line selection
+          uint16 selection_width =
+            buffer.line_length(selection.first.first) - selection.first.second;
+          RocketRender::rectangle_filled(
+            (selection.first.second + 1) * font_extents.max_x_advance,
+            selection.first.first * font_extents.height,
+            selection_width * font_extents.max_x_advance,
+            font_extents.height,
+            {0, 255, 0, 128});
+          // drawing middle lines selection, these lines are fully selected
+          for(uint16 row = selection.first.first + 1;
+              row < selection.second.first;
+              row++)
+          {
+            RocketRender::rectangle_filled(0,
+                                           row * font_extents.height,
+                                           (buffer.line_length(row) + 1) *
+                                             font_extents.max_x_advance,
+                                           font_extents.height,
+                                           {0, 255, 0, 128});
+          }
+          // drawing last line selection
+          RocketRender::rectangle_filled(
+            0,
+            selection.second.first * font_extents.height,
+            (selection.second.second + 1) * font_extents.max_x_advance,
+            font_extents.height,
+            {0, 255, 0, 128});
+        }
+      }
+
+      // drawing cursor
       std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
       RocketRender::rectangle_filled(
         font_extents.max_x_advance * (cursor_coords.second + 1),
