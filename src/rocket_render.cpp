@@ -69,6 +69,6 @@ void RocketRender::text(const int32& x,
                         (float)color.a / 255.0);
   cairo_font_extents_t font_extents;
   cairo_font_extents(cr, &font_extents);
-  cairo_move_to(cr, x, y + font_extents.height-font_extents.descent);
+  cairo_move_to(cr, x, y + font_extents.height - font_extents.descent);
   cairo_show_text(cr, text.c_str());
 }

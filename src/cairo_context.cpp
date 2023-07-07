@@ -16,7 +16,7 @@ CairoContext::~CairoContext()
   FT_Done_FreeType(_freetype);
 }
 
-void CairoContext::create_instance()
+void CairoContext::create_instance() noexcept
 {
   if(_instance)
   {
@@ -28,17 +28,17 @@ void CairoContext::create_instance()
   _instance = new CairoContext();
 }
 
-CairoContext* CairoContext::get_instance()
+CairoContext* CairoContext::get_instance() noexcept
 {
   return _instance;
 }
 
-void CairoContext::delete_instance()
+void CairoContext::delete_instance() noexcept
 {
   delete _instance;
 }
 
-void CairoContext::initialize(Window& window)
+void CairoContext::initialize(Window& window) noexcept
 {
   SDL_Surface* window_surface = window.surface();
   cairo_surface_t* cairo_surface =
@@ -58,12 +58,12 @@ void CairoContext::initialize(Window& window)
   }
 }
 
-cairo_t* CairoContext::get_context()
+cairo_t* CairoContext::get_context() noexcept
 {
   return _context;
 }
 
-void CairoContext::reload_context(Window& window)
+void CairoContext::reload_context(Window& window) noexcept
 {
   SDL_Surface* window_surface = window.surface();
   cairo_destroy(_context);
@@ -79,7 +79,7 @@ void CairoContext::reload_context(Window& window)
 }
 
 bool CairoContext::load_font(const std::string& font_name_to_assign,
-                             const std::string& font_file_path)
+                             const std::string& font_file_path) noexcept
 {
   FT_Face font;
   int error = 0;
@@ -99,7 +99,7 @@ bool CairoContext::load_font(const std::string& font_name_to_assign,
 }
 
 bool CairoContext::set_context_font(const std::string& font_name,
-                                    const uint8 font_size)
+                                    const uint8 font_size) noexcept
 {
   std::unordered_map<std::string, cairo_font_face_t*>::iterator it =
     _font_map.find(font_name);
@@ -113,4 +113,31 @@ bool CairoContext::set_context_font(const std::string& font_name,
   cairo_set_font_face(_context, (*it).second);
   cairo_set_font_size(_context, font_size);
   return true;
+}
+
+cairo_font_extents_t CairoContext::get_font_extents() const noexcept
+{
+  if(_font_map.empty())
+  {
+    WARN_BOII("No font is loaded, using cairo's fallback font!");
+  }
+
+  cairo_font_extents_t font_extents;
+  cairo_font_extents(_context, &font_extents);
+
+  return font_extents;
+}
+
+cairo_text_extents_t
+CairoContext::get_text_extents(const std::string& text) const noexcept
+{
+  if(_font_map.empty())
+  {
+    WARN_BOII("No font is loaded, using cairo's fallback font!");
+  }
+
+  cairo_text_extents_t text_extents;
+  cairo_text_extents(_context, text.c_str(), &text_extents);
+
+  return text_extents;
 }
