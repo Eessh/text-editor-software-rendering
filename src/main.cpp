@@ -58,9 +58,8 @@ int main(int argc, char** argv)
   CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
 
   // Font extents
-  cairo_font_extents_t font_extents;
-  cairo_font_extents(CairoContext::get_instance()->get_context(),
-                     &font_extents);
+  cairo_font_extents_t font_extents =
+    CairoContext::get_instance()->get_font_extents();
 
   // Initial render
   {
