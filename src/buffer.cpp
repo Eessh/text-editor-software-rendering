@@ -99,7 +99,19 @@ Buffer::selection() const noexcept
   {
     ERROR_BOII("Called GET selection, when buffer has no selection!");
   }
-  return _selection;
+
+  // sort selection start, end
+  if(_selection.first.first < _selection.second.first)
+  {
+    return _selection;
+  }
+  if(_selection.first.first == _selection.second.first &&
+     _selection.first.second < _selection.second.second)
+  {
+    return _selection;
+  }
+
+  return std::make_pair(_selection.second, _selection.first);
 }
 
 void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
@@ -162,6 +174,128 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
     {
       _cursor_col = _lines[_cursor_row].size() - 1;
     }
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+void Buffer::execute_selection_command(
+  const BufferSelectionCommand& command) noexcept
+{
+  switch(command)
+  {
+  case BufferSelectionCommand::MOVE_LEFT: {
+    if(!_has_selection)
+    {
+      // set current cursor position as selection start
+      // move cursor left, make it end positon
+      _has_selection = true;
+      _selection.first.first = _cursor_row;
+      _selection.first.second = _cursor_col;
+
+      this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+      if(_selection.first.first == _cursor_row &&
+         _selection.first.second == _cursor_col) [[unlikely]]
+      {
+        // cursor hasn't moved
+        _has_selection = false;
+        return;
+      }
+
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+      return;
+    }
+
+    this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+    _selection.second.first = _cursor_row;
+    _selection.second.second = _cursor_col;
+    break;
+  }
+  case BufferSelectionCommand::MOVE_RIGHT: {
+    if(!_has_selection)
+    {
+      // set current cursor position as selection start
+      // move cursor left, make it end positon
+      _has_selection = true;
+      _selection.first.first = _cursor_row;
+      _selection.first.second = _cursor_col;
+
+      this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+      if(_selection.first.first == _cursor_row &&
+         _selection.first.second == _cursor_col) [[unlikely]]
+      {
+        // cursor hasn't moved
+        _has_selection = false;
+        return;
+      }
+
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+      return;
+    }
+
+    this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+    _selection.second.first = _cursor_row;
+    _selection.second.second = _cursor_col;
+    break;
+  }
+  case BufferSelectionCommand::MOVE_UP: {
+    if(!_has_selection)
+    {
+      // set current cursor position as selection start
+      // move cursor left, make it end positon
+      _has_selection = true;
+      _selection.first.first = _cursor_row;
+      _selection.first.second = _cursor_col;
+
+      this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
+      if(_selection.first.first == _cursor_row &&
+         _selection.first.second == _cursor_col) [[unlikely]]
+      {
+        // cursor hasn't moved
+        _has_selection = false;
+        return;
+      }
+
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+      return;
+    }
+
+    this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
+    _selection.second.first = _cursor_row;
+    _selection.second.second = _cursor_col;
+    break;
+  }
+  case BufferSelectionCommand::MOVE_DOWN: {
+    if(!_has_selection)
+    {
+      // set current cursor position as selection start
+      // move cursor left, make it end positon
+      _has_selection = true;
+      _selection.first.first = _cursor_row;
+      _selection.first.second = _cursor_col;
+
+      this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+      if(_selection.first.first == _cursor_row &&
+         _selection.first.second == _cursor_col) [[unlikely]]
+      {
+        // cursor hasn't moved
+        _has_selection = false;
+        return;
+      }
+
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+      return;
+    }
+
+    this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+    _selection.second.first = _cursor_row;
+    _selection.second.second = _cursor_col;
     break;
   }
   default:

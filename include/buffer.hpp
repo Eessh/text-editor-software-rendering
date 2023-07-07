@@ -12,6 +12,14 @@ typedef enum class BufferCursorCommand
   MOVE_DOWN,
 } BufferCursorCommand;
 
+typedef enum class BufferSelectionCommand
+{
+  MOVE_LEFT,
+  MOVE_RIGHT,
+  MOVE_UP,
+  MOVE_DOWN,
+} BufferSelectionCommand;
+
 class Buffer
 {
 public:
@@ -71,8 +79,13 @@ public:
   selection() const noexcept;
 
   /// @brief Executes cursor commands.
-  /// @param command the command.
+  /// @param command the cursor command.
   void execute_cursor_command(const BufferCursorCommand& command) noexcept;
+
+  /// @brief Executes selection commands.
+  /// @param command the selection command.
+  void
+  execute_selection_command(const BufferSelectionCommand& command) noexcept;
 
 private:
   /// @brief Cursor row.
