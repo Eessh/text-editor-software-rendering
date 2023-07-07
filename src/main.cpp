@@ -3,7 +3,6 @@
 #include <vector>
 #include "../include/buffer.hpp"
 #include "../include/cairo_context.hpp"
-#include "../include/freetype_context.hpp"
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
@@ -58,12 +57,6 @@ int main(int argc, char** argv)
     "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf");
   CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
 
-  // Creating freetype context
-  FreetypeContext::create_instance();
-  FreetypeContext::get_instance()->initialize();
-  FreetypeContext::get_instance()->load_font(
-    "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf", 120);
-
   // Font extents
   cairo_font_extents_t font_extents;
   cairo_font_extents(CairoContext::get_instance()->get_context(),
@@ -104,7 +97,6 @@ int main(int argc, char** argv)
       if(event.type == SDL_QUIT)
       {
         CairoContext::delete_instance();
-        FreetypeContext::delete_instance();
         delete window;
         SDL_Quit();
         return 0;
@@ -309,7 +301,6 @@ int main(int argc, char** argv)
   }
 
   CairoContext::delete_instance();
-  FreetypeContext::delete_instance();
   delete window;
   SDL_Quit();
 
