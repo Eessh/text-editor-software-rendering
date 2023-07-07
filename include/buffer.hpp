@@ -70,6 +70,8 @@ public:
                                 std::pair<uint32, int32>>&
   selection() const noexcept;
 
+  /// @brief Executes cursor commands.
+  /// @param command the command.
   void execute_cursor_command(const BufferCursorCommand& command) noexcept;
 
 private:

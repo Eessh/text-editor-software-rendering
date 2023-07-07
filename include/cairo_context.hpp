@@ -7,6 +7,8 @@
 #include "cairo.hpp"
 #include "window.hpp"
 
+/// @brief CairoContext, wraps cairo context together with freetype
+///        font loading and unloading capabilities and font, text metrics.
 class CairoContext
 {
 public:
@@ -40,14 +42,27 @@ public:
   /// @param window reference to window.
   void reload_context(Window& window) noexcept;
 
+  /// @brief Loads font and assigns it a name.
+  /// @param font_name_to_assign name to assign for the loaded font.
+  /// @param font_file_path path to font file.
+  /// @return Returns false if unable to load font.
   [[nodiscard]] bool load_font(const std::string& font_name_to_assign,
                                const std::string& font_file_path) noexcept;
 
+  /// @brief Sets the font with given assigned name as context's font.
+  /// @param font_name assigned font name.
+  /// @param font_size font size to set for context.
+  /// @return Returns false if no font is assigned for given font name.
   bool set_context_font(const std::string& font_name,
                         const uint8 font_size) noexcept;
 
+  /// @brief Gives the font extents of context's active font.
+  /// @return Returns font extents struct (cairo_font_extents_t).
   [[nodiscard]] cairo_font_extents_t get_font_extents() const noexcept;
 
+  /// @brief Gives the text extents for text calculated using context's font.
+  /// @param text the text for which extents should be calculated.
+  /// @return Returns text extents struct (cairo_text_extents_t).
   [[nodiscard]] cairo_text_extents_t
   get_text_extents(const std::string& text) const noexcept;
 

@@ -56,12 +56,17 @@ public:
   /// @return returns false if cannot be set (on platforms linux, macos).
   bool set_dark_theme();
 
+  /// @brief Handles the reloading of window surface.
+  ///        This should be called when window resize event occurs.
+  /// @param event const reference to the event.
   void handle_resize(const SDL_Event& event);
 
   /// @brief Reloads the cairo context of window,
   ///        this should be called when window is resized.
   void reload_window_surface();
 
+  /// @brief Clears the whole window surface with given color.
+  /// @param color color with which window should be painted.
   void clear_with_color(const SDL_Color& color);
 
   /// @brief Updates given rectangle portions in window.
