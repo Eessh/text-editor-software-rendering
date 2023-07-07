@@ -1,6 +1,8 @@
 # Text Editor - Software Rendering
 A test project to check the performance and memory usage of simple text editor with software rendering in SDL2 with help of Cairo.
 
+![editor screenshot](./screenshots/editor.png)
+
 ### Building
 - Windows:
   ```powershell
