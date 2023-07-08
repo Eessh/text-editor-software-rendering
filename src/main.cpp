@@ -186,6 +186,22 @@ int main(int argc, char** argv)
             redraw = true;
           }
         }
+
+        // calculating final scroll_y_offset
+        std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
+        float32 effective_cursor_y =
+          scroll_y_offset +
+          static_cast<int32>(cursor_coords.first) * font_extents.height;
+        if(effective_cursor_y < 0)
+        {
+          scroll_y_target = scroll_y_offset = -static_cast<int32>(cursor_coords.first) * font_extents.height;
+        }
+        else if(effective_cursor_y + font_extents.height > window->height())
+        {
+          scroll_y_offset -=
+            effective_cursor_y + font_extents.height - window->height();
+          scroll_y_target = scroll_y_offset;
+        }
       }
     }
 
@@ -195,6 +211,7 @@ int main(int argc, char** argv)
     {
       window->clear_with_color({255, 255, 255, 255});
 
+      // drawing contents
       int32 y = scroll_y_offset;
       for(const std::string& line : buffer.lines())
       {
