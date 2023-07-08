@@ -75,9 +75,11 @@ int main(int argc, char** argv)
         row++;
         continue;
       }
-      if (cursor_coords.first == row) {
+      if(cursor_coords.first == row)
+      {
         // highlight cursor line
-        RocketRender::rectangle_filled(0, y, 200, font_extents.height, {255, 0, 0, 200});
+        RocketRender::rectangle_filled(
+          0, y, 200, font_extents.height, {255, 0, 0, 200});
       }
       RocketRender::text(0, y, line, {0, 0, 0, 255});
       y += font_extents.height;
@@ -202,7 +204,8 @@ int main(int argc, char** argv)
           static_cast<int32>(cursor_coords.first) * font_extents.height;
         if(effective_cursor_y < 0)
         {
-          scroll_y_target = scroll_y_offset = -static_cast<int32>(cursor_coords.first) * font_extents.height;
+          scroll_y_target = scroll_y_offset =
+            -static_cast<int32>(cursor_coords.first) * font_extents.height;
         }
         else if(effective_cursor_y + font_extents.height > window->height())
         {
@@ -231,8 +234,11 @@ int main(int argc, char** argv)
           row++;
           continue;
         }
-        if (cursor_coord.first == row) {
-          RocketRender::rectangle_filled(0, y, window->width(), font_extents.height, {128, 128, 128, 128});
+        if(cursor_coord.first == row)
+        {
+          // highlighting cursor line
+          RocketRender::rectangle_filled(
+            0, y, window->width(), font_extents.height, {128, 128, 128, 128});
         }
         RocketRender::text(0, y, line, {0, 0, 0, 255});
         y += font_extents.height;
