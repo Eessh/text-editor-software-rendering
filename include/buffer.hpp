@@ -102,8 +102,27 @@ private:
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
 
+  /// @brief Base function for moving cursor to left.
+  ///        Public functions of Buffer do some additional operations
+  ///        on top of this function.
+  /// @return Returns false if cursor hasn't moved.
   bool _base_move_cursor_left() noexcept;
+
+  /// @brief Base function for moving cursor to right.
+  ///        Public functions of Buffer do some additional operations
+  ///        on top of this function.
+  /// @return Returns false if cursor hasn't moved.
   bool _base_move_cursor_right() noexcept;
+
+  /// @brief Base function for moving cursor up.
+  ///        Public functions of Buffer do some additional operations
+  ///        on top of this function.
+  /// @return Returns false if cursor hasn't moved.
   bool _base_move_cursor_up() noexcept;
+
+  /// @brief Base function for moving cursor down.
+  ///        Public functions of Buffer do some additional operations
+  ///        on top of this function.
+  /// @return Returns false if cursor hasn't moved.
   bool _base_move_cursor_down() noexcept;
 };

@@ -121,8 +121,9 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_LEFT: {
     if(_has_selection)
     {
-      _cursor_row = _selection.first.first;
-      _cursor_col = _selection.first.second;
+      auto selection = this->selection();
+      _cursor_row = selection.first.first;
+      _cursor_col = selection.first.second;
       _has_selection = false;
       return;
     }
@@ -134,8 +135,9 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_RIGHT: {
     if(_has_selection)
     {
-      _cursor_row = _selection.second.first;
-      _cursor_col = _selection.second.second;
+      auto selection = this->selection();
+      _cursor_row = selection.second.first;
+      _cursor_col = selection.second.second;
       _has_selection = false;
       return;
     }
@@ -147,8 +149,9 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_UP: {
     if(_has_selection)
     {
-      _cursor_row = _selection.first.first;
-      _cursor_col = _selection.first.second;
+      auto selection = this->selection();
+      _cursor_row = selection.first.first;
+      _cursor_col = selection.first.second;
       _has_selection = false;
       if(_cursor_row == 0)
       {
@@ -169,8 +172,9 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_DOWN: {
     if(_has_selection)
     {
-      _cursor_row = _selection.second.first;
-      _cursor_col = _selection.second.second;
+      auto selection = this->selection();
+      _cursor_row = selection.second.first;
+      _cursor_col = selection.second.second;
       _has_selection = false;
       if(_cursor_row == _lines.size() - 1)
       {
@@ -207,10 +211,7 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      // this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
-      this->_base_move_cursor_left();
-      if(_selection.first.first == _cursor_row &&
-         _selection.first.second == _cursor_col) [[unlikely]]
+      if(!this->_base_move_cursor_left()) [[unlikely]]
       {
         // cursor hasn't moved
         _has_selection = false;
@@ -222,7 +223,6 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    // this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
     this->_base_move_cursor_left();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
@@ -232,15 +232,12 @@ void Buffer::execute_selection_command(
     if(!_has_selection)
     {
       // set current cursor position as selection start
-      // move cursor left, make it end positon
+      // move cursor right, make it end positon
       _has_selection = true;
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      // this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
-      this->_base_move_cursor_right();
-      if(_selection.first.first == _cursor_row &&
-         _selection.first.second == _cursor_col) [[unlikely]]
+      if(!this->_base_move_cursor_right()) [[unlikely]]
       {
         // cursor hasn't moved
         _has_selection = false;
@@ -252,7 +249,6 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    // this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
     this->_base_move_cursor_right();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
@@ -262,15 +258,12 @@ void Buffer::execute_selection_command(
     if(!_has_selection)
     {
       // set current cursor position as selection start
-      // move cursor left, make it end positon
+      // move cursor up, make it end positon
       _has_selection = true;
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      // this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
-      this->_base_move_cursor_up();
-      if(_selection.first.first == _cursor_row &&
-         _selection.first.second == _cursor_col) [[unlikely]]
+      if(!this->_base_move_cursor_up()) [[unlikely]]
       {
         // cursor hasn't moved
         _has_selection = false;
@@ -282,7 +275,6 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    // this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
     this->_base_move_cursor_up();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
@@ -292,15 +284,12 @@ void Buffer::execute_selection_command(
     if(!_has_selection)
     {
       // set current cursor position as selection start
-      // move cursor left, make it end positon
+      // move cursor down, make it end positon
       _has_selection = true;
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      // this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
-      this->_base_move_cursor_down();
-      if(_selection.first.first == _cursor_row &&
-         _selection.first.second == _cursor_col) [[unlikely]]
+      if(!this->_base_move_cursor_down()) [[unlikely]]
       {
         // cursor hasn't moved
         _has_selection = false;
@@ -312,7 +301,6 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    // this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
     this->_base_move_cursor_down();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
