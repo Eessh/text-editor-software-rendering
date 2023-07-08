@@ -65,15 +65,23 @@ int main(int argc, char** argv)
   {
     window->clear_with_color({255, 255, 255, 255});
     float32 y = 0.0f;
+    auto cursor_coords = buffer.cursor_coords();
+    uint32 row = 0;
     for(const std::string& line : buffer.lines())
     {
       if(y < 0 && -y > font_extents.height)
       {
         y += font_extents.height;
+        row++;
         continue;
+      }
+      if (cursor_coords.first == row) {
+        // highlight cursor line
+        RocketRender::rectangle_filled(0, y, 200, font_extents.height, {255, 0, 0, 200});
       }
       RocketRender::text(0, y, line, {0, 0, 0, 255});
       y += font_extents.height;
+      row++;
       if(y > static_cast<int16>(window->height()))
       {
         break;
@@ -213,15 +221,22 @@ int main(int argc, char** argv)
 
       // drawing contents
       int32 y = scroll_y_offset;
+      auto cursor_coord = buffer.cursor_coords();
+      uint32 row = 0;
       for(const std::string& line : buffer.lines())
       {
         if(y < 0 && -y > font_extents.height)
         {
           y += font_extents.height;
+          row++;
           continue;
+        }
+        if (cursor_coord.first == row) {
+          RocketRender::rectangle_filled(0, y, window->width(), font_extents.height, {128, 128, 128, 128});
         }
         RocketRender::text(0, y, line, {0, 0, 0, 255});
         y += font_extents.height;
+        row++;
         if(y > window->height())
         {
           break;
