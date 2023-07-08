@@ -127,20 +127,6 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       return;
     }
 
-    // if(_cursor_col > -1)
-    // {
-    //   _cursor_col--;
-    //   return;
-    // }
-
-    // if(_cursor_row == 0)
-    // {
-    //   return;
-    // }
-
-    // --_cursor_row;
-    // _cursor_col = _lines[_cursor_row].size() - 1;
-
     this->_base_move_cursor_left();
 
     break;
@@ -153,20 +139,6 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _has_selection = false;
       return;
     }
-
-    // if(_cursor_col < static_cast<int32>(_lines[_cursor_row].size() - 1))
-    // {
-    //   _cursor_col++;
-    //   return;
-    // }
-
-    // if(_cursor_row == _lines.size() - 1)
-    // {
-    //   return;
-    // }
-
-    // ++_cursor_row;
-    // _cursor_col = -1;
 
     this->_base_move_cursor_right();
 
@@ -190,17 +162,6 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       return;
     }
 
-    // if(_cursor_row == 0)
-    // {
-    //   return;
-    // }
-
-    // --_cursor_row;
-    // if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
-    // {
-    //   _cursor_col = _lines[_cursor_row].size() - 1;
-    // }
-
     this->_base_move_cursor_up();
 
     break;
@@ -222,17 +183,6 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       }
       return;
     }
-
-    // if(_cursor_row == _lines.size() - 1)
-    // {
-    //   return;
-    // }
-
-    // ++_cursor_row;
-    // if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
-    // {
-    //   _cursor_col = _lines[_cursor_row].size() - 1;
-    // }
 
     this->_base_move_cursor_down();
 
