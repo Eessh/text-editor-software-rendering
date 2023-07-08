@@ -119,61 +119,123 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   switch(command)
   {
   case BufferCursorCommand::MOVE_LEFT: {
-    if(_cursor_col > -1)
+    if(_has_selection)
     {
-      _cursor_col--;
+      _cursor_row = _selection.first.first;
+      _cursor_col = _selection.first.second;
+      _has_selection = false;
       return;
     }
 
-    if(_cursor_row == 0)
-    {
-      return;
-    }
+    // if(_cursor_col > -1)
+    // {
+    //   _cursor_col--;
+    //   return;
+    // }
 
-    --_cursor_row;
-    _cursor_col = _lines[_cursor_row].size() - 1;
+    // if(_cursor_row == 0)
+    // {
+    //   return;
+    // }
+
+    // --_cursor_row;
+    // _cursor_col = _lines[_cursor_row].size() - 1;
+
+    this->_base_move_cursor_left();
+
     break;
   }
   case BufferCursorCommand::MOVE_RIGHT: {
-    if(_cursor_col < static_cast<int32>(_lines[_cursor_row].size() - 1))
+    if(_has_selection)
     {
-      _cursor_col++;
+      _cursor_row = _selection.second.first;
+      _cursor_col = _selection.second.second;
+      _has_selection = false;
       return;
     }
 
-    if(_cursor_row == _lines.size() - 1)
-    {
-      return;
-    }
+    // if(_cursor_col < static_cast<int32>(_lines[_cursor_row].size() - 1))
+    // {
+    //   _cursor_col++;
+    //   return;
+    // }
 
-    ++_cursor_row;
-    _cursor_col = -1;
+    // if(_cursor_row == _lines.size() - 1)
+    // {
+    //   return;
+    // }
+
+    // ++_cursor_row;
+    // _cursor_col = -1;
+
+    this->_base_move_cursor_right();
+
     break;
   }
   case BufferCursorCommand::MOVE_UP: {
-    if(_cursor_row == 0)
+    if(_has_selection)
     {
+      _cursor_row = _selection.first.first;
+      _cursor_col = _selection.first.second;
+      _has_selection = false;
+      if(_cursor_row == 0)
+      {
+        return;
+      }
+      --_cursor_row;
+      if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+      {
+        _cursor_col = _lines[_cursor_row].size() - 1;
+      }
       return;
     }
 
-    --_cursor_row;
-    if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
-    {
-      _cursor_col = _lines[_cursor_row].size() - 1;
-    }
+    // if(_cursor_row == 0)
+    // {
+    //   return;
+    // }
+
+    // --_cursor_row;
+    // if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+    // {
+    //   _cursor_col = _lines[_cursor_row].size() - 1;
+    // }
+
+    this->_base_move_cursor_up();
+
     break;
   }
   case BufferCursorCommand::MOVE_DOWN: {
-    if(_cursor_row == _lines.size() - 1)
+    if(_has_selection)
     {
+      _cursor_row = _selection.second.first;
+      _cursor_col = _selection.second.second;
+      _has_selection = false;
+      if(_cursor_row == _lines.size() - 1)
+      {
+        return;
+      }
+      ++_cursor_row;
+      if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+      {
+        _cursor_col = _lines[_cursor_row].size() - 1;
+      }
       return;
     }
 
-    ++_cursor_row;
-    if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
-    {
-      _cursor_col = _lines[_cursor_row].size() - 1;
-    }
+    // if(_cursor_row == _lines.size() - 1)
+    // {
+    //   return;
+    // }
+
+    // ++_cursor_row;
+    // if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+    // {
+    //   _cursor_col = _lines[_cursor_row].size() - 1;
+    // }
+
+    this->_base_move_cursor_down();
+
     break;
   }
   default:
@@ -195,7 +257,8 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+      // this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+      this->_base_move_cursor_left();
       if(_selection.first.first == _cursor_row &&
          _selection.first.second == _cursor_col) [[unlikely]]
       {
@@ -209,7 +272,8 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+    // this->execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
+    this->_base_move_cursor_left();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
     break;
@@ -223,7 +287,8 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+      // this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+      this->_base_move_cursor_right();
       if(_selection.first.first == _cursor_row &&
          _selection.first.second == _cursor_col) [[unlikely]]
       {
@@ -237,7 +302,8 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+    // this->execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
+    this->_base_move_cursor_right();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
     break;
@@ -251,7 +317,8 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
+      // this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
+      this->_base_move_cursor_up();
       if(_selection.first.first == _cursor_row &&
          _selection.first.second == _cursor_col) [[unlikely]]
       {
@@ -265,7 +332,8 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
+    // this->execute_cursor_command(BufferCursorCommand::MOVE_UP);
+    this->_base_move_cursor_up();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
     break;
@@ -279,7 +347,8 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
-      this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+      // this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+      this->_base_move_cursor_down();
       if(_selection.first.first == _cursor_row &&
          _selection.first.second == _cursor_col) [[unlikely]]
       {
@@ -293,7 +362,8 @@ void Buffer::execute_selection_command(
       return;
     }
 
-    this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+    // this->execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
+    this->_base_move_cursor_down();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
     break;
@@ -301,4 +371,74 @@ void Buffer::execute_selection_command(
   default:
     break;
   }
+}
+
+bool Buffer::_base_move_cursor_left() noexcept
+{
+  if(_cursor_col > -1)
+  {
+    _cursor_col--;
+    return true;
+  }
+
+  if(_cursor_row == 0)
+  {
+    return false;
+  }
+
+  --_cursor_row;
+  _cursor_col = _lines[_cursor_row].size() - 1;
+
+  return true;
+}
+
+bool Buffer::_base_move_cursor_right() noexcept
+{
+  if(_cursor_col < static_cast<int32>(_lines[_cursor_row].size() - 1))
+  {
+    _cursor_col++;
+    return true;
+  }
+
+  if(_cursor_row == _lines.size() - 1)
+  {
+    return false;
+  }
+
+  ++_cursor_row;
+  _cursor_col = -1;
+
+  return true;
+}
+
+bool Buffer::_base_move_cursor_up() noexcept
+{
+  if(_cursor_row == 0)
+  {
+    return false;
+  }
+
+  --_cursor_row;
+  if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+  {
+    _cursor_col = _lines[_cursor_row].size() - 1;
+  }
+
+  return true;
+}
+
+bool Buffer::_base_move_cursor_down() noexcept
+{
+  if(_cursor_row == _lines.size() - 1)
+  {
+    return false;
+  }
+
+  ++_cursor_row;
+  if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+  {
+    _cursor_col = _lines[_cursor_row].size() - 1;
+  }
+
+  return true;
 }

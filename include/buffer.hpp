@@ -101,4 +101,9 @@ private:
 
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
+
+  bool _base_move_cursor_left() noexcept;
+  bool _base_move_cursor_right() noexcept;
+  bool _base_move_cursor_up() noexcept;
+  bool _base_move_cursor_down() noexcept;
 };
