@@ -359,7 +359,7 @@ int main(int argc, char** argv)
       std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
       RocketRender::rectangle_filled(
         font_extents.max_x_advance * (cursor_coords.second + 1),
-        scroll_y_offset + font_extents.height * cursor_coords.first,
+        ceil(scroll_y_offset + font_extents.height * cursor_coords.first),
         2,
         font_extents.height,
         {0, 0, 0, 255});
