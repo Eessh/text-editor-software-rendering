@@ -218,7 +218,7 @@ int main(int argc, char** argv)
       {
         uint32 row = (-scroll_y_offset + event.button.y) /
                      CairoContext::get_instance()->get_font_extents().height;
-        uint32 column =
+        int32 column =
           event.button.x /
           CairoContext::get_instance()->get_font_extents().max_x_advance;
         if(row > buffer.length() - 1)
