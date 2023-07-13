@@ -67,6 +67,14 @@ public:
   /// @return Returns pair of cursor row (uint32), cursor column (int32).
   [[nodiscard]] std::pair<uint32, int32> cursor_coords() const noexcept;
 
+  [[nodiscard]] const uint32& cursor_row() const noexcept;
+
+  [[nodiscard]] uint32& cursor_row() noexcept;
+
+  [[nodiscard]] const int32& cursor_column() const noexcept;
+
+  [[nodiscard]] int32& cursor_column() noexcept;
+
   /// @brief Tells if buffer has selection.
   /// @return Returns false if buffer has no selection.
   [[nodiscard]] bool has_selection() const noexcept;

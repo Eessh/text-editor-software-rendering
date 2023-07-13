@@ -87,6 +87,26 @@ std::pair<uint32, int32> Buffer::cursor_coords() const noexcept
   return std::make_pair(_cursor_row, _cursor_col);
 }
 
+const uint32& Buffer::cursor_row() const noexcept
+{
+  return _cursor_row;
+}
+
+uint32& Buffer::cursor_row() noexcept
+{
+  return _cursor_row;
+}
+
+const int32& Buffer::cursor_column() const noexcept
+{
+  return _cursor_col;
+}
+
+int32& Buffer::cursor_column() noexcept
+{
+  return _cursor_col;
+}
+
 bool Buffer::has_selection() const noexcept
 {
   return _has_selection;

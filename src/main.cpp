@@ -214,6 +214,31 @@ int main(int argc, char** argv)
           scroll_y_target = scroll_y_offset;
         }
       }
+      else if(event.type == SDL_MOUSEBUTTONDOWN)
+      {
+        uint32 row = (-scroll_y_offset + event.button.y) /
+                     CairoContext::get_instance()->get_font_extents().height;
+        uint32 column =
+          event.button.x /
+          CairoContext::get_instance()->get_font_extents().max_x_advance;
+        if(row > buffer.length() - 1)
+        {
+          buffer.cursor_row() = buffer.length() - 1;
+        }
+        else
+        {
+          buffer.cursor_row() = row;
+        }
+        if(column > buffer.line_length(buffer.cursor_row()) - 1)
+        {
+          buffer.cursor_column() = buffer.line_length(buffer.cursor_row()) - 1;
+        }
+        else
+        {
+          buffer.cursor_column() = column;
+        }
+        redraw = true;
+      }
     }
 
     redraw = redraw || animator(&scroll_y_offset, &scroll_y_target);
