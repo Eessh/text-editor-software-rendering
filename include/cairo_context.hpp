@@ -17,13 +17,14 @@ public:
   CairoContext operator=(const CairoContext& context) = delete;
   CairoContext operator=(CairoContext&& context) = delete;
 
+  /// @brief CairoContext destructor.
   ~CairoContext();
 
   /// @brief Creates an instance of CairoContext.
   static void create_instance() noexcept;
 
   /// @brief Gets CairoContext instance.
-  /// @return Returns CairoContext instance.
+  /// @return Returns pointer to CairoContext instance.
   static CairoContext* get_instance() noexcept;
 
   /// @brief Deletes CairoContext instance.
@@ -77,7 +78,7 @@ private:
   std::unordered_map<std::string, std::pair<FT_Face, cairo_font_face_t*>>
     _font_map;
 
-  /// @brief Private constructor
+  /// @brief Private CairoContext constructor
   CairoContext();
 
   /// @brief Pointer to CairoContext's instance.
