@@ -21,6 +21,7 @@ workspace("text-editor-software-rendering")
 		includedirs({
 			"include",
 			"log-boii",
+			"toml++",
 			"SDL2-2.26.5/x86_64-w64-mingw32/include/SDL2",
 			"cairo-windows-1.17.2/include",
 			"freetype"

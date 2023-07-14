@@ -3,6 +3,7 @@
 #include <vector>
 #include "../include/buffer.hpp"
 #include "../include/cairo_context.hpp"
+#include "../include/config_manager.hpp"
 #include "../include/cursor_manager.hpp"
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
@@ -37,14 +38,22 @@ int main(int argc, char** argv)
     exit(1);
   }
 
+  // Creating config manager
+  ConfigManager::create_instance();
+  ConfigManager::get_instance()->load_config();
+
   // Getting current display mode dimensions
   SDL_DisplayMode display_mode;
   SDL_GetCurrentDisplayMode(0, &display_mode);
 
   // Creating window
-  Window* window = new Window("Text Editor - Software Rendering",
-                              0.8 * display_mode.w,
-                              0.8 * display_mode.h);
+  // Window* window = new Window("Text Editor - Software Rendering",
+  //                             0.8 * display_mode.w,
+  //                             0.8 * display_mode.h);
+  Window* window = new Window(
+    "Text Editor - Software Rendering",
+    ConfigManager::get_instance()->get_config_struct().window.width,
+    ConfigManager::get_instance()->get_config_struct().window.height);
   window->set_icon("assets/images/rocket.bmp");
   window->set_dark_theme();
 
@@ -111,6 +120,7 @@ int main(int argc, char** argv)
     {
       if(event.type == SDL_QUIT)
       {
+        ConfigManager::delete_instance();
         CursorManager::delete_insance();
         CairoContext::delete_instance();
         delete window;
@@ -397,6 +407,7 @@ int main(int argc, char** argv)
     SDL_Delay((1 / (60 - time_elapsed)) * 1000);
   }
 
+  ConfigManager::delete_instance();
   CursorManager::delete_insance();
   CairoContext::delete_instance();
   delete window;
