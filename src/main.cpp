@@ -295,10 +295,21 @@ int main(int argc, char** argv)
         if(cursor_coord.first == row)
         {
           // highlighting cursor line
+          SDL_Color active_line_color =
+            hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                   ->get_config_struct()
+                                   .colorscheme.gray);
+          active_line_color.a = 128;
           RocketRender::rectangle_filled(
-            0, y, window->width(), font_extents.height, {128, 128, 128, 128});
+            0, y, window->width(), font_extents.height, active_line_color);
         }
-        RocketRender::text(0, y, line, {0, 0, 0, 255});
+        // RocketRender::text(0, y, line, {0, 0, 0, 255});
+        RocketRender::text(
+          0,
+          y,
+          line,
+          hexcode_to_SDL_Color(
+            ConfigManager::get_instance()->get_config_struct().colorscheme.fg));
         y += font_extents.height;
         row++;
         if(y > window->height())
@@ -343,6 +354,11 @@ int main(int argc, char** argv)
                    selection.first.second,
                    selection.second.first,
                    selection.second.second);
+        SDL_Color selection_color =
+          hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                 ->get_config_struct()
+                                 .colorscheme.highlight);
+        selection_color.a = 128;
         if(selection.first.first == selection.second.first)
         {
           // drawing only selections on single line
@@ -352,7 +368,7 @@ int main(int argc, char** argv)
             (selection.second.second - selection.first.second) *
               font_extents.max_x_advance,
             font_extents.height,
-            {0, 255, 0, 128});
+            selection_color);
         }
         else
         {
@@ -365,7 +381,7 @@ int main(int argc, char** argv)
             scroll_y_offset + selection.first.first * font_extents.height,
             selection_width * font_extents.max_x_advance,
             font_extents.height,
-            {0, 255, 0, 128});
+            selection_color);
           // drawing middle lines selection, these lines are fully selected
           for(uint16 row = selection.first.first + 1;
               row < selection.second.first;
@@ -376,7 +392,7 @@ int main(int argc, char** argv)
               scroll_y_offset + row * font_extents.height,
               (buffer.line_length(row) + 1) * font_extents.max_x_advance,
               font_extents.height,
-              {0, 255, 0, 128});
+              selection_color);
           }
           // drawing last line selection
           RocketRender::rectangle_filled(
@@ -384,7 +400,7 @@ int main(int argc, char** argv)
             scroll_y_offset + selection.second.first * font_extents.height,
             (selection.second.second + 1) * font_extents.max_x_advance,
             font_extents.height,
-            {0, 255, 0, 128});
+            selection_color);
         }
       }
 
@@ -395,7 +411,9 @@ int main(int argc, char** argv)
         ceil(scroll_y_offset + font_extents.height * cursor_coords.first),
         2,
         font_extents.height,
-        {0, 0, 0, 255});
+        hexcode_to_SDL_Color(ConfigManager::get_instance()
+                               ->get_config_struct()
+                               .colorscheme.white));
 
       window->update();
       redraw = false;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.hpp"
 #include "config.hpp"
+#include "types.hpp"
 
 class ConfigManager
 {
