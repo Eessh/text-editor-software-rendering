@@ -9,6 +9,12 @@ typedef struct config
   {
     uint16 width, height;
   } window;
+
+  struct colorscheme
+  {
+    std::string bg, fg, red, orange, yellow, green, cyan, blue, purple, white,
+      black, gray, highlight, comment;
+  } colorscheme;
 } config;
 
 class ConfigManager
