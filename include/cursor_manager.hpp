@@ -18,7 +18,7 @@ public:
 
   /// @brief Gets CursorManager instance.
   /// @return Returns pointer to CursorManager instance.
-  static CursorManager* get_instance() noexcept;
+  [[nodiscard]] static CursorManager* get_instance() noexcept;
 
   /// @brief Deletes CursorManager instance.
   static void delete_insance() noexcept;

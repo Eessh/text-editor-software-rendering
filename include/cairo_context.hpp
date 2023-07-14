@@ -25,7 +25,7 @@ public:
 
   /// @brief Gets CairoContext instance.
   /// @return Returns pointer to CairoContext instance.
-  static CairoContext* get_instance() noexcept;
+  [[nodiscard]] static CairoContext* get_instance() noexcept;
 
   /// @brief Deletes CairoContext instance.
   static void delete_instance() noexcept;
