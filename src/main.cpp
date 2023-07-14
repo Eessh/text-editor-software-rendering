@@ -225,9 +225,20 @@ int main(int argc, char** argv)
       {
         uint32 row = (-scroll_y_offset + event.button.y) /
                      CairoContext::get_instance()->get_font_extents().height;
-        int32 column =
-          event.button.x /
+        int32 column = -1;
+        float32 max_x_advance =
           CairoContext::get_instance()->get_font_extents().max_x_advance;
+        int32 left_grid_column = event.button.x / max_x_advance;
+        int32 right_grid_column = left_grid_column + 1;
+        if(event.button.x - max_x_advance * left_grid_column <
+           max_x_advance * right_grid_column - event.button.x)
+        {
+          column = left_grid_column - 1;
+        }
+        else
+        {
+          column = right_grid_column - 1;
+        }
         if(row > buffer.length() - 1)
         {
           buffer.cursor_row() = buffer.length() - 1;
