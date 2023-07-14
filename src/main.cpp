@@ -3,6 +3,7 @@
 #include <vector>
 #include "../include/buffer.hpp"
 #include "../include/cairo_context.hpp"
+#include "../include/cursor_manager.hpp"
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
@@ -61,6 +62,11 @@ int main(int argc, char** argv)
   cairo_font_extents_t font_extents =
     CairoContext::get_instance()->get_font_extents();
 
+  // Creating cursor manager and loading system cursors
+  CursorManager::create_instance();
+  CursorManager::get_instance()->load_system_cursors();
+  CursorManager::get_instance()->set_ibeam();
+
   // Initial render
   {
     window->clear_with_color({255, 255, 255, 255});
@@ -105,6 +111,7 @@ int main(int argc, char** argv)
     {
       if(event.type == SDL_QUIT)
       {
+        CursorManager::delete_insance();
         CairoContext::delete_instance();
         delete window;
         SDL_Quit();
@@ -379,6 +386,7 @@ int main(int argc, char** argv)
     SDL_Delay((1 / (60 - time_elapsed)) * 1000);
   }
 
+  CursorManager::delete_insance();
   CairoContext::delete_instance();
   delete window;
   SDL_Quit();
