@@ -8,6 +8,7 @@
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
+#include "../include/utils.hpp"
 #include "../include/window.hpp"
 
 bool animator(float32* animatable, const float32* target);
@@ -78,7 +79,9 @@ int main(int argc, char** argv)
 
   // Initial render
   {
-    window->clear_with_color({255, 255, 255, 255});
+    // window->clear_with_color({255, 255, 255, 255});
+    window->clear_with_color(hexcode_to_SDL_Color(
+      ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
     float32 y = 0.0f;
     auto cursor_coords = buffer.cursor_coords();
     uint32 row = 0;
@@ -273,7 +276,9 @@ int main(int argc, char** argv)
 
     if(redraw)
     {
-      window->clear_with_color({255, 255, 255, 255});
+      // window->clear_with_color({255, 255, 255, 255});
+      window->clear_with_color(hexcode_to_SDL_Color(
+        ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
 
       // drawing contents
       int32 y = scroll_y_offset;
