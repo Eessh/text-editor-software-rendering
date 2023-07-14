@@ -364,7 +364,7 @@ int main(int argc, char** argv)
           // drawing only selections on single line
           RocketRender::rectangle_filled(
             (selection.first.second + 1) * font_extents.max_x_advance,
-            scroll_y_offset + selection.first.first * font_extents.height,
+            ceil(scroll_y_offset + selection.first.first * font_extents.height),
             (selection.second.second - selection.first.second) *
               font_extents.max_x_advance,
             font_extents.height,
@@ -378,7 +378,7 @@ int main(int argc, char** argv)
             buffer.line_length(selection.first.first) - selection.first.second;
           RocketRender::rectangle_filled(
             (selection.first.second + 1) * font_extents.max_x_advance,
-            scroll_y_offset + selection.first.first * font_extents.height,
+            ceil(scroll_y_offset + selection.first.first * font_extents.height),
             selection_width * font_extents.max_x_advance,
             font_extents.height,
             selection_color);
@@ -389,7 +389,7 @@ int main(int argc, char** argv)
           {
             RocketRender::rectangle_filled(
               0,
-              scroll_y_offset + row * font_extents.height,
+              ceil(scroll_y_offset + row * font_extents.height),
               (buffer.line_length(row) + 1) * font_extents.max_x_advance,
               font_extents.height,
               selection_color);
@@ -397,7 +397,8 @@ int main(int argc, char** argv)
           // drawing last line selection
           RocketRender::rectangle_filled(
             0,
-            scroll_y_offset + selection.second.first * font_extents.height,
+            ceil(scroll_y_offset +
+                 selection.second.first * font_extents.height),
             (selection.second.second + 1) * font_extents.max_x_advance,
             font_extents.height,
             selection_color);
