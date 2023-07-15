@@ -263,9 +263,10 @@ int main(int argc, char** argv)
         {
           buffer.cursor_row() = row;
         }
-        if(column > buffer.line_length(buffer.cursor_row()) - 1)
+        if(column > buffer.line_length_safe(buffer.cursor_row()).value() - 1)
         {
-          buffer.cursor_column() = buffer.line_length(buffer.cursor_row()) - 1;
+          buffer.cursor_column() =
+            buffer.line_length_safe(buffer.cursor_row()).value() - 1;
         }
         else
         {
@@ -378,7 +379,8 @@ int main(int argc, char** argv)
           // multiline selection
           // drawing first line selection
           uint16 selection_width =
-            buffer.line_length(selection.first.first) - selection.first.second;
+            buffer.line_length_safe(selection.first.first).value() -
+            selection.first.second;
           RocketRender::rectangle_filled(
             (selection.first.second + 1) * font_extents.max_x_advance,
             ceil(scroll_y_offset + selection.first.first * font_extents.height),
@@ -393,7 +395,8 @@ int main(int argc, char** argv)
             RocketRender::rectangle_filled(
               0,
               ceil(scroll_y_offset + row * font_extents.height),
-              (buffer.line_length(row) + 1) * font_extents.max_x_advance,
+              (buffer.line_length_safe(row).value() + 1) *
+                font_extents.max_x_advance,
               font_extents.height,
               selection_color);
           }

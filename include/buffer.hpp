@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 #include "types.hpp"
@@ -51,6 +52,9 @@ public:
   /// @param line_index index of line in buffer (0 based index).
   /// @return Returns -1 if line_index is out of bounds.
   [[nodiscard]] int32 line_length(const uint32& line_index) const noexcept;
+
+  [[nodiscard]] std::optional<uint32>
+  line_length_safe(const uint32& line_index) const noexcept;
 
   /// @brief Gives buffer in lines format, would be easy for the frontend.
   /// @return Returns const reference to vector of strings.
