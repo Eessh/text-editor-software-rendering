@@ -80,6 +80,11 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
   _config.colorscheme.comment =
     parsed_config["colorscheme"]["comment"].value_or<std::string>("#111111");
 
+  _config.scrolling.sensitivity =
+    parsed_config["scrolling"]["sensitivity"].value_or<uint8>(80);
+  _config.scrolling.friction =
+    parsed_config["scrolling"]["friction"].value_or<float32>(0.4);
+
   return true;
 }
 

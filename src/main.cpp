@@ -113,7 +113,10 @@ int main(int argc, char** argv)
   // main loop
   bool redraw = false, fingerdown = false;
   float32 scroll_y_offset = 0.0f, scroll_y_target = 0.0f;
-  uint8 scroll_sensitivity = 80, wait_time = 250;
+  uint8 scroll_sensitivity = ConfigManager::get_instance()
+                               ->get_config_struct()
+                               .scrolling.sensitivity,
+        wait_time = 250;
   while(1)
   {
     double frame_start_time =
@@ -454,6 +457,8 @@ bool animator(float32* animatable, const float32* target)
     return true;
   }
 
-  *animatable += delta * 0.4f;
+  *animatable +=
+    delta *
+    ConfigManager::get_instance()->get_config_struct().scrolling.friction;
   return true;
 }

@@ -17,3 +17,7 @@
   gray = "#5c6370"
   highlight = "#e2be7d"
   comment = "#7f848e"
+
+[scrolling]
+  sensitivity = 50
+  friction = 0.3

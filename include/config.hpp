@@ -15,4 +15,10 @@ typedef struct config
     std::string bg, fg, red, orange, yellow, green, cyan, blue, purple, white,
       black, gray, highlight, comment;
   } colorscheme;
+
+  struct scrolling
+  {
+    uint8 sensitivity;
+    float32 friction;
+  } scrolling;
 } config;
