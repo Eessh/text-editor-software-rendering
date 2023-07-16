@@ -22,6 +22,7 @@ workspace("text-editor-software-rendering")
 			"include",
 			"log-boii",
 			"toml++",
+			"cpp-tokenizer",
 			"SDL2-2.26.5/x86_64-w64-mingw32/include/SDL2",
 			"cairo-windows-1.17.2/include",
 			"freetype"
@@ -29,6 +30,7 @@ workspace("text-editor-software-rendering")
 		files({
 			"src/*.cpp",
 			"log-boii/*.c",
+			"cpp-tokenizer/*.cpp",
 			"res.res"
 		})
 		filter({ "system:windows" })

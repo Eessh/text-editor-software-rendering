@@ -285,17 +285,23 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
           _current_token.end_offset = _position;
           _tokens.emplace_back(_current_token);
           _position++;
-          continue;
+          goto while_loop_continue;
         }
         _inside_string = true;
         _current_token = Token(TokenType::STRING);
         _current_token.value.push_back(character);
         _current_token.start_offset = _position;
         _position++;
-        continue;
+        goto while_loop_continue;
       }
       else if(character == '/')
       {
+        if(_inside_string)
+        {
+          _current_token.value.push_back(character);
+          _position++;
+          goto while_loop_continue;
+        }
         if(_inside_multiline_comment)
         {
           if(_current_token.value.back() == '*')
@@ -646,6 +652,17 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
   }
 
   return _tokens;
+}
+
+void Tokenizer::clear_tokens() noexcept
+{
+  _inside_char = false;
+  _inside_string = false;
+  _inside_comment = false;
+  _inside_multiline_comment = false;
+  _position = 0;
+  _current_token = Token();
+  _tokens.clear();
 }
 
 void log_tokens(const std::vector<Token>& tokens) noexcept

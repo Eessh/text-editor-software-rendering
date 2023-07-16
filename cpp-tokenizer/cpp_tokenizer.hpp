@@ -106,6 +106,9 @@ public:
   [[nodiscard]] const std::vector<Token>&
   tokenize(const std::string& str) noexcept;
 
+  /// @brief Clears tokens stored in previous tokenization.
+  void clear_tokens() noexcept;
+
 private:
   Token _current_token;
   std::vector<Token> _tokens;
