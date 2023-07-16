@@ -21,4 +21,11 @@ typedef struct config
     uint8 sensitivity;
     float32 friction;
   } scrolling;
+
+  struct cpp_token_colors
+  {
+    std::string semicolon, comma, escape_backslash, bracket, square_bracket,
+      curly_bracket, character, string, comment, multiline_comment, operator_,
+      keyword, preprocessor_directive, identifier, number, function;
+  } cpp_token_colors;
 } config;

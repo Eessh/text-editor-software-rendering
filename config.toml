@@ -21,3 +21,21 @@
 [scrolling]
   sensitivity = 50
   friction = 0.3
+
+[cpp_token_colors]
+  semicolon = "#e5c07b"
+  comma = "#e5c07b"
+  escape_backslash = "#e5c07b"
+  bracket = "#e5c07b"
+  square_bracket = "#e5c07b"
+  curly_bracket = "#e5c07b"
+  character = "#56b6c2"
+  string = "#98c379"
+  comment = "#7f848e"
+  multiline_comment = "#7f848e"
+  operator = "#c678dd"
+  keyword = "#e06c75"
+  preprocessor_directive = "#d19a66"
+  identifier = "#abb2bf"
+  number = "#61afef"
+  function = "#c678dd"

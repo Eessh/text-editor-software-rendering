@@ -54,36 +54,84 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
   _config.colorscheme.bg =
     parsed_config["colorscheme"]["bg"].value_or<std::string>("#000000");
   _config.colorscheme.fg =
-    parsed_config["colorscheme"]["fg"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["fg"].value_or<std::string>("#ffffff");
   _config.colorscheme.red =
-    parsed_config["colorscheme"]["red"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["red"].value_or<std::string>("#ffffff");
   _config.colorscheme.orange =
-    parsed_config["colorscheme"]["orange"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["orange"].value_or<std::string>("#ffffff");
   _config.colorscheme.yellow =
-    parsed_config["colorscheme"]["yellow"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["yellow"].value_or<std::string>("#ffffff");
   _config.colorscheme.green =
-    parsed_config["colorscheme"]["green"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["green"].value_or<std::string>("#ffffff");
   _config.colorscheme.cyan =
-    parsed_config["colorscheme"]["cyan"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["cyan"].value_or<std::string>("#ffffff");
   _config.colorscheme.blue =
-    parsed_config["colorscheme"]["blue"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["blue"].value_or<std::string>("#ffffff");
   _config.colorscheme.purple =
-    parsed_config["colorscheme"]["purple"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["purple"].value_or<std::string>("#ffffff");
   _config.colorscheme.white =
-    parsed_config["colorscheme"]["white"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["white"].value_or<std::string>("#ffffff");
   _config.colorscheme.black =
-    parsed_config["colorscheme"]["black"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["black"].value_or<std::string>("#ffffff");
   _config.colorscheme.gray =
-    parsed_config["colorscheme"]["gray"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["gray"].value_or<std::string>("#ffffff");
   _config.colorscheme.highlight =
-    parsed_config["colorscheme"]["highlight"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["highlight"].value_or<std::string>("#ffffff");
   _config.colorscheme.comment =
-    parsed_config["colorscheme"]["comment"].value_or<std::string>("#111111");
+    parsed_config["colorscheme"]["comment"].value_or<std::string>("#ffffff");
 
   _config.scrolling.sensitivity =
     parsed_config["scrolling"]["sensitivity"].value_or<uint8>(80);
   _config.scrolling.friction =
     parsed_config["scrolling"]["friction"].value_or<float32>(0.4);
+
+  _config.cpp_token_colors.semicolon =
+    parsed_config["cpp_token_colors"]["semicolon"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.comma =
+    parsed_config["cpp_token_colors"]["comma"].value_or<std::string>("#ffffff");
+  _config.cpp_token_colors.escape_backslash =
+    parsed_config["cpp_token_colors"]["escape_backslash"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.bracket =
+    parsed_config["cpp_token_colors"]["bracket"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.square_bracket =
+    parsed_config["cpp_token_colors"]["square_bracket"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.curly_bracket =
+    parsed_config["cpp_token_colors"]["curly_bracket"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.character =
+    parsed_config["cpp_token_colors"]["character"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.string =
+    parsed_config["cpp_token_colors"]["string"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.comment =
+    parsed_config["cpp_token_colors"]["comment"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.multiline_comment =
+    parsed_config["cpp_token_colors"]["multiline_comment"]
+      .value_or<std::string>("#ffffff");
+  _config.cpp_token_colors.operator_ =
+    parsed_config["cpp_token_colors"]["operator"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.keyword =
+    parsed_config["cpp_token_colors"]["keyword"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.preprocessor_directive =
+    parsed_config["cpp_token_colors"]["preprocessor_directive"]
+      .value_or<std::string>("#ffffff");
+  _config.cpp_token_colors.identifier =
+    parsed_config["cpp_token_colors"]["identifier"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.number =
+    parsed_config["cpp_token_colors"]["number"].value_or<std::string>(
+      "#ffffff");
+  _config.cpp_token_colors.function =
+    parsed_config["cpp_token_colors"]["function"].value_or<std::string>(
+      "#ffffff");
 
   return true;
 }
