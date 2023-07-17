@@ -268,10 +268,14 @@ int main(int argc, char** argv)
         {
           buffer.cursor_row() = row;
         }
-        if(column > buffer.line_length_safe(buffer.cursor_row()).value() - 1)
+        if(column > static_cast<int32>(
+                      buffer.line_length_safe(buffer.cursor_row()).value()) -
+                      1)
         {
           buffer.cursor_column() =
-            buffer.line_length_safe(buffer.cursor_row()).value() - 1;
+            static_cast<int32>(
+              buffer.line_length_safe(buffer.cursor_row()).value()) -
+            1;
         }
         else
         {
