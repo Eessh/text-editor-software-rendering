@@ -572,6 +572,17 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
       goto while_loop_continue;
     }
 
+    /// continuing if inside string
+    if(_inside_string)
+    {
+      while(_position < str.size() && str[_position] != '"')
+      {
+        _current_token.value.push_back(str[_position]);
+        _position++;
+      }
+      goto while_loop_continue;
+    }
+
     /// Operator
     for(const std::string& op : operators)
     {
