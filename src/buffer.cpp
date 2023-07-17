@@ -70,16 +70,17 @@ const std::vector<std::string>& Buffer::lines() const noexcept
   return _lines;
 }
 
-const std::string& Buffer::line(const uint32& line_index) const noexcept
+std::optional<const std::reference_wrapper<std::string>>
+Buffer::line(const uint32& line_index) const noexcept
 {
   if(line_index >= _lines.size()) [[unlikely]]
   {
     ERROR_BOII("Accessing line with line_index out of bounds!");
-    return "";
+    return std::nullopt;
   }
   else [[likely]]
   {
-    return _lines[line_index];
+    return const_cast<std::string&>(_lines[line_index]);
   }
 }
 

@@ -42,7 +42,11 @@ int main(int argc, char** argv)
 
   // Creating config manager
   ConfigManager::create_instance();
-  ConfigManager::get_instance()->load_config();
+  if(!ConfigManager::get_instance()->load_config())
+  {
+    FATAL_BOII("Unable to load config: config.toml!");
+    exit(1);
+  }
 
   Window* window = new Window(
     "Text Editor - Software Rendering",
@@ -56,9 +60,12 @@ int main(int argc, char** argv)
   CairoContext::get_instance()->initialize(*window);
 
   // Loading font
-  CairoContext::get_instance()->load_font(
-    "JetBrainsMono",
-    "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf");
+  if(!CairoContext::get_instance()->load_font(
+       "JetBrainsMono",
+       "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"))
+  {
+    ERROR_BOII("Unable to load font: JetBrainsMono!");
+  }
   CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
 
   // Font extents

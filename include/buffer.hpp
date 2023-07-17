@@ -62,7 +62,9 @@ public:
   /// @param line_index index of line in buffer (0 based index).
   ///        Check line_index before query.
   /// @return Returns "" if line_index is out of bounds.
-  [[nodiscard]] const std::string&
+  // [[nodiscard]] const std::string&
+  // line(const uint32& line_index) const noexcept;
+  [[nodiscard]] std::optional<const std::reference_wrapper<std::string>>
   line(const uint32& line_index) const noexcept;
 
   /// @brief Cursor coordinates in buffer.
