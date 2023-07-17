@@ -79,6 +79,8 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
     parsed_config["colorscheme"]["highlight"].value_or<std::string>("#ffffff");
   _config.colorscheme.comment =
     parsed_config["colorscheme"]["comment"].value_or<std::string>("#ffffff");
+  _config.colorscheme.scrollbar =
+    parsed_config["colorscheme"]["scrollbar"].value_or<std::string>("#ffffff");
 
   _config.scrolling.sensitivity =
     parsed_config["scrolling"]["sensitivity"].value_or<uint8>(80);

@@ -18,6 +18,8 @@
   # RRGGBBAA color code for highlight
   highlight = "#61afef44"
   comment = "#7f848e"
+  # RRGGBBAA color code for scrollbar
+  scrollbar = "#e5c07b88"
 
 [cpp_token_colors]
   semicolon = "#e5c07b"

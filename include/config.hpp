@@ -13,7 +13,7 @@ typedef struct config
   struct colorscheme
   {
     std::string bg, fg, red, orange, yellow, green, cyan, blue, purple, white,
-      black, gray, highlight, comment;
+      black, gray, highlight, comment, scrollbar;
   } colorscheme;
 
   struct scrolling

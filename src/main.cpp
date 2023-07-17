@@ -27,7 +27,6 @@ int main(int argc, char** argv)
   // Creating buffer
   std::string file_path(argv[1]);
   Buffer buffer;
-  // Buffer buffer("#include <iostream>\nusing namespace std;");
   if(!buffer.load_from_file(file_path))
   {
     FATAL_BOII("Unable to load file: %s", argv[1]);
@@ -45,14 +44,6 @@ int main(int argc, char** argv)
   ConfigManager::create_instance();
   ConfigManager::get_instance()->load_config();
 
-  // Getting current display mode dimensions
-  SDL_DisplayMode display_mode;
-  SDL_GetCurrentDisplayMode(0, &display_mode);
-
-  // Creating window
-  // Window* window = new Window("Text Editor - Software Rendering",
-  //                             0.8 * display_mode.w,
-  //                             0.8 * display_mode.h);
   Window* window = new Window(
     "Text Editor - Software Rendering",
     ConfigManager::get_instance()->get_config_struct().window.width,
@@ -84,7 +75,6 @@ int main(int argc, char** argv)
 
   // Initial render
   {
-    // window->clear_with_color({255, 255, 255, 255});
     window->clear_with_color(hexcode_to_SDL_Color(
       ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
     float32 y = 0.0f;
@@ -316,19 +306,11 @@ int main(int argc, char** argv)
           RocketRender::rectangle_filled(
             0, y, window->width(), font_extents.height, active_line_color);
         }
-        // RocketRender::text(0, y, line, {0, 0, 0, 255});
-        // RocketRender::text(
-        //   0,
-        //   y,
-        //   line,
-        //   hexcode_to_SDL_Color(
-        //     ConfigManager::get_instance()->get_config_struct().colorscheme.fg));
+
         uint32 x = 0;
         tokenizer.clear_tokens();
         std::vector<CppTokenizer::Token> tokens =
           tokenizer.tokenize(line + "\n");
-        // DEBUG_BOII("Line: %s", line.c_str());
-        // CppTokenizer::log_tokens(tokens);
         for(const CppTokenizer::Token& token : tokens)
         {
           if(token.value == "\r")
@@ -547,7 +529,9 @@ int main(int argc, char** argv)
           scrollbar_width,
           scrollbar_height,
           scrollbar_width / 2,
-          {128, 64, 64, 128});
+          hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                 ->get_config_struct()
+                                 .colorscheme.scrollbar));
       }
 
       // drawing selection
