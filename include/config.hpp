@@ -28,4 +28,10 @@ typedef struct config
       curly_bracket, character, string, comment, multiline_comment, operator_,
       keyword, preprocessor_directive, identifier, number, function;
   } cpp_token_colors;
+
+  struct cursor
+  {
+    std::string color, style;
+    uint8 ibeam_width;
+  } cursor;
 } config;

@@ -19,10 +19,6 @@
   highlight = "#61afef44"
   comment = "#7f848e"
 
-[scrolling]
-  sensitivity = 50
-  friction = 0.3
-
 [cpp_token_colors]
   semicolon = "#e5c07b"
   comma = "#e5c07b"
@@ -40,3 +36,13 @@
   identifier = "#abb2bf"
   number = "#61afef"
   function = "#c678dd"
+
+[scrolling]
+  sensitivity = 80
+  friction = 0.3
+
+[cursor]
+  color = "#abb2bf"
+  # Cursor styles: ibeam, block
+  style = "ibeam"
+  ibeam_width = 2

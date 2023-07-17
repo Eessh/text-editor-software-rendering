@@ -133,6 +133,13 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
     parsed_config["cpp_token_colors"]["function"].value_or<std::string>(
       "#ffffff");
 
+  _config.cursor.color =
+    parsed_config["cursor"]["color"].value_or<std::string>("#ffffff");
+  _config.cursor.style =
+    parsed_config["cursor"]["style"].value_or<std::string>("ibeam");
+  _config.cursor.ibeam_width =
+    parsed_config["cursor"]["ibeam_width"].value_or<uint8>(2);
+
   return true;
 }
 
