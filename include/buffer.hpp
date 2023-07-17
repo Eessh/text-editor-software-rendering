@@ -49,12 +49,10 @@ public:
   [[nodiscard]] uint32 length() const noexcept;
 
   /// @brief Length of line in buffer.
-  /// @param line_index index of line in buffer (0 based index).
-  /// @return Returns -1 if line_index is out of bounds.
-  [[nodiscard]] int32 line_length(const uint32& line_index) const noexcept;
-
+  /// @param line_index index of line.
+  /// @return Returns std::nullopt if line_index is out of bounds.
   [[nodiscard]] std::optional<uint32>
-  line_length_safe(const uint32& line_index) const noexcept;
+  line_length(const uint32& line_index) const noexcept;
 
   /// @brief Gives buffer in lines format, would be easy for the frontend.
   /// @return Returns const reference to vector of strings.
@@ -71,12 +69,20 @@ public:
   /// @return Returns pair of cursor row (uint32), cursor column (int32).
   [[nodiscard]] std::pair<uint32, int32> cursor_coords() const noexcept;
 
+  /// @brief Gets cursor row.
+  /// @return Returns const reference to uint32 cursor row.
   [[nodiscard]] const uint32& cursor_row() const noexcept;
 
+  /// @brief Getter & Setter for cursor row.
+  /// @return Returns mutable reference to uint32 cursor row;
   [[nodiscard]] uint32& cursor_row() noexcept;
 
+  /// @brief Gets cursor column.
+  /// @return Returns const reference to int32 cursor column.
   [[nodiscard]] const int32& cursor_column() const noexcept;
 
+  /// @brief Getter & Setter for cursor column.
+  /// @return Returns mutable reference to int32 cursor column.
   [[nodiscard]] int32& cursor_column() noexcept;
 
   /// @brief Tells if buffer has selection.

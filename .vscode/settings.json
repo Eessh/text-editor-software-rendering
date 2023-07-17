@@ -61,6 +61,21 @@
     "xiosbase": "cpp",
     "xlocale": "cpp",
     "xlocinfo": "cpp",
-    "xlocnum": "cpp"
+    "xlocnum": "cpp",
+    "charconv": "cpp",
+    "iomanip": "cpp",
+    "locale": "cpp",
+    "map": "cpp",
+    "ranges": "cpp",
+    "regex": "cpp",
+    "span": "cpp",
+    "sstream": "cpp",
+    "stack": "cpp",
+    "variant": "cpp",
+    "xlocbuf": "cpp",
+    "xlocmes": "cpp",
+    "xlocmon": "cpp",
+    "xloctime": "cpp",
+    "xtree": "cpp"
   }
 }

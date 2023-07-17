@@ -51,21 +51,8 @@ uint32 Buffer::length() const noexcept
   return _lines.size();
 }
 
-int32 Buffer::line_length(const uint32& line_index) const noexcept
-{
-  if(line_index >= _lines.size()) [[unlikely]]
-  {
-    ERROR_BOII("Accessing line length with line_index out of bounds!");
-    return -1;
-  }
-  else [[likely]]
-  {
-    return _lines[line_index].size();
-  }
-}
-
 std::optional<uint32>
-Buffer::line_length_safe(const uint32& line_index) const noexcept
+Buffer::line_length(const uint32& line_index) const noexcept
 {
   if(line_index >= _lines.size()) [[unlikely]]
   {
