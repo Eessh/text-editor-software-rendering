@@ -312,7 +312,7 @@ int main(int argc, char** argv)
             hexcode_to_SDL_Color(ConfigManager::get_instance()
                                    ->get_config_struct()
                                    .colorscheme.gray);
-          active_line_color.a = 128;
+          active_line_color.a = 64;
           RocketRender::rectangle_filled(
             0, y, window->width(), font_extents.height, active_line_color);
         }
@@ -563,7 +563,6 @@ int main(int argc, char** argv)
           hexcode_to_SDL_Color(ConfigManager::get_instance()
                                  ->get_config_struct()
                                  .colorscheme.highlight);
-        selection_color.a = 128;
         if(selection.first.first == selection.second.first)
         {
           // drawing only selections on single line

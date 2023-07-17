@@ -15,7 +15,8 @@
   white = "#abb2bf"
   black = "#282c34"
   gray = "#5c6370"
-  highlight = "#e2be7d"
+  # RRGGBBAA color code for highlight
+  highlight = "#61afef44"
   comment = "#7f848e"
 
 [scrolling]
