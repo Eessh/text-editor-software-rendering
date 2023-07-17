@@ -604,6 +604,13 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
     {
       if(str.compare(_position, keyword.size(), keyword) == 0)
       {
+        if(seperators.find(str[_position + keyword.size()]) ==
+           std::string::npos)
+        {
+          // next character after this keyword is not separator
+          // so this must be an indentifier
+          break;
+        }
         // found keyword match
         _current_token = Token(TokenType::KEYWORD);
         _current_token.start_offset = _position;
