@@ -1,0 +1,4 @@
+cairo-windows-1.17.2/** linguist-vendored
+freetype/** linguist-vendored
+SDL2-2.26.5/** linguist-vendored
+toml++/** linguist-vendored
