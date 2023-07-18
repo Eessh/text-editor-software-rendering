@@ -134,6 +134,9 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
   _config.cpp_token_colors.function =
     parsed_config["cpp_token_colors"]["function"].value_or<std::string>(
       "#ffffff");
+  _config.cpp_token_colors.header =
+    parsed_config["cpp_token_colors"]["header"].value_or<std::string>(
+      "#ffffff");
 
   _config.cursor.color =
     parsed_config["cursor"]["color"].value_or<std::string>("#ffffff");

@@ -60,6 +60,8 @@ typedef enum class TokenType
   NUMBER,
   /// @brief Function token type.
   FUNCTION,
+  /// @brief Header token type.
+  HEADER,
 
   /// @brief Unknown token type.
   UNKNOWN
@@ -114,6 +116,8 @@ private:
   std::vector<Token> _tokens;
   bool _inside_string, _inside_char, _inside_comment, _inside_multiline_comment;
   uint32_t _position;
+
+  [[nodiscard]] bool inside_include_declaration() const noexcept;
 };
 
 /// @brief Logs tokens to STDOUT with pretty format.

@@ -178,6 +178,8 @@ std::string token_type_to_string(const CppTokenizer::TokenType& type)
     return "NUMBER";
   case CppTokenizer::TokenType::FUNCTION:
     return "FUNCTION";
+  case CppTokenizer::TokenType::HEADER:
+    return "HEADER";
   default:
     break;
   }
@@ -278,6 +280,27 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
       }
       else if(character == '"')
       {
+        if(this->inside_include_declaration())
+        {
+          _current_token = Token(TokenType::HEADER);
+          _current_token.start_offset = _position;
+          _current_token.value.push_back(str[_position]);
+          _position++;
+          // move forward until we encounter '"'
+          while(_position < str.size() && str[_position] != '"')
+          {
+            _current_token.value.push_back(str[_position]);
+            _position++;
+          }
+          if(str[_position] == '"')
+          {
+            _current_token.value.push_back(str[_position]);
+            _position++;
+          }
+          _current_token.end_offset = _position - 1;
+          _tokens.emplace_back(_current_token);
+          goto while_loop_continue;
+        }
         if(_inside_string)
         {
           _inside_string = false;
@@ -293,6 +316,30 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
         _current_token.start_offset = _position;
         _position++;
         goto while_loop_continue;
+      }
+      else if(character == '<')
+      {
+        // check if it is include declaration
+        if(this->inside_include_declaration())
+        {
+          _current_token = Token(TokenType::HEADER);
+          _current_token.start_offset = _position;
+          // move forward until we encounter '>'
+          while(_position < str.size() && str[_position] != '>')
+          {
+            _current_token.value.push_back(str[_position]);
+            _position++;
+          }
+          if(str[_position] == '>')
+          {
+            _current_token.value.push_back(str[_position]);
+            _position++;
+          }
+          _current_token.end_offset = _position - 1;
+          _tokens.emplace_back(_current_token);
+          goto while_loop_continue;
+        }
+        // else consider it as operator
       }
       else if(character == '/')
       {
@@ -681,6 +728,25 @@ void Tokenizer::clear_tokens() noexcept
   _position = 0;
   _current_token = Token();
   _tokens.clear();
+}
+
+bool Tokenizer::inside_include_declaration() const noexcept
+{
+  // first token backwards which is not whitespace
+  // if it is #include, it is include declaration
+  for(auto it = _tokens.rbegin(); it != _tokens.rend(); it++)
+  {
+    if(it->type != TokenType::WHITESPACE)
+    {
+      if(it->type == TokenType::PREPROCESSOR_DIRECTIVE &&
+         it->value == "#include")
+      {
+        return true;
+      }
+      break;
+    }
+  }
+  return false;
 }
 
 void log_tokens(const std::vector<Token>& tokens) noexcept

@@ -26,7 +26,7 @@ typedef struct config
   {
     std::string semicolon, comma, escape_backslash, bracket, square_bracket,
       curly_bracket, character, string, comment, multiline_comment, operator_,
-      keyword, preprocessor_directive, identifier, number, function;
+      keyword, preprocessor_directive, identifier, number, function, header;
   } cpp_token_colors;
 
   struct cursor

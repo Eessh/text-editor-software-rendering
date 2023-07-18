@@ -503,6 +503,17 @@ int main(int argc, char** argv)
                                      .cpp_token_colors.function));
             x += token.value.size() * font_extents.max_x_advance;
           }
+          else if(token.type == CppTokenizer::TokenType::HEADER)
+          {
+            RocketRender::text(
+              x,
+              y,
+              token.value,
+              hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                     ->get_config_struct()
+                                     .cpp_token_colors.header));
+            x += token.value.size() * font_extents.max_x_advance;
+          }
         }
         y += font_extents.height;
         row++;

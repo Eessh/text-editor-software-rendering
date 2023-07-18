@@ -32,12 +32,13 @@
   string = "#98c379"
   comment = "#7f848e"
   multiline_comment = "#7f848e"
-  operator = "#c678dd"
+  operator = "#e5c07b"
   keyword = "#e06c75"
   preprocessor_directive = "#d19a66"
   identifier = "#abb2bf"
   number = "#61afef"
   function = "#c678dd"
+  header = "#56b6c2"
 
 [scrolling]
   sensitivity = 80
