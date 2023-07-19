@@ -106,6 +106,8 @@ public:
   void
   execute_selection_command(const BufferSelectionCommand& command) noexcept;
 
+  bool process_backspace() noexcept;
+
 private:
   /// @brief Cursor row.
   uint32 _cursor_row;

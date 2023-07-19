@@ -333,6 +333,29 @@ void Buffer::execute_selection_command(
   }
 }
 
+bool Buffer::process_backspace() noexcept
+{
+  if(_cursor_col == -1 && _cursor_row == 0)
+  {
+    return false;
+  }
+
+  if(_cursor_col != -1)
+  {
+    // remove character before cursor
+    _lines[_cursor_row].erase(_cursor_col, 1);
+    _cursor_col -= 1;
+    return true;
+  }
+
+  // append the contents of this string to above line
+  _cursor_col = _lines[_cursor_row - 1].size() - 1;
+  _lines[_cursor_row - 1].append(_lines[_cursor_row]);
+  _lines.erase(_lines.begin() + _cursor_row);
+  _cursor_row -= 1;
+  return true;
+}
+
 bool Buffer::_base_move_cursor_left() noexcept
 {
   if(_cursor_col > -1)
