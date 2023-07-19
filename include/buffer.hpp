@@ -106,9 +106,12 @@ public:
   void
   execute_selection_command(const BufferSelectionCommand& command) noexcept;
 
-  /// @brief Process BACKSPACE on internal text buffer.
+  /// @brief Processes BACKSPACE on internal text buffer.
   /// @return Returns true if there is a change in text buffer.
   bool process_backspace() noexcept;
+
+  /// @brief Processes ENTER on internal text buffer.
+  void process_enter() noexcept;
 
   /// @brief Inserts string (without a newline character '\n').
   /// @param str string to insert.

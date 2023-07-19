@@ -356,6 +356,17 @@ bool Buffer::process_backspace() noexcept
   return true;
 }
 
+void Buffer::process_enter() noexcept
+{
+  // insert new line after this line
+  // and append contents of this line after the cursor to new line
+  _lines.insert(_lines.begin() + _cursor_row + 1, "");
+  _lines[_cursor_row + 1].append(_lines[_cursor_row].substr(_cursor_col + 1));
+  _lines[_cursor_row].erase(_cursor_col+1);
+  _cursor_col = -1;
+  _cursor_row += 1;
+}
+
 void Buffer::insert_string(const std::string& str) noexcept
 {
   _lines[_cursor_row].insert(_cursor_col + 1, str);

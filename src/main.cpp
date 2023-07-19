@@ -227,6 +227,12 @@ int main(int argc, char** argv)
         {
           redraw = buffer.process_backspace();
         }
+        else if(event.key.keysym.sym == SDLK_RETURN ||
+                event.key.keysym.sym == SDLK_RETURN2)
+        {
+          buffer.process_enter();
+          redraw = true;
+        }
 
         // calculating final scroll_y_offset
         std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
