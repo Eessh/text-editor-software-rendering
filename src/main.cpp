@@ -297,7 +297,7 @@ int main(int argc, char** argv)
         // double click or triple click
         if(event.button.clicks == 2)
         {
-          DEBUG_BOII("Double click");
+          buffer.execute_selection_command(BufferSelectionCommand::SELECT_WORD);
         }
         else if(event.button.clicks == 3)
         {

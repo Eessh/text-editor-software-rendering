@@ -333,6 +333,40 @@ void Buffer::execute_selection_command(
     _selection.second.second = _cursor_col;
     break;
   }
+  case BufferSelectionCommand::SELECT_WORD: {
+    std::string word_delimiters = " \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-";
+    int16 left = 0, right = 1;
+    while(_cursor_col - left != -1)
+    {
+      if(word_delimiters.find(_lines[_cursor_row][_cursor_col - left]) !=
+         std::string::npos)
+      {
+        break;
+      }
+      left++;
+    }
+    while(_cursor_col + right < _lines[_cursor_row].size())
+    {
+      if(word_delimiters.find(_lines[_cursor_row][_cursor_col + right]) !=
+         std::string::npos)
+      {
+        break;
+      }
+      right++;
+    }
+    if(left == 0 && right == 0)
+    {
+      return;
+    }
+
+    _has_selection = true;
+    _selection.first.first = _cursor_row;
+    _selection.first.second = _cursor_col - left;
+    _selection.second.first = _cursor_row;
+    _selection.second.second = _cursor_col + right - 1;
+    _cursor_col += right - 1;
+    break;
+  }
   case BufferSelectionCommand::SELECT_LINE: {
     _has_selection = true;
     _selection.first.first = _cursor_row;
