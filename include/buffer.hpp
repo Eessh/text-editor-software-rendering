@@ -92,6 +92,9 @@ public:
   /// @return Returns false if buffer has no selection.
   [[nodiscard]] bool has_selection() const noexcept;
 
+  /// @brief Clears selection in buffer.
+  void clear_selection() noexcept;
+
   /// @brief Gives the selection region in buffer.
   ///        Check if buffer has selection before query.
   /// @return Returns const reference to pair of selection start, end.

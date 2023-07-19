@@ -253,6 +253,9 @@ int main(int argc, char** argv)
       }
       else if(event.type == SDL_MOUSEBUTTONDOWN)
       {
+        // clearing buffer selection
+        buffer.clear_selection();
+
         uint32 row = (-scroll_y_offset + event.button.y) /
                      CairoContext::get_instance()->get_font_extents().height;
         int32 column = -1;
