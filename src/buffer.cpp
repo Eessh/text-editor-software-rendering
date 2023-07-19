@@ -356,6 +356,12 @@ bool Buffer::process_backspace() noexcept
   return true;
 }
 
+void Buffer::insert_string(const std::string& str) noexcept
+{
+  _lines[_cursor_row].insert(_cursor_col + 1, str);
+  _cursor_col += str.size();
+}
+
 bool Buffer::_base_move_cursor_left() noexcept
 {
   if(_cursor_col > -1)

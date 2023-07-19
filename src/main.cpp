@@ -119,6 +119,7 @@ int main(int argc, char** argv)
                                ->get_config_struct()
                                .scrolling.sensitivity,
         wait_time = 250;
+  SDL_StartTextInput();
   while(1)
   {
     double frame_start_time =
@@ -128,6 +129,7 @@ int main(int argc, char** argv)
     {
       if(event.type == SDL_QUIT)
       {
+        SDL_StopTextInput();
         ConfigManager::delete_instance();
         CursorManager::delete_insance();
         CairoContext::delete_instance();
@@ -282,6 +284,11 @@ int main(int argc, char** argv)
         {
           buffer.cursor_column() = column;
         }
+        redraw = true;
+      }
+      else if(event.type == SDL_TEXTINPUT)
+      {
+        buffer.insert_string(event.text.text);
         redraw = true;
       }
     }
@@ -647,6 +654,7 @@ int main(int argc, char** argv)
     SDL_Delay((1 / (60 - time_elapsed)) * 1000);
   }
 
+  SDL_StopTextInput();
   ConfigManager::delete_instance();
   CursorManager::delete_insance();
   CairoContext::delete_instance();
