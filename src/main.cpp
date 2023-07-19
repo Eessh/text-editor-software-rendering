@@ -290,6 +290,16 @@ int main(int argc, char** argv)
         {
           buffer.cursor_column() = column;
         }
+
+        // double click or triple click
+        if(event.button.clicks == 2)
+        {
+          DEBUG_BOII("Double click");
+        }
+        else if(event.button.clicks == 3)
+        {
+          buffer.execute_selection_command(BufferSelectionCommand::SELECT_LINE);
+        }
         redraw = true;
       }
       else if(event.type == SDL_TEXTINPUT)

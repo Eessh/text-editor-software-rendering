@@ -328,6 +328,26 @@ void Buffer::execute_selection_command(
     _selection.second.second = _cursor_col;
     break;
   }
+  case BufferSelectionCommand::SELECT_LINE: {
+    _has_selection = true;
+    _selection.first.first = _cursor_row;
+    _selection.first.second = -1;
+    if(_cursor_row == _lines.size() - 1)
+    {
+      // ending line
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _lines[_cursor_row].size() - 1;
+      _cursor_col = _lines[_cursor_row].size() - 1;
+    }
+    else
+    {
+      _selection.second.first = _cursor_row + 1;
+      _selection.second.second = -1;
+      _cursor_col = -1;
+      _cursor_row += 1;
+    }
+    break;
+  }
   default:
     break;
   }

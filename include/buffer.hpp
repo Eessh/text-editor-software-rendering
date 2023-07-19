@@ -19,6 +19,7 @@ typedef enum class BufferSelectionCommand
   MOVE_RIGHT,
   MOVE_UP,
   MOVE_DOWN,
+  SELECT_LINE
 } BufferSelectionCommand;
 
 class Buffer
