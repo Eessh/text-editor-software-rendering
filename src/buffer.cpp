@@ -335,6 +335,12 @@ void Buffer::execute_selection_command(
 
 bool Buffer::process_backspace() noexcept
 {
+  if(_has_selection)
+  {
+    this->_delete_selection();
+    return true;
+  }
+
   if(_cursor_col == -1 && _cursor_row == 0)
   {
     return false;
@@ -358,17 +364,21 @@ bool Buffer::process_backspace() noexcept
 
 void Buffer::process_enter() noexcept
 {
+  this->_delete_selection();
+
   // insert new line after this line
   // and append contents of this line after the cursor to new line
   _lines.insert(_lines.begin() + _cursor_row + 1, "");
   _lines[_cursor_row + 1].append(_lines[_cursor_row].substr(_cursor_col + 1));
-  _lines[_cursor_row].erase(_cursor_col+1);
+  _lines[_cursor_row].erase(_cursor_col + 1);
   _cursor_col = -1;
   _cursor_row += 1;
 }
 
 void Buffer::insert_string(const std::string& str) noexcept
 {
+  this->_delete_selection();
+
   _lines[_cursor_row].insert(_cursor_col + 1, str);
   _cursor_col += str.size();
 }
@@ -441,4 +451,34 @@ bool Buffer::_base_move_cursor_down() noexcept
   }
 
   return true;
+}
+
+void Buffer::_delete_selection() noexcept
+{
+  if(!_has_selection)
+  {
+    return;
+  }
+
+  // delete selection
+  auto selection = this->selection();
+  if(selection.first.first == selection.second.first)
+  {
+    // deletion happens in same line
+    _lines[selection.first.first].erase(selection.first.second + 1,
+                                        selection.second.second -
+                                          selection.first.second);
+  }
+  else
+  {
+    _lines[selection.first.first].erase(selection.first.second + 1);
+    _lines[selection.second.first].erase(0, selection.second.second + 1);
+    _lines[selection.first.first].append(_lines[selection.second.first]);
+    // deleting lines btw selection start end, which are fully selected
+    _lines.erase(_lines.begin() + selection.first.first + 1,
+                 _lines.begin() + selection.second.first + 1);
+  }
+  _cursor_row = selection.first.first;
+  _cursor_col = selection.first.second;
+  _has_selection = false;
 }

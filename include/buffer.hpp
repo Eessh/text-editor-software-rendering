@@ -156,4 +156,7 @@ private:
   ///        on top of this function.
   /// @return Returns false if cursor hasn't moved.
   bool _base_move_cursor_down() noexcept;
+
+  /// @brief Deletes selection from text buffer.
+  void _delete_selection() noexcept;
 };
