@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cmath>
 #include "../cpp-tokenizer/cpp_tokenizer.hpp"
 #include "../include/buffer.hpp"
 #include "../include/cairo_context.hpp"
