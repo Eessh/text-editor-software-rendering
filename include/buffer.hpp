@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <queue>
 #include <string>
 #include <vector>
 #include "types.hpp"
@@ -22,6 +23,30 @@ typedef enum class BufferSelectionCommand
   SELECT_WORD,
   SELECT_LINE
 } BufferSelectionCommand;
+
+typedef enum class BufferViewUpdateCommandType
+{
+  RENDER_LINE,
+  RENDER_LINES
+} BufferViewUpdateCommandType;
+
+struct BufferViewUpdateCommand
+{
+  BufferViewUpdateCommandType type;
+  uint32 row;
+  // std::vector<uint32> rows;
+  uint32 old_active_line, new_active_line;
+  uint32 start_row, end_row;
+
+  BufferViewUpdateCommand()
+    : type(BufferViewUpdateCommandType::RENDER_LINE)
+    , row(0)
+    , old_active_line(0)
+    , new_active_line(0)
+    , start_row(0)
+    , end_row(0)
+  {}
+};
 
 class Buffer
 {
@@ -81,6 +106,8 @@ public:
   /// @return Returns mutable reference to uint32 cursor row;
   [[nodiscard]] uint32& cursor_row() noexcept;
 
+  void set_cursor_row(const uint32& row) noexcept;
+
   /// @brief Gets cursor column.
   /// @return Returns const reference to int32 cursor column.
   [[nodiscard]] const int32& cursor_column() const noexcept;
@@ -88,6 +115,8 @@ public:
   /// @brief Getter & Setter for cursor column.
   /// @return Returns mutable reference to int32 cursor column.
   [[nodiscard]] int32& cursor_column() noexcept;
+
+  void set_cursor_column(const int32& column) noexcept;
 
   /// @brief Tells if buffer has selection.
   /// @return Returns false if buffer has no selection.
@@ -122,6 +151,9 @@ public:
   /// @param str string to insert.
   void insert_string(const std::string& str) noexcept;
 
+  std::optional<BufferViewUpdateCommand>
+  get_next_view_update_command() noexcept;
+
 private:
   /// @brief Cursor row.
   uint32 _cursor_row;
@@ -137,6 +169,8 @@ private:
 
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
+
+  std::queue<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
 
   /// @brief Base function for moving cursor to left.
   ///        Public functions of Buffer do some additional operations

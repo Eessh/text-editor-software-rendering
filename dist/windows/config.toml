@@ -15,12 +15,11 @@
   white = "#abb2bf"
   black = "#282c34"
   gray = "#5c6370"
-  highlight = "#e2be7d"
+  # RRGGBBAA color code for highlight
+  highlight = "#61afef44"
   comment = "#7f848e"
-
-[scrolling]
-  sensitivity = 50
-  friction = 0.3
+  # RRGGBBAA color code for scrollbar
+  scrollbar = "#e5c07b88"
 
 [cpp_token_colors]
   semicolon = "#e5c07b"
@@ -33,9 +32,20 @@
   string = "#98c379"
   comment = "#7f848e"
   multiline_comment = "#7f848e"
-  operator = "#c678dd"
+  operator = "#e5c07b"
   keyword = "#e06c75"
   preprocessor_directive = "#d19a66"
   identifier = "#abb2bf"
   number = "#61afef"
   function = "#c678dd"
+  header = "#56b6c2"
+
+[scrolling]
+  sensitivity = 80
+  friction = 0.3
+
+[cursor]
+  color = "#abb2bf"
+  # Cursor styles: ibeam, block
+  style = "ibeam"
+  ibeam_width = 2

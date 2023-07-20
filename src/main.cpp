@@ -1,7 +1,7 @@
+#include <cmath>
 #include <fstream>
 #include <string>
 #include <vector>
-#include <cmath>
 #include "../cpp-tokenizer/cpp_tokenizer.hpp"
 #include "../include/buffer.hpp"
 #include "../include/cairo_context.hpp"
@@ -13,7 +13,12 @@
 #include "../include/utils.hpp"
 #include "../include/window.hpp"
 
-bool animator(float32* animatable, const float32* target);
+bool animator(float32* animatable, const float32* target) noexcept;
+
+void render_tokens(int32 x,
+                   int32 y,
+                   const std::vector<CppTokenizer::Token>& tokens,
+                   const cairo_font_extents_t& font_extents) noexcept;
 
 int main(int argc, char** argv)
 {
@@ -275,24 +280,24 @@ int main(int argc, char** argv)
         }
         if(row > buffer.length() - 1)
         {
-          buffer.cursor_row() = buffer.length() - 1;
+          buffer.set_cursor_row(buffer.length() - 1);
         }
         else
         {
-          buffer.cursor_row() = row;
+          buffer.set_cursor_row(row);
         }
         if(column >
            static_cast<int32>(buffer.line_length(buffer.cursor_row()).value()) -
              1)
         {
-          buffer.cursor_column() =
+          buffer.set_cursor_column(
             static_cast<int32>(
               buffer.line_length(buffer.cursor_row()).value()) -
-            1;
+            1);
         }
         else
         {
-          buffer.cursor_column() = column;
+          buffer.set_cursor_column(column);
         }
 
         // double click or triple click
@@ -304,12 +309,102 @@ int main(int argc, char** argv)
         {
           buffer.execute_selection_command(BufferSelectionCommand::SELECT_LINE);
         }
-        redraw = true;
+        // redraw = true;
       }
       else if(event.type == SDL_TEXTINPUT)
       {
         buffer.insert_string(event.text.text);
         redraw = true;
+      }
+    }
+
+    while(1)
+    {
+      auto optional = buffer.get_next_view_update_command();
+      if(optional == std::nullopt)
+      {
+        break;
+      }
+
+      auto command = optional.value();
+      auto cursor_coord = buffer.cursor_coords();
+      if(command.type == BufferViewUpdateCommandType::RENDER_LINE)
+      {
+        DEBUG_BOII("RENDER_LINE");
+        int32 line_y = scroll_y_offset + command.row * font_extents.height;
+        tokenizer.clear_tokens();
+        std::vector<CppTokenizer::Token> tokens =
+          tokenizer.tokenize(buffer.line(command.row).value().get() + "\n");
+        if(cursor_coord.first == command.row)
+        {
+          // highlighting cursor line
+          SDL_Color active_line_color =
+            hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                   ->get_config_struct()
+                                   .colorscheme.gray);
+          active_line_color.a = 64;
+          RocketRender::rectangle_filled(
+            0, line_y, window->width(), font_extents.height, active_line_color);
+        }
+        render_tokens(0, line_y, tokens, font_extents);
+      }
+      else if(command.type == BufferViewUpdateCommandType::RENDER_LINES)
+      {
+        DEBUG_BOII("RENDER_LINES");
+        int32 line_y =
+          scroll_y_offset + command.old_active_line * font_extents.height;
+        tokenizer.clear_tokens();
+        std::vector<CppTokenizer::Token> tokens = tokenizer.tokenize(
+          buffer.line(command.old_active_line).value().get() + "\n");
+        // clearing background of line
+        RocketRender::rectangle_filled(
+          0,
+          line_y,
+          window->width(),
+          font_extents.height,
+          hexcode_to_SDL_Color(
+            ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
+        render_tokens(0, line_y, tokens, font_extents);
+        line_y =
+          scroll_y_offset + command.new_active_line * font_extents.height;
+        // highlighting cursor line
+        SDL_Color active_line_color = hexcode_to_SDL_Color(
+          ConfigManager::get_instance()->get_config_struct().colorscheme.gray);
+        active_line_color.a = 64;
+        RocketRender::rectangle_filled(
+          0, line_y, window->width(), font_extents.height, active_line_color);
+        tokenizer.clear_tokens();
+        tokens = tokenizer.tokenize(
+          buffer.line(command.new_active_line).value().get() + "\n");
+        render_tokens(0, line_y, tokens, font_extents);
+        window->update();
+      }
+      else
+      {
+        DEBUG_BOII("RENDER_LINE_RANGE");
+        // Re-render line range
+        for(uint32 row = command.start_row; row <= command.end_row; row++)
+        {
+          int32 line_y = scroll_y_offset + row * font_extents.height;
+          tokenizer.clear_tokens();
+          std::vector<CppTokenizer::Token> tokens =
+            tokenizer.tokenize(buffer.line(row).value().get() + "\n");
+          if(cursor_coord.first == row)
+          {
+            // highlighting cursor line
+            SDL_Color active_line_color =
+              hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                     ->get_config_struct()
+                                     .colorscheme.gray);
+            active_line_color.a = 64;
+            RocketRender::rectangle_filled(0,
+                                           line_y,
+                                           window->width(),
+                                           font_extents.height,
+                                           active_line_color);
+          }
+          render_tokens(0, line_y, tokens, font_extents);
+        }
       }
     }
 
@@ -349,203 +444,7 @@ int main(int argc, char** argv)
         tokenizer.clear_tokens();
         std::vector<CppTokenizer::Token> tokens =
           tokenizer.tokenize(line + "\n");
-        for(const CppTokenizer::Token& token : tokens)
-        {
-          if(token.value == "\r")
-          {
-            // do nothing
-          }
-          else if(token.type == CppTokenizer::TokenType::WHITESPACE ||
-                  token.type == CppTokenizer::TokenType::TAB)
-          {
-            x += font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::SEMICOLON)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.semicolon));
-            x += font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::COMMA)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.comma));
-            x += font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::ESCAPE_BACKSLASH)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.escape_backslash));
-            x += font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::BRACKET_OPEN ||
-                  token.type == CppTokenizer::TokenType::BRACKET_CLOSE)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.bracket));
-            x += font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::SQUARE_BRACKET_OPEN ||
-                  token.type == CppTokenizer::TokenType::SQUARE_BRACKET_CLOSE)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.square_bracket));
-            x += font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::CURLY_BRACE_OPEN ||
-                  token.type == CppTokenizer::TokenType::CURLY_BRACE_CLOSE)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.curly_bracket));
-            x += font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::CHARACTER)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.character));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::STRING)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.string));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::COMMENT)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.comment));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::MULTILINE_COMMENT)
-          {
-            ERROR_BOII("Rendering multiline comment un-implemented!");
-            // RocketRender::text(x, y, token.value, hexcode_to_SDL_Color(ConfigManager::get_instance()->get_config_struct().cpp_token_colors.string));
-            // x += token.value.size()*font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::OPERATOR)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.operator_));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::KEYWORD)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.keyword));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::PREPROCESSOR_DIRECTIVE)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.preprocessor_directive));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::IDENTIFIER)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.identifier));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::NUMBER)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.number));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::FUNCTION)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.function));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-          else if(token.type == CppTokenizer::TokenType::HEADER)
-          {
-            RocketRender::text(
-              x,
-              y,
-              token.value,
-              hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                     ->get_config_struct()
-                                     .cpp_token_colors.header));
-            x += token.value.size() * font_extents.max_x_advance;
-          }
-        }
+        render_tokens(0, y, tokens, font_extents);
         y += font_extents.height;
         row++;
         if(y > window->height())
@@ -684,7 +583,7 @@ int main(int argc, char** argv)
   return 0;
 }
 
-bool animator(float32* animatable, const float32* target)
+bool animator(float32* animatable, const float32* target) noexcept
 {
   const float32 delta = *target - *animatable;
   if(delta == 0)
@@ -702,4 +601,196 @@ bool animator(float32* animatable, const float32* target)
     delta *
     ConfigManager::get_instance()->get_config_struct().scrolling.friction;
   return true;
+}
+
+void render_tokens(int32 x,
+                   int32 y,
+                   const std::vector<CppTokenizer::Token>& tokens,
+                   const cairo_font_extents_t& font_extents) noexcept
+{
+  for(const CppTokenizer::Token& token : tokens)
+  {
+    if(token.value == "\r")
+    {
+      // do nothing
+    }
+    else if(token.type == CppTokenizer::TokenType::WHITESPACE ||
+            token.type == CppTokenizer::TokenType::TAB)
+    {
+      x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::SEMICOLON)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.semicolon));
+      x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::COMMA)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.comma));
+      x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::ESCAPE_BACKSLASH)
+    {
+      RocketRender::text(
+        x,
+        y,
+        token.value,
+        hexcode_to_SDL_Color(ConfigManager::get_instance()
+                               ->get_config_struct()
+                               .cpp_token_colors.escape_backslash));
+      x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::BRACKET_OPEN ||
+            token.type == CppTokenizer::TokenType::BRACKET_CLOSE)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.bracket));
+      x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::SQUARE_BRACKET_OPEN ||
+            token.type == CppTokenizer::TokenType::SQUARE_BRACKET_CLOSE)
+    {
+      RocketRender::text(
+        x,
+        y,
+        token.value,
+        hexcode_to_SDL_Color(ConfigManager::get_instance()
+                               ->get_config_struct()
+                               .cpp_token_colors.square_bracket));
+      x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::CURLY_BRACE_OPEN ||
+            token.type == CppTokenizer::TokenType::CURLY_BRACE_CLOSE)
+    {
+      RocketRender::text(
+        x,
+        y,
+        token.value,
+        hexcode_to_SDL_Color(ConfigManager::get_instance()
+                               ->get_config_struct()
+                               .cpp_token_colors.curly_bracket));
+      x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::CHARACTER)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.character));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::STRING)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.string));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::COMMENT)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.comment));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::MULTILINE_COMMENT)
+    {
+      ERROR_BOII("Rendering multiline comment un-implemented!");
+      // RocketRender::text(x, y, token.value, hexcode_to_SDL_Color(ConfigManager::get_instance()->get_config_struct().cpp_token_colors.string));
+      // x += token.value.size()*font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::OPERATOR)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.operator_));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::KEYWORD)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.keyword));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::PREPROCESSOR_DIRECTIVE)
+    {
+      RocketRender::text(
+        x,
+        y,
+        token.value,
+        hexcode_to_SDL_Color(ConfigManager::get_instance()
+                               ->get_config_struct()
+                               .cpp_token_colors.preprocessor_directive));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::IDENTIFIER)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.identifier));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::NUMBER)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.number));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::FUNCTION)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.function));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::HEADER)
+    {
+      RocketRender::text(x,
+                         y,
+                         token.value,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.header));
+      x += token.value.size() * font_extents.max_x_advance;
+    }
+  }
 }

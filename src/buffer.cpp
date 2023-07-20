@@ -8,6 +8,7 @@ Buffer::Buffer() noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({""})
+  , _buffer_view_update_commands_queue(std::queue<BufferViewUpdateCommand>())
 {}
 
 Buffer::Buffer(const std::string& init_string) noexcept
@@ -16,6 +17,7 @@ Buffer::Buffer(const std::string& init_string) noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({init_string})
+  , _buffer_view_update_commands_queue(std::queue<BufferViewUpdateCommand>())
 {}
 
 Buffer::Buffer(const std::vector<std::string>& lines) noexcept
@@ -24,6 +26,7 @@ Buffer::Buffer(const std::vector<std::string>& lines) noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines(lines)
+  , _buffer_view_update_commands_queue(std::queue<BufferViewUpdateCommand>())
 {}
 
 bool Buffer::load_from_file(const std::string& filepath) noexcept
@@ -75,7 +78,8 @@ Buffer::line(const uint32& line_index) const noexcept
 {
   if(line_index >= _lines.size()) [[unlikely]]
   {
-    ERROR_BOII("Accessing line with line_index out of bounds!");
+    ERROR_BOII("Accessing line with line_index: %ld out of bounds!",
+               line_index);
     return std::nullopt;
   }
   else [[likely]]
@@ -99,6 +103,18 @@ uint32& Buffer::cursor_row() noexcept
   return _cursor_row;
 }
 
+void Buffer::set_cursor_row(const uint32& row) noexcept
+{
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
+  // cmd.rows = {_cursor_row, row};
+  cmd.old_active_line = _cursor_row;
+  cmd.new_active_line = row;
+  _buffer_view_update_commands_queue.push(cmd);
+  DEBUG_BOII("set row: %ld", row);
+  _cursor_row = row;
+}
+
 const int32& Buffer::cursor_column() const noexcept
 {
   return _cursor_col;
@@ -107,6 +123,15 @@ const int32& Buffer::cursor_column() const noexcept
 int32& Buffer::cursor_column() noexcept
 {
   return _cursor_col;
+}
+
+void Buffer::set_cursor_column(const int32& column) noexcept
+{
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+  cmd.row = _cursor_row;
+  _buffer_view_update_commands_queue.push(cmd);
+  _cursor_col = column;
 }
 
 bool Buffer::has_selection() const noexcept
@@ -440,6 +465,19 @@ void Buffer::insert_string(const std::string& str) noexcept
 
   _lines[_cursor_row].insert(_cursor_col + 1, str);
   _cursor_col += str.size();
+}
+
+std::optional<BufferViewUpdateCommand>
+Buffer::get_next_view_update_command() noexcept
+{
+  if(_buffer_view_update_commands_queue.empty())
+  {
+    return std::nullopt;
+  }
+
+  BufferViewUpdateCommand command = _buffer_view_update_commands_queue.front();
+  _buffer_view_update_commands_queue.pop();
+  return command;
 }
 
 bool Buffer::_base_move_cursor_left() noexcept
