@@ -511,13 +511,7 @@ bool Buffer::process_backspace() noexcept
 {
   if(_has_selection)
   {
-    auto selection = this->selection();
     this->_delete_selection();
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-    cmd.start_row = selection.first.first;
-    cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push_back(cmd);
     return true;
   }
 
@@ -555,13 +549,7 @@ void Buffer::process_enter() noexcept
 {
   if(_has_selection)
   {
-    auto selection = this->selection();
     this->_delete_selection();
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-    cmd.start_row = selection.first.first;
-    cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push_back(cmd);
   }
 
   // insert new line after this line
@@ -582,13 +570,7 @@ void Buffer::insert_string(const std::string& str) noexcept
 {
   if(_has_selection)
   {
-    auto selection = this->selection();
     this->_delete_selection();
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-    cmd.start_row = selection.first.first;
-    cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push_back(cmd);
   }
 
   _lines[_cursor_row].insert(_cursor_col + 1, str);
@@ -736,9 +718,19 @@ void Buffer::_delete_selection() noexcept
     _lines[selection.first.first].erase(selection.first.second + 1,
                                         selection.second.second -
                                           selection.first.second);
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+    cmd.row = _cursor_row;
+    _buffer_view_update_commands_queue.push_back(cmd);
   }
   else
   {
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+    cmd.start_row = selection.first.first;
+    cmd.end_row = _lines.size() - 1;
+    _buffer_view_update_commands_queue.push_back(cmd);
+
     _lines[selection.first.first].erase(selection.first.second + 1);
     _lines[selection.second.first].erase(0, selection.second.second + 1);
     _lines[selection.first.first].append(_lines[selection.second.first]);

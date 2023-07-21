@@ -577,6 +577,25 @@ int main(int argc, char** argv)
           {
             break;
           }
+          if(row >= buffer.length())
+          {
+            DEBUG_BOII("Deleted line: %ld, y: %ld", row, line_y);
+            // clear background, continue
+            RocketRender::rectangle_filled(
+              0,
+              line_y,
+              window->width(),
+              font_extents.height,
+              hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                     ->get_config_struct()
+                                     .colorscheme.bg));
+            rects.push_back({0,
+                             line_y,
+                             static_cast<int>(window->width()),
+                             static_cast<int>(font_extents.height)});
+            line_y += font_extents.height;
+            continue;
+          }
           tokenizer.clear_tokens();
           std::vector<CppTokenizer::Token> tokens =
             tokenizer.tokenize(buffer.line(row).value().get() + "\n");
@@ -618,6 +637,10 @@ int main(int argc, char** argv)
               {
                 selection_length =
                   buffer.line_length(row).value() - selection_line_slice.first;
+                if(row == cursor_coord.first)
+                {
+                  selection_length -= 1;
+                }
               }
               else
               {
