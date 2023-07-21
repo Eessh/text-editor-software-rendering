@@ -141,6 +141,17 @@ bool Buffer::has_selection() const noexcept
 
 void Buffer::clear_selection() noexcept
 {
+  if(!_has_selection)
+  {
+    return;
+  }
+
+  auto selection = this->selection();
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+  cmd.start_row = selection.first.first;
+  cmd.end_row = selection.second.first;
+  _buffer_view_update_commands_queue.push_back(cmd);
   _has_selection = false;
 }
 
@@ -164,6 +175,40 @@ Buffer::selection() const noexcept
   }
 
   return std::make_pair(_selection.second, _selection.first);
+}
+
+std::optional<std::pair<int32, int32>>
+Buffer::selection_slice_for_line(const uint32& line_index) const noexcept
+{
+  if(!_has_selection)
+  {
+    return std::nullopt;
+  }
+
+  auto selection = this->selection();
+  if(line_index < selection.first.first || line_index > selection.second.first)
+  {
+    return std::nullopt;
+  }
+
+  if(selection.first.first == selection.second.first)
+  {
+    // selection in one line, and line is line_index
+    return std::make_pair(selection.first.second, selection.second.second);
+  }
+
+  if(line_index == selection.first.first)
+  {
+    return std::make_pair(selection.first.second,
+                          static_cast<int32>(_lines[line_index].size() - 1));
+  }
+
+  if(line_index == selection.second.first)
+  {
+    return std::make_pair(-1, selection.second.second);
+  }
+
+  return std::make_pair(-1, static_cast<int32>(_lines[line_index].size() - 1));
 }
 
 void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
@@ -287,6 +332,7 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
+      // this also handles the view update command
       if(!this->_base_move_cursor_left()) [[unlikely]]
       {
         // cursor hasn't moved
@@ -299,6 +345,7 @@ void Buffer::execute_selection_command(
       return;
     }
 
+    // this also handles the view update command
     this->_base_move_cursor_left();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
@@ -313,6 +360,7 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
+      // this also handles the view update command
       if(!this->_base_move_cursor_right()) [[unlikely]]
       {
         // cursor hasn't moved
@@ -325,6 +373,7 @@ void Buffer::execute_selection_command(
       return;
     }
 
+    // this also handles the view update command
     this->_base_move_cursor_right();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
@@ -339,6 +388,7 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
+      // this also handles the view update command
       if(!this->_base_move_cursor_up()) [[unlikely]]
       {
         // cursor hasn't moved
@@ -351,6 +401,7 @@ void Buffer::execute_selection_command(
       return;
     }
 
+    // this also handles the view update command
     this->_base_move_cursor_up();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
@@ -365,6 +416,7 @@ void Buffer::execute_selection_command(
       _selection.first.first = _cursor_row;
       _selection.first.second = _cursor_col;
 
+      // this also handles the view update command
       if(!this->_base_move_cursor_down()) [[unlikely]]
       {
         // cursor hasn't moved
@@ -377,6 +429,7 @@ void Buffer::execute_selection_command(
       return;
     }
 
+    // this also handles the view update command
     this->_base_move_cursor_down();
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col;
@@ -414,6 +467,10 @@ void Buffer::execute_selection_command(
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col + right - 1;
     _cursor_col += right - 1;
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+    cmd.row = _cursor_row;
+    _buffer_view_update_commands_queue.push_back(cmd);
     break;
   }
   case BufferSelectionCommand::SELECT_LINE: {
@@ -426,13 +483,22 @@ void Buffer::execute_selection_command(
       _selection.second.first = _cursor_row;
       _selection.second.second = _lines[_cursor_row].size() - 1;
       _cursor_col = _lines[_cursor_row].size() - 1;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+      cmd.row = _cursor_row;
+      _buffer_view_update_commands_queue.push_back(cmd);
     }
     else
     {
       _selection.second.first = _cursor_row + 1;
       _selection.second.second = -1;
       _cursor_col = -1;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
+      cmd.old_active_line = _cursor_row;
       _cursor_row += 1;
+      cmd.new_active_line = _cursor_row;
+      _buffer_view_update_commands_queue.push_back(cmd);
     }
     break;
   }

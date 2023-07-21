@@ -189,6 +189,13 @@ public:
   [[nodiscard]] std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>
   selection() const noexcept;
 
+  /// @brief Gives slice of selection which overlaps with this line.
+  /// @param line_index index of line in buffer.
+  /// @return Returns std::nullopt if there is no selection or
+  ///         line contains no selection.
+  [[nodiscard]] std::optional<std::pair<int32, int32>>
+  selection_slice_for_line(const uint32& line_index) const noexcept;
+
   /// @brief Executes cursor commands.
   /// @param command the cursor command.
   void execute_cursor_command(const BufferCursorCommand& command) noexcept;

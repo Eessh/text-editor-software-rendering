@@ -181,21 +181,21 @@ int main(int argc, char** argv)
           if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(BufferSelectionCommand::MOVE_LEFT);
-            redraw = true;
+            // redraw = true;
           }
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
-            std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
-            float32 effective_cursor_y =
-              scroll_y_offset +
-              static_cast<int32>(cursor_coords.first) * font_extents.height;
-            if(effective_cursor_y < 0 ||
-               effective_cursor_y + font_extents.height > window->height())
-            {
-              // delete last inserted command
-              buffer.remove_most_recent_command();
-            }
+          }
+          std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
+          float32 effective_cursor_y =
+            scroll_y_offset +
+            static_cast<int32>(cursor_coords.first) * font_extents.height;
+          if(effective_cursor_y < 0 ||
+             effective_cursor_y + font_extents.height > window->height())
+          {
+            // delete last inserted command
+            buffer.remove_most_recent_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_RIGHT)
@@ -204,21 +204,21 @@ int main(int argc, char** argv)
           {
             buffer.execute_selection_command(
               BufferSelectionCommand::MOVE_RIGHT);
-            redraw = true;
+            // redraw = true;
           }
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
-            std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
-            float32 effective_cursor_y =
-              scroll_y_offset +
-              static_cast<int32>(cursor_coords.first) * font_extents.height;
-            if(effective_cursor_y < 0 ||
-               effective_cursor_y + font_extents.height > window->height())
-            {
-              // delete last inserted command
-              buffer.remove_most_recent_command();
-            }
+          }
+          std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
+          float32 effective_cursor_y =
+            scroll_y_offset +
+            static_cast<int32>(cursor_coords.first) * font_extents.height;
+          if(effective_cursor_y < 0 ||
+             effective_cursor_y + font_extents.height > window->height())
+          {
+            // delete last inserted command
+            buffer.remove_most_recent_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_UP)
@@ -226,21 +226,21 @@ int main(int argc, char** argv)
           if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(BufferSelectionCommand::MOVE_UP);
-            redraw = true;
+            // redraw = true;
           }
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_UP);
-            std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
-            float32 effective_cursor_y =
-              scroll_y_offset +
-              static_cast<int32>(cursor_coords.first) * font_extents.height;
-            if(effective_cursor_y < 0 ||
-               effective_cursor_y + font_extents.height > window->height())
-            {
-              // delete last inserted command
-              buffer.remove_most_recent_command();
-            }
+          }
+          std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
+          float32 effective_cursor_y =
+            scroll_y_offset +
+            static_cast<int32>(cursor_coords.first) * font_extents.height;
+          if(effective_cursor_y < 0 ||
+             effective_cursor_y + font_extents.height > window->height())
+          {
+            // delete last inserted command
+            buffer.remove_most_recent_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_DOWN)
@@ -248,21 +248,21 @@ int main(int argc, char** argv)
           if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(BufferSelectionCommand::MOVE_DOWN);
-            redraw = true;
+            // redraw = true;
           }
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
-            std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
-            float32 effective_cursor_y =
-              scroll_y_offset +
-              static_cast<int32>(cursor_coords.first) * font_extents.height;
-            if(effective_cursor_y < 0 ||
-               effective_cursor_y + font_extents.height > window->height())
-            {
-              // delete last inserted command
-              buffer.remove_most_recent_command();
-            }
+          }
+          std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
+          float32 effective_cursor_y =
+            scroll_y_offset +
+            static_cast<int32>(cursor_coords.first) * font_extents.height;
+          if(effective_cursor_y < 0 ||
+             effective_cursor_y + font_extents.height > window->height())
+          {
+            // delete last inserted command
+            buffer.remove_most_recent_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_BACKSPACE)
@@ -389,6 +389,36 @@ int main(int argc, char** argv)
         RocketRender::rectangle_filled(
           0, line_y, window->width(), font_extents.height, active_line_color);
         render_tokens(0, line_y, tokens, font_extents);
+        // rendering selection
+        if(buffer.has_selection())
+        {
+          auto opt = buffer.selection_slice_for_line(command.row);
+          if(opt != std::nullopt)
+          {
+            auto selection_line_slice = opt.value();
+            uint32 selection_length = 0;
+            if(selection_line_slice.second ==
+               buffer.line_length(command.row).value() - 1)
+            {
+              selection_length = buffer.line_length(command.row).value() -
+                                 selection_line_slice.first;
+            }
+            else
+            {
+              selection_length =
+                selection_line_slice.second - selection_line_slice.first;
+            }
+            RocketRender::rectangle_filled(
+              (selection_line_slice.first + 1) * font_extents.max_x_advance,
+              ceil(scroll_y_offset + command.row * font_extents.height),
+              selection_length * font_extents.max_x_advance,
+              font_extents.height,
+              hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                     ->get_config_struct()
+                                     .colorscheme.highlight));
+          }
+        }
+        // rendering cursor
         std::string cursor_style =
           ConfigManager::get_instance()->get_config_struct().cursor.style;
         RocketRender::rectangle_filled(
@@ -428,6 +458,37 @@ int main(int argc, char** argv)
                                    ->get_config_struct()
                                    .colorscheme.bg));
           render_tokens(0, old_line_y, tokens, font_extents);
+          // rendering selection
+          if(buffer.has_selection())
+          {
+            auto opt = buffer.selection_slice_for_line(command.old_active_line);
+            if(opt != std::nullopt)
+            {
+              auto selection_line_slice = opt.value();
+              uint32 selection_length = 0;
+              if(selection_line_slice.second ==
+                 buffer.line_length(command.old_active_line).value() - 1)
+              {
+                selection_length =
+                  buffer.line_length(command.old_active_line).value() -
+                  selection_line_slice.first;
+              }
+              else
+              {
+                selection_length =
+                  selection_line_slice.second - selection_line_slice.first;
+              }
+              RocketRender::rectangle_filled(
+                (selection_line_slice.first + 1) * font_extents.max_x_advance,
+                ceil(scroll_y_offset +
+                     command.old_active_line * font_extents.height),
+                selection_length * font_extents.max_x_advance,
+                font_extents.height,
+                hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                       ->get_config_struct()
+                                       .colorscheme.highlight));
+            }
+          }
         }
         int32 new_line_y =
           ceil(scroll_y_offset + command.new_active_line * font_extents.height);
@@ -452,6 +513,37 @@ int main(int argc, char** argv)
         std::vector<CppTokenizer::Token> tokens = tokenizer.tokenize(
           buffer.line(command.new_active_line).value().get() + "\n");
         render_tokens(0, new_line_y, tokens, font_extents);
+        // rendering selection
+        if(buffer.has_selection())
+        {
+          auto opt = buffer.selection_slice_for_line(command.new_active_line);
+          if(opt != std::nullopt)
+          {
+            auto selection_line_slice = opt.value();
+            uint32 selection_length = 0;
+            if(selection_line_slice.second ==
+               buffer.line_length(command.new_active_line).value() - 1)
+            {
+              selection_length =
+                buffer.line_length(command.new_active_line).value() -
+                selection_line_slice.first;
+            }
+            else
+            {
+              selection_length =
+                selection_line_slice.second - selection_line_slice.first;
+            }
+            RocketRender::rectangle_filled(
+              (selection_line_slice.first + 1) * font_extents.max_x_advance,
+              ceil(scroll_y_offset +
+                   command.new_active_line * font_extents.height),
+              selection_length * font_extents.max_x_advance,
+              font_extents.height,
+              hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                     ->get_config_struct()
+                                     .colorscheme.highlight));
+          }
+        }
         std::string cursor_style =
           ConfigManager::get_instance()->get_config_struct().cursor.style;
         RocketRender::rectangle_filled(
@@ -513,6 +605,35 @@ int main(int argc, char** argv)
                                            active_line_color);
           }
           render_tokens(0, line_y, tokens, font_extents);
+          // rendering selection
+          if(buffer.has_selection())
+          {
+            auto opt = buffer.selection_slice_for_line(row);
+            if(opt != std::nullopt)
+            {
+              auto selection_line_slice = opt.value();
+              uint32 selection_length = 0;
+              if(selection_line_slice.second ==
+                 buffer.line_length(row).value() - 1)
+              {
+                selection_length =
+                  buffer.line_length(row).value() - selection_line_slice.first;
+              }
+              else
+              {
+                selection_length =
+                  selection_line_slice.second - selection_line_slice.first;
+              }
+              RocketRender::rectangle_filled(
+                (selection_line_slice.first + 1) * font_extents.max_x_advance,
+                ceil(scroll_y_offset + row * font_extents.height),
+                selection_length * font_extents.max_x_advance,
+                font_extents.height,
+                hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                       ->get_config_struct()
+                                       .colorscheme.highlight));
+            }
+          }
           rects.push_back({0,
                            line_y,
                            static_cast<int>(window->width()),
