@@ -2,7 +2,6 @@
 
 #include <deque>
 #include <optional>
-#include <queue>
 #include <string>
 #include <vector>
 #include "types.hpp"
@@ -10,20 +9,44 @@
 /// @brief Cursor commands to process on buffer.
 typedef enum class BufferCursorCommand
 {
+  /// @brief Move cursor left. If already at start of line,
+  ///        it moves to the end of previous line (if exists).
   MOVE_LEFT,
+
+  /// @brief Move cursor right. If already at end of line,
+  ///        it moves to the start of next line (if exists).
   MOVE_RIGHT,
+
+  /// @brief Move cursor up.
   MOVE_UP,
+
+  /// @brief Move cursor down.
   MOVE_DOWN,
 } BufferCursorCommand;
 
 /// @brief Selection commands to process on buffer.
 typedef enum class BufferSelectionCommand
 {
+  /// @brief Extends selection leftward. If no selection exists,
+  ///        it creates a selection.
   MOVE_LEFT,
+
+  /// @brief Extends selection rightward. If no selection exists,
+  ///        it creates a selection.
   MOVE_RIGHT,
+
+  /// @brief Extends selection upward. If no selection exists,
+  ///        it creates a selection.
   MOVE_UP,
+
+  /// @brief Extends selection downward. If no selection exists,
+  ///        it creates a selection.
   MOVE_DOWN,
+
+  /// @brief Selects word under cursor.
   SELECT_WORD,
+
+  /// @brief Selects whole line under cursor.
   SELECT_LINE
 } BufferSelectionCommand;
 
@@ -32,8 +55,15 @@ typedef enum class BufferSelectionCommand
 ///        render two lines (or) render a range of lines.
 typedef enum class BufferViewUpdateCommandType
 {
+  /// @brief Render a single line - row.
   RENDER_LINE,
+
+  /// @brief Render two lines, where first line is - old_active_line,
+  ///        second line is - new_active_line.
   RENDER_LINES,
+
+  /// @brief Render range of lines, where first line is - start_row,
+  ///        last line is - end_row.
   RENDER_LINE_RANGE
 } BufferViewUpdateCommandType;
 
@@ -41,11 +71,25 @@ typedef enum class BufferViewUpdateCommandType
 ///        lines are updated, hence should be redrawn.
 struct BufferViewUpdateCommand
 {
+  /// @brief Command type.
   BufferViewUpdateCommandType type;
-  uint32 row;
-  uint32 old_active_line, new_active_line;
-  uint32 start_row, end_row;
 
+  /// @brief Row to render (for RENDER_LINE command type).
+  uint32 row;
+
+  /// @brief Old active line (for RENDER_LINES command type).
+  uint32 old_active_line;
+
+  /// @brief New active line (for RENDER_LINES command type).
+  uint32 new_active_line;
+
+  /// @brief Starting row (for RENDER_LINE_RANGE command type).
+  uint32 start_row;
+
+  /// @brief Ending row (for RENDER_LINE_RANGE command type).
+  uint32 end_row;
+
+  /// @brief Default constructor.
   BufferViewUpdateCommand()
     : type(BufferViewUpdateCommandType::RENDER_LINE)
     , row(0)

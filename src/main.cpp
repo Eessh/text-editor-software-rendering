@@ -411,18 +411,24 @@ int main(int argc, char** argv)
         DEBUG_BOII("RENDER_LINES");
         int32 old_line_y =
           ceil(scroll_y_offset + command.old_active_line * font_extents.height);
-        tokenizer.clear_tokens();
-        std::vector<CppTokenizer::Token> tokens = tokenizer.tokenize(
-          buffer.line(command.old_active_line).value().get() + "\n");
-        // clearing background of line
-        RocketRender::rectangle_filled(
-          0,
-          old_line_y,
-          window->width(),
-          font_extents.height,
-          hexcode_to_SDL_Color(
-            ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
-        render_tokens(0, old_line_y, tokens, font_extents);
+        // render old line only if it is inside viewport
+        if(0 <= static_cast<int32>(old_line_y + font_extents.height) &&
+           old_line_y <= static_cast<int32>(window->height()))
+        {
+          tokenizer.clear_tokens();
+          std::vector<CppTokenizer::Token> tokens = tokenizer.tokenize(
+            buffer.line(command.old_active_line).value().get() + "\n");
+          // clearing background of line
+          RocketRender::rectangle_filled(
+            0,
+            old_line_y,
+            window->width(),
+            font_extents.height,
+            hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                   ->get_config_struct()
+                                   .colorscheme.bg));
+          render_tokens(0, old_line_y, tokens, font_extents);
+        }
         int32 new_line_y =
           ceil(scroll_y_offset + command.new_active_line * font_extents.height);
         // clearing background of line
@@ -443,7 +449,7 @@ int main(int argc, char** argv)
                                        font_extents.height,
                                        active_line_color);
         tokenizer.clear_tokens();
-        tokens = tokenizer.tokenize(
+        std::vector<CppTokenizer::Token> tokens = tokenizer.tokenize(
           buffer.line(command.new_active_line).value().get() + "\n");
         render_tokens(0, new_line_y, tokens, font_extents);
         std::string cursor_style =
