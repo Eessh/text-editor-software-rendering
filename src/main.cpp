@@ -352,7 +352,7 @@ int main(int argc, char** argv)
       {
         DEBUG_BOII("RENDER_LINES");
         int32 old_line_y =
-          scroll_y_offset + command.old_active_line * font_extents.height;
+          ceil(scroll_y_offset + command.old_active_line * font_extents.height);
         tokenizer.clear_tokens();
         std::vector<CppTokenizer::Token> tokens = tokenizer.tokenize(
           buffer.line(command.old_active_line).value().get() + "\n");
@@ -366,7 +366,7 @@ int main(int argc, char** argv)
             ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
         render_tokens(0, old_line_y, tokens, font_extents);
         int32 new_line_y =
-          scroll_y_offset + command.new_active_line * font_extents.height;
+          ceil(scroll_y_offset + command.new_active_line * font_extents.height);
         // highlighting cursor line
         SDL_Color active_line_color = hexcode_to_SDL_Color(
           ConfigManager::get_instance()->get_config_struct().colorscheme.gray);
@@ -380,6 +380,18 @@ int main(int argc, char** argv)
         tokens = tokenizer.tokenize(
           buffer.line(command.new_active_line).value().get() + "\n");
         render_tokens(0, new_line_y, tokens, font_extents);
+        std::string cursor_style =
+          ConfigManager::get_instance()->get_config_struct().cursor.style;
+        RocketRender::rectangle_filled(
+          font_extents.max_x_advance * (cursor_coord.second + 1),
+          ceil(scroll_y_offset + font_extents.height * cursor_coord.first),
+          (cursor_style == "ibeam" ? ConfigManager::get_instance()
+                                       ->get_config_struct()
+                                       .cursor.ibeam_width
+                                   : font_extents.max_x_advance),
+          font_extents.height,
+          hexcode_to_SDL_Color(
+            ConfigManager::get_instance()->get_config_struct().cursor.color));
         SDL_Rect rects[2] = {
           {0, old_line_y, window->width(), font_extents.height},
           {0, new_line_y, window->width(), font_extents.height}};
