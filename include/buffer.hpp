@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <optional>
 #include <queue>
 #include <string>
@@ -155,6 +156,8 @@ public:
   std::optional<BufferViewUpdateCommand>
   get_next_view_update_command() noexcept;
 
+  void remove_most_recent_command() noexcept;
+
 private:
   /// @brief Cursor row.
   uint32 _cursor_row;
@@ -171,7 +174,7 @@ private:
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
 
-  std::queue<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
+  std::deque<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
 
   /// @brief Base function for moving cursor to left.
   ///        Public functions of Buffer do some additional operations

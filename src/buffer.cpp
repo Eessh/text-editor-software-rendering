@@ -8,7 +8,7 @@ Buffer::Buffer() noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({""})
-  , _buffer_view_update_commands_queue(std::queue<BufferViewUpdateCommand>())
+  , _buffer_view_update_commands_queue(std::deque<BufferViewUpdateCommand>())
 {}
 
 Buffer::Buffer(const std::string& init_string) noexcept
@@ -17,7 +17,7 @@ Buffer::Buffer(const std::string& init_string) noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({init_string})
-  , _buffer_view_update_commands_queue(std::queue<BufferViewUpdateCommand>())
+  , _buffer_view_update_commands_queue(std::deque<BufferViewUpdateCommand>())
 {}
 
 Buffer::Buffer(const std::vector<std::string>& lines) noexcept
@@ -26,7 +26,7 @@ Buffer::Buffer(const std::vector<std::string>& lines) noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines(lines)
-  , _buffer_view_update_commands_queue(std::queue<BufferViewUpdateCommand>())
+  , _buffer_view_update_commands_queue(std::deque<BufferViewUpdateCommand>())
 {}
 
 bool Buffer::load_from_file(const std::string& filepath) noexcept
@@ -110,7 +110,7 @@ void Buffer::set_cursor_row(const uint32& row) noexcept
   // cmd.rows = {_cursor_row, row};
   cmd.old_active_line = _cursor_row;
   cmd.new_active_line = row;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
   DEBUG_BOII("set row: %ld", row);
   _cursor_row = row;
 }
@@ -130,7 +130,7 @@ void Buffer::set_cursor_column(const int32& column) noexcept
   BufferViewUpdateCommand cmd;
   cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
   cmd.row = _cursor_row;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
   _cursor_col = column;
 }
 
@@ -181,7 +181,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
       cmd.start_row = selection.first.first;
       cmd.end_row = selection.second.first;
-      _buffer_view_update_commands_queue.push(cmd);
+      _buffer_view_update_commands_queue.push_back(cmd);
       return;
     }
 
@@ -200,7 +200,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
       cmd.start_row = selection.first.first;
       cmd.end_row = selection.second.first;
-      _buffer_view_update_commands_queue.push(cmd);
+      _buffer_view_update_commands_queue.push_back(cmd);
       return;
     }
 
@@ -221,7 +221,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       if(_cursor_row == 0)
       {
         cmd.start_row = selection.first.first;
-        _buffer_view_update_commands_queue.push(cmd);
+        _buffer_view_update_commands_queue.push_back(cmd);
         return;
       }
       --_cursor_row;
@@ -230,7 +230,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
-      _buffer_view_update_commands_queue.push(cmd);
+      _buffer_view_update_commands_queue.push_back(cmd);
       return;
     }
 
@@ -251,7 +251,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       if(_cursor_row == _lines.size() - 1)
       {
         cmd.end_row = selection.second.first;
-        _buffer_view_update_commands_queue.push(cmd);
+        _buffer_view_update_commands_queue.push_back(cmd);
         return;
       }
       ++_cursor_row;
@@ -260,7 +260,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
-      _buffer_view_update_commands_queue.push(cmd);
+      _buffer_view_update_commands_queue.push_back(cmd);
       return;
     }
 
@@ -451,7 +451,7 @@ bool Buffer::process_backspace() noexcept
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
     cmd.start_row = selection.first.first;
     cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push(cmd);
+    _buffer_view_update_commands_queue.push_back(cmd);
     return true;
   }
 
@@ -468,7 +468,7 @@ bool Buffer::process_backspace() noexcept
     BufferViewUpdateCommand cmd;
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
     cmd.row = _cursor_row;
-    _buffer_view_update_commands_queue.push(cmd);
+    _buffer_view_update_commands_queue.push_back(cmd);
     return true;
   }
 
@@ -481,7 +481,7 @@ bool Buffer::process_backspace() noexcept
   cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
   cmd.start_row = _cursor_row;
   cmd.end_row = _lines.size() - 1;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
   return true;
 }
 
@@ -495,7 +495,7 @@ void Buffer::process_enter() noexcept
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
     cmd.start_row = selection.first.first;
     cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push(cmd);
+    _buffer_view_update_commands_queue.push_back(cmd);
   }
 
   // insert new line after this line
@@ -509,7 +509,7 @@ void Buffer::process_enter() noexcept
   cmd.start_row = _cursor_row;
   _cursor_row += 1;
   cmd.end_row = _lines.size() - 1;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
 }
 
 void Buffer::insert_string(const std::string& str) noexcept
@@ -522,7 +522,7 @@ void Buffer::insert_string(const std::string& str) noexcept
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
     cmd.start_row = selection.first.first;
     cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push(cmd);
+    _buffer_view_update_commands_queue.push_back(cmd);
   }
 
   _lines[_cursor_row].insert(_cursor_col + 1, str);
@@ -530,7 +530,7 @@ void Buffer::insert_string(const std::string& str) noexcept
   BufferViewUpdateCommand cmd;
   cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
   cmd.row = _cursor_row;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
 }
 
 std::optional<BufferViewUpdateCommand>
@@ -542,8 +542,18 @@ Buffer::get_next_view_update_command() noexcept
   }
 
   BufferViewUpdateCommand command = _buffer_view_update_commands_queue.front();
-  _buffer_view_update_commands_queue.pop();
+  _buffer_view_update_commands_queue.pop_front();
   return command;
+}
+
+void Buffer::remove_most_recent_command() noexcept
+{
+  if(_buffer_view_update_commands_queue.empty())
+  {
+    return;
+  }
+
+  _buffer_view_update_commands_queue.pop_back();
 }
 
 bool Buffer::_base_move_cursor_left() noexcept
@@ -554,7 +564,7 @@ bool Buffer::_base_move_cursor_left() noexcept
     BufferViewUpdateCommand cmd;
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
     cmd.row = _cursor_row;
-    _buffer_view_update_commands_queue.push(cmd);
+    _buffer_view_update_commands_queue.push_back(cmd);
     return true;
   }
 
@@ -569,7 +579,7 @@ bool Buffer::_base_move_cursor_left() noexcept
   --_cursor_row;
   _cursor_col = _lines[_cursor_row].size() - 1;
   cmd.new_active_line = _cursor_row;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
 
   return true;
 }
@@ -583,7 +593,7 @@ bool Buffer::_base_move_cursor_right() noexcept
     BufferViewUpdateCommand cmd;
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
     cmd.row = _cursor_row;
-    _buffer_view_update_commands_queue.push(cmd);
+    _buffer_view_update_commands_queue.push_back(cmd);
     return true;
   }
 
@@ -598,7 +608,7 @@ bool Buffer::_base_move_cursor_right() noexcept
   ++_cursor_row;
   _cursor_col = -1;
   cmd.new_active_line = _cursor_row;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
 
   return true;
 }
@@ -619,7 +629,7 @@ bool Buffer::_base_move_cursor_up() noexcept
     _cursor_col = _lines[_cursor_row].size() - 1;
   }
   cmd.new_active_line = _cursor_row;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
 
   return true;
 }
@@ -640,7 +650,7 @@ bool Buffer::_base_move_cursor_down() noexcept
     _cursor_col = _lines[_cursor_row].size() - 1;
   }
   cmd.new_active_line = _cursor_row;
-  _buffer_view_update_commands_queue.push(cmd);
+  _buffer_view_update_commands_queue.push_back(cmd);
 
   return true;
 }
