@@ -177,6 +177,11 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_row = selection.first.first;
       _cursor_col = selection.first.second;
       _has_selection = false;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+      cmd.start_row = selection.first.first;
+      cmd.end_row = selection.second.first;
+      _buffer_view_update_commands_queue.push(cmd);
       return;
     }
 
@@ -191,6 +196,11 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_row = selection.second.first;
       _cursor_col = selection.second.second;
       _has_selection = false;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+      cmd.start_row = selection.first.first;
+      cmd.end_row = selection.second.first;
+      _buffer_view_update_commands_queue.push(cmd);
       return;
     }
 
@@ -205,15 +215,22 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_row = selection.first.first;
       _cursor_col = selection.first.second;
       _has_selection = false;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+      cmd.end_row = selection.second.first;
       if(_cursor_row == 0)
       {
+        cmd.start_row = selection.first.first;
+        _buffer_view_update_commands_queue.push(cmd);
         return;
       }
       --_cursor_row;
+      cmd.start_row = _cursor_row;
       if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
+      _buffer_view_update_commands_queue.push(cmd);
       return;
     }
 
@@ -228,15 +245,22 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_row = selection.second.first;
       _cursor_col = selection.second.second;
       _has_selection = false;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+      cmd.start_row = selection.first.first;
       if(_cursor_row == _lines.size() - 1)
       {
+        cmd.end_row = selection.second.first;
+        _buffer_view_update_commands_queue.push(cmd);
         return;
       }
       ++_cursor_row;
+      cmd.end_row = _cursor_row;
       if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
+      _buffer_view_update_commands_queue.push(cmd);
       return;
     }
 
@@ -524,9 +548,13 @@ Buffer::get_next_view_update_command() noexcept
 
 bool Buffer::_base_move_cursor_left() noexcept
 {
-  if(_cursor_col > -1)
+  if(_cursor_col > -1) [[likely]]
   {
     _cursor_col--;
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+    cmd.row = _cursor_row;
+    _buffer_view_update_commands_queue.push(cmd);
     return true;
   }
 
@@ -535,8 +563,13 @@ bool Buffer::_base_move_cursor_left() noexcept
     return false;
   }
 
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
+  cmd.old_active_line = _cursor_row;
   --_cursor_row;
   _cursor_col = _lines[_cursor_row].size() - 1;
+  cmd.new_active_line = _cursor_row;
+  _buffer_view_update_commands_queue.push(cmd);
 
   return true;
 }
@@ -544,8 +577,13 @@ bool Buffer::_base_move_cursor_left() noexcept
 bool Buffer::_base_move_cursor_right() noexcept
 {
   if(_cursor_col < static_cast<int32>(_lines[_cursor_row].size() - 1))
+    [[likely]]
   {
     _cursor_col++;
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+    cmd.row = _cursor_row;
+    _buffer_view_update_commands_queue.push(cmd);
     return true;
   }
 
@@ -554,8 +592,13 @@ bool Buffer::_base_move_cursor_right() noexcept
     return false;
   }
 
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
+  cmd.old_active_line = _cursor_row;
   ++_cursor_row;
   _cursor_col = -1;
+  cmd.new_active_line = _cursor_row;
+  _buffer_view_update_commands_queue.push(cmd);
 
   return true;
 }
@@ -567,11 +610,16 @@ bool Buffer::_base_move_cursor_up() noexcept
     return false;
   }
 
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
+  cmd.old_active_line = _cursor_row;
   --_cursor_row;
   if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
   {
     _cursor_col = _lines[_cursor_row].size() - 1;
   }
+  cmd.new_active_line = _cursor_row;
+  _buffer_view_update_commands_queue.push(cmd);
 
   return true;
 }
@@ -583,11 +631,16 @@ bool Buffer::_base_move_cursor_down() noexcept
     return false;
   }
 
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
+  cmd.old_active_line = _cursor_row;
   ++_cursor_row;
   if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
   {
     _cursor_col = _lines[_cursor_row].size() - 1;
   }
+  cmd.new_active_line = _cursor_row;
+  _buffer_view_update_commands_queue.push(cmd);
 
   return true;
 }

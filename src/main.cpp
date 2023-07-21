@@ -186,7 +186,7 @@ int main(int argc, char** argv)
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_LEFT);
-            redraw = true;
+            // redraw = true;
           }
         }
         else if(event.key.keysym.sym == SDLK_RIGHT)
@@ -200,7 +200,7 @@ int main(int argc, char** argv)
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_RIGHT);
-            redraw = true;
+            // redraw = true;
           }
         }
         else if(event.key.keysym.sym == SDLK_UP)
@@ -213,7 +213,7 @@ int main(int argc, char** argv)
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_UP);
-            redraw = true;
+            // redraw = true;
           }
         }
         else if(event.key.keysym.sym == SDLK_DOWN)
@@ -226,7 +226,7 @@ int main(int argc, char** argv)
           else
           {
             buffer.execute_cursor_command(BufferCursorCommand::MOVE_DOWN);
-            redraw = true;
+            // redraw = true;
           }
         }
         else if(event.key.keysym.sym == SDLK_BACKSPACE)
@@ -248,12 +248,14 @@ int main(int argc, char** argv)
         {
           scroll_y_target = scroll_y_offset =
             -static_cast<int32>(cursor_coords.first) * font_extents.height;
+          redraw = true;
         }
         else if(effective_cursor_y + font_extents.height > window->height())
         {
           scroll_y_offset -=
             effective_cursor_y + font_extents.height - window->height();
           scroll_y_target = scroll_y_offset;
+          redraw = true;
         }
       }
       else if(event.type == SDL_MOUSEBUTTONDOWN)
