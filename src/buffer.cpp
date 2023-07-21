@@ -463,7 +463,16 @@ bool Buffer::process_backspace() noexcept
 
 void Buffer::process_enter() noexcept
 {
-  this->_delete_selection();
+  if(_has_selection)
+  {
+    auto selection = this->selection();
+    this->_delete_selection();
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+    cmd.start_row = selection.first.first;
+    cmd.end_row = _lines.size() - 1;
+    _buffer_view_update_commands_queue.push(cmd);
+  }
 
   // insert new line after this line
   // and append contents of this line after the cursor to new line
@@ -471,7 +480,12 @@ void Buffer::process_enter() noexcept
   _lines[_cursor_row + 1].append(_lines[_cursor_row].substr(_cursor_col + 1));
   _lines[_cursor_row].erase(_cursor_col + 1);
   _cursor_col = -1;
+  BufferViewUpdateCommand cmd;
+  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+  cmd.start_row = _cursor_row;
   _cursor_row += 1;
+  cmd.end_row = _lines.size()-1;
+  _buffer_view_update_commands_queue.push(cmd);
 }
 
 void Buffer::insert_string(const std::string& str) noexcept

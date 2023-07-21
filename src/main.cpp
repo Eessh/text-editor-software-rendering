@@ -237,7 +237,6 @@ int main(int argc, char** argv)
                 event.key.keysym.sym == SDLK_RETURN2)
         {
           buffer.process_enter();
-          redraw = true;
         }
 
         // calculating final scroll_y_offset
