@@ -231,7 +231,7 @@ int main(int argc, char** argv)
         }
         else if(event.key.keysym.sym == SDLK_BACKSPACE)
         {
-          redraw = buffer.process_backspace();
+          buffer.process_backspace();
         }
         else if(event.key.keysym.sym == SDLK_RETURN ||
                 event.key.keysym.sym == SDLK_RETURN2)
@@ -318,6 +318,7 @@ int main(int argc, char** argv)
       }
     }
 
+    std::vector<SDL_Rect> rects;
     while(1)
     {
       auto optional = buffer.get_next_view_update_command();
@@ -331,22 +332,43 @@ int main(int argc, char** argv)
       if(command.type == BufferViewUpdateCommandType::RENDER_LINE)
       {
         DEBUG_BOII("RENDER_LINE");
-        int32 line_y = scroll_y_offset + command.row * font_extents.height;
+        int32 line_y =
+          ceil(scroll_y_offset + command.row * font_extents.height);
         tokenizer.clear_tokens();
         std::vector<CppTokenizer::Token> tokens =
           tokenizer.tokenize(buffer.line(command.row).value().get() + "\n");
-        if(cursor_coord.first == command.row)
-        {
-          // highlighting cursor line
-          SDL_Color active_line_color =
-            hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                   ->get_config_struct()
-                                   .colorscheme.gray);
-          active_line_color.a = 64;
-          RocketRender::rectangle_filled(
-            0, line_y, window->width(), font_extents.height, active_line_color);
-        }
+        // clearing background of line
+        // if not cleared, blinking glitch will be happening
+        RocketRender::rectangle_filled(
+          0,
+          line_y,
+          window->width(),
+          font_extents.height,
+          hexcode_to_SDL_Color(
+            ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
+        // highlighting cursor line
+        SDL_Color active_line_color = hexcode_to_SDL_Color(
+          ConfigManager::get_instance()->get_config_struct().colorscheme.gray);
+        active_line_color.a = 64;
+        RocketRender::rectangle_filled(
+          0, line_y, window->width(), font_extents.height, active_line_color);
         render_tokens(0, line_y, tokens, font_extents);
+        std::string cursor_style =
+          ConfigManager::get_instance()->get_config_struct().cursor.style;
+        RocketRender::rectangle_filled(
+          font_extents.max_x_advance * (cursor_coord.second + 1),
+          ceil(scroll_y_offset + font_extents.height * cursor_coord.first),
+          (cursor_style == "ibeam" ? ConfigManager::get_instance()
+                                       ->get_config_struct()
+                                       .cursor.ibeam_width
+                                   : font_extents.max_x_advance),
+          font_extents.height,
+          hexcode_to_SDL_Color(
+            ConfigManager::get_instance()->get_config_struct().cursor.color));
+        rects.push_back({0,
+                         line_y,
+                         static_cast<int>(window->width()),
+                         static_cast<int>(font_extents.height)});
       }
       else if(command.type == BufferViewUpdateCommandType::RENDER_LINES)
       {
@@ -392,21 +414,40 @@ int main(int argc, char** argv)
           font_extents.height,
           hexcode_to_SDL_Color(
             ConfigManager::get_instance()->get_config_struct().cursor.color));
-        SDL_Rect rects[2] = {
-          {0, old_line_y, window->width(), font_extents.height},
-          {0, new_line_y, window->width(), font_extents.height}};
-        window->update_rects(rects, 2);
+        rects.push_back({0,
+                         old_line_y,
+                         static_cast<int>(window->width()),
+                         static_cast<int>(font_extents.height)});
+        rects.push_back({0,
+                         new_line_y,
+                         static_cast<int>(window->width()),
+                         static_cast<int>(font_extents.height)});
       }
       else
       {
         DEBUG_BOII("RENDER_LINE_RANGE");
         // Re-render line range
+        int32 line_y =
+          ceil(scroll_y_offset + command.start_row * font_extents.height);
         for(uint32 row = command.start_row; row <= command.end_row; row++)
         {
-          int32 line_y = scroll_y_offset + row * font_extents.height;
+          if(line_y > static_cast<int32>(window->height()))
+          {
+            break;
+          }
           tokenizer.clear_tokens();
           std::vector<CppTokenizer::Token> tokens =
             tokenizer.tokenize(buffer.line(row).value().get() + "\n");
+          // clearing background of line
+          // if not cleared, blinking glitch will be happening
+          RocketRender::rectangle_filled(
+            0,
+            line_y,
+            window->width(),
+            font_extents.height,
+            hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                   ->get_config_struct()
+                                   .colorscheme.bg));
           if(cursor_coord.first == row)
           {
             // highlighting cursor line
@@ -422,9 +463,28 @@ int main(int argc, char** argv)
                                            active_line_color);
           }
           render_tokens(0, line_y, tokens, font_extents);
+          rects.push_back({0,
+                           line_y,
+                           static_cast<int>(window->width()),
+                           static_cast<int>(font_extents.height)});
+          line_y += font_extents.height;
         }
+        std::string cursor_style =
+          ConfigManager::get_instance()->get_config_struct().cursor.style;
+        RocketRender::rectangle_filled(
+          font_extents.max_x_advance * (cursor_coord.second + 1),
+          ceil(scroll_y_offset + font_extents.height * cursor_coord.first),
+          (cursor_style == "ibeam" ? ConfigManager::get_instance()
+                                       ->get_config_struct()
+                                       .cursor.ibeam_width
+                                   : font_extents.max_x_advance),
+          font_extents.height,
+          hexcode_to_SDL_Color(
+            ConfigManager::get_instance()->get_config_struct().cursor.color));
       }
     }
+    window->update_rects(rects.data(), rects.size());
+    // window->update();
 
     redraw = redraw || animator(&scroll_y_offset, &scroll_y_target);
 

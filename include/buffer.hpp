@@ -27,7 +27,8 @@ typedef enum class BufferSelectionCommand
 typedef enum class BufferViewUpdateCommandType
 {
   RENDER_LINE,
-  RENDER_LINES
+  RENDER_LINES,
+  RENDER_LINE_RANGE
 } BufferViewUpdateCommandType;
 
 struct BufferViewUpdateCommand
