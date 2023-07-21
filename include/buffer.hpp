@@ -7,6 +7,7 @@
 #include <vector>
 #include "types.hpp"
 
+/// @brief Cursor commands to process on buffer.
 typedef enum class BufferCursorCommand
 {
   MOVE_LEFT,
@@ -15,6 +16,7 @@ typedef enum class BufferCursorCommand
   MOVE_DOWN,
 } BufferCursorCommand;
 
+/// @brief Selection commands to process on buffer.
 typedef enum class BufferSelectionCommand
 {
   MOVE_LEFT,
@@ -25,6 +27,9 @@ typedef enum class BufferSelectionCommand
   SELECT_LINE
 } BufferSelectionCommand;
 
+/// @brief Buffer view update command type, tells which
+///        type of command it is: render single line (or)
+///        render two lines (or) render a range of lines.
 typedef enum class BufferViewUpdateCommandType
 {
   RENDER_LINE,
@@ -32,11 +37,12 @@ typedef enum class BufferViewUpdateCommandType
   RENDER_LINE_RANGE
 } BufferViewUpdateCommandType;
 
+/// @brief Buffer view update command, tells UI which
+///        lines are updated, hence should be redrawn.
 struct BufferViewUpdateCommand
 {
   BufferViewUpdateCommandType type;
   uint32 row;
-  // std::vector<uint32> rows;
   uint32 old_active_line, new_active_line;
   uint32 start_row, end_row;
 
@@ -104,20 +110,26 @@ public:
   /// @return Returns const reference to uint32 cursor row.
   [[nodiscard]] const uint32& cursor_row() const noexcept;
 
-  /// @brief Getter & Setter for cursor row.
+  /// @brief Getter & Setter for cursor row, this doesn't
+  ///        implement effective buffer view updates.
   /// @return Returns mutable reference to uint32 cursor row;
   [[nodiscard]] uint32& cursor_row() noexcept;
 
+  /// @brief Sets cursor row, this implements effective buffer view updates.
+  /// @param row the row to set cursor at.
   void set_cursor_row(const uint32& row) noexcept;
 
   /// @brief Gets cursor column.
   /// @return Returns const reference to int32 cursor column.
   [[nodiscard]] const int32& cursor_column() const noexcept;
 
-  /// @brief Getter & Setter for cursor column.
+  /// @brief Getter & Setter for cursor column, this doesn't
+  ///        implement effective buffer view updates.
   /// @return Returns mutable reference to int32 cursor column.
   [[nodiscard]] int32& cursor_column() noexcept;
 
+  /// @brief Sets cursor column, this implements effective buffer view updates.
+  /// @param column the column to set cursor at.
   void set_cursor_column(const int32& column) noexcept;
 
   /// @brief Tells if buffer has selection.
@@ -153,9 +165,12 @@ public:
   /// @param str string to insert.
   void insert_string(const std::string& str) noexcept;
 
+  /// @brief Gets next view update command.
+  /// @return Returns std::nullopt if there are no commands.
   std::optional<BufferViewUpdateCommand>
   get_next_view_update_command() noexcept;
 
+  /// @brief Removes last inserted command, in the view updates queue.
   void remove_most_recent_command() noexcept;
 
 private:
@@ -174,6 +189,7 @@ private:
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
 
+  /// @brief View updates queue.
   std::deque<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
 
   /// @brief Base function for moving cursor to left.
