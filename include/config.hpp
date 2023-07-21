@@ -5,6 +5,8 @@
 
 typedef struct config
 {
+  uint8 fps;
+
   struct window
   {
     uint16 width, height;

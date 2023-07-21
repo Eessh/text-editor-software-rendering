@@ -698,7 +698,9 @@ int main(int argc, char** argv)
       SDL_GetPerformanceCounter() / (double)SDL_GetPerformanceFrequency();
     double time_elapsed = frame_end_time - frame_start_time;
     INFO_BOII("Frame time: %lf", time_elapsed);
-    SDL_Delay((1 / (60 - time_elapsed)) * 1000);
+    SDL_Delay((1 / (ConfigManager::get_instance()->get_config_struct().fps -
+                    time_elapsed)) *
+              1000);
   }
 
   SDL_StopTextInput();
