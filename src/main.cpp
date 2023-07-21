@@ -313,7 +313,6 @@ int main(int argc, char** argv)
       else if(event.type == SDL_TEXTINPUT)
       {
         buffer.insert_string(event.text.text);
-        redraw = true;
       }
     }
 
