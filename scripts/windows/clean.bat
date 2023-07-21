@@ -3,6 +3,9 @@
 echo Cleaning distributables ...
 del /q dist\windows\*.exe >nul 2>&1
 
+echo Cleaning distributable config ...
+del /q dist\windows\config.toml >nul 2>&1
+
 echo Cleaning compiled resources ...
 del /q res.res >nul 2>&1
 
