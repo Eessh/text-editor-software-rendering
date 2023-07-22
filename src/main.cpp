@@ -1000,8 +1000,18 @@ void render_tokens(int32 x,
     else if(token.type == CppTokenizer::TokenType::MULTILINE_COMMENT)
     {
       ERROR_BOII("Rendering multiline comment un-implemented!");
-      // RocketRender::text(x, y, token.value, hexcode_to_SDL_Color(ConfigManager::get_instance()->get_config_struct().cpp_token_colors.string));
-      // x += token.value.size()*font_extents.max_x_advance;
+      std::string trimmed_token = token.value;
+      if(trimmed_token.back() == '\n')
+      {
+        trimmed_token.pop_back();
+      }
+      RocketRender::text(x,
+                         y,
+                         trimmed_token,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.comment));
+      x += trimmed_token.size() * font_extents.max_x_advance;
     }
     else if(token.type == CppTokenizer::TokenType::OPERATOR)
     {
