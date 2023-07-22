@@ -402,6 +402,10 @@ int main(int argc, char** argv)
             {
               selection_length = buffer.line_length(command.row).value() -
                                  selection_line_slice.first;
+              if(command.row == cursor_coord.first)
+              {
+                selection_length -= 1;
+              }
             }
             else
             {
@@ -527,6 +531,10 @@ int main(int argc, char** argv)
               selection_length =
                 buffer.line_length(command.new_active_line).value() -
                 selection_line_slice.first;
+              if(command.new_active_line == cursor_coord.first)
+              {
+                selection_length -= 1;
+              }
             }
             else
             {
