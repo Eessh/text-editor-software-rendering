@@ -46,6 +46,12 @@ int main(int argc, char** argv)
     exit(1);
   }
 
+  // Setting hints
+  /// bypassing compositors in X11
+  SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+  SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+  SDL_SetHint("SDL_MOUSE_DOUBLE_CLICK_RADIUS", "4");
+
   // Creating config manager
   ConfigManager::create_instance();
   if(!ConfigManager::get_instance()->load_config())
@@ -157,6 +163,19 @@ int main(int argc, char** argv)
                 event.window.event == SDL_WINDOWEVENT_SHOWN)
         {
           redraw = true;
+        }
+      }
+      /// important fix for linux - X11 or Wayland
+      /// too many mouse motion events (especially in KDE)
+      /// this issue almost made me quit this project
+      else if(event.type == SDL_MOUSEMOTION)
+      {
+        SDL_PumpEvents();
+        SDL_Event e;
+        while(SDL_PeepEvents(
+                &e, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0)
+        {
+          // do nothing my boi (for the time being)
         }
       }
       else if(event.type == SDL_MOUSEWHEEL)
@@ -436,7 +455,7 @@ int main(int argc, char** argv)
           hexcode_to_SDL_Color(
             ConfigManager::get_instance()->get_config_struct().cursor.color));
         rects.push_back((SDL_Rect){0,
-                                   line_y,
+                                   static_cast<int>(line_y),
                                    static_cast<int>(window->width()),
                                    static_cast<int>(font_extents.height)});
       }
@@ -565,11 +584,11 @@ int main(int argc, char** argv)
           hexcode_to_SDL_Color(
             ConfigManager::get_instance()->get_config_struct().cursor.color));
         rects.push_back((SDL_Rect){0,
-                                   old_line_y,
+                                   static_cast<int>(old_line_y),
                                    static_cast<int>(window->width()),
                                    static_cast<int>(font_extents.height)});
         rects.push_back((SDL_Rect){0,
-                                   new_line_y,
+                                   static_cast<int>(new_line_y),
                                    static_cast<int>(window->width()),
                                    static_cast<int>(font_extents.height)});
       }
@@ -598,7 +617,7 @@ int main(int argc, char** argv)
                                      ->get_config_struct()
                                      .colorscheme.bg));
             rects.push_back((SDL_Rect){0,
-                                       line_y,
+                                       static_cast<int>(line_y),
                                        static_cast<int>(window->width()),
                                        static_cast<int>(font_extents.height)});
             line_y += font_extents.height;
@@ -666,7 +685,7 @@ int main(int argc, char** argv)
             }
           }
           rects.push_back((SDL_Rect){0,
-                                     line_y,
+                                     static_cast<int>(line_y),
                                      static_cast<int>(window->width()),
                                      static_cast<int>(font_extents.height)});
           line_y += font_extents.height;
