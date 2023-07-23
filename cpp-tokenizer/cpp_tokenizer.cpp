@@ -404,9 +404,8 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
           {
             // end of string
             // although the miltiline comment is unclosed,
-            // we push the token to preserve the state
-
-            /// TODO: implement stateful tokenizing
+            // with token as incomplete type
+            _current_token.type = TokenType::MULTILINE_COMMENT_INCOMPLETE;
             _current_token.end_offset = _position - 1;
             _tokens.push_back(_current_token);
           }
@@ -725,6 +724,55 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
   }
 
   return _tokens;
+}
+
+const std::vector<Token>& Tokenizer::tokenize_from_imcomplete_token(
+  const std::string& str,
+  const Token& incomplete_token,
+  const bool& append_to_incomplete_token) noexcept
+{
+  if(incomplete_token.type == TokenType::MULTILINE_COMMENT_INCOMPLETE)
+  {
+    if(append_to_incomplete_token)
+    {
+      _current_token = Token(incomplete_token);
+    }
+    else
+    {
+      _current_token = Token(TokenType::MULTILINE_COMMENT_INCOMPLETE);
+    }
+    bool inserted_multiline_comment_token = false;
+    while(_position < str.size())
+    {
+      if(str[_position] == '*' && _position + 1 < str.size() &&
+         str[_position + 1] == '/')
+      {
+        // multiline comment ended.
+        _current_token.value.append("*/");
+        _current_token.end_offset = _position + 1;
+        _position += 2;
+        _current_token.type = TokenType::MULTILINE_COMMENT;
+        _tokens.push_back(_current_token);
+        inserted_multiline_comment_token = true;
+        break;
+      }
+      if(str[_position] == '\r')
+      {
+        _position++;
+        continue;
+      }
+      _current_token.value.push_back(str[_position]);
+      _position++;
+    }
+    if(_position >= str.size() && !inserted_multiline_comment_token)
+    {
+      _current_token.end_offset = _position - 1;
+      _tokens.push_back(_current_token);
+      return _tokens;
+    }
+  }
+
+  return this->tokenize(str);
 }
 
 void Tokenizer::clear_tokens() noexcept

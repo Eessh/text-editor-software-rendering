@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <cstdint>
 
 /// @brief CppTokenizer namespace.
 namespace CppTokenizer
@@ -49,6 +48,9 @@ typedef enum class TokenType
   COMMENT,
   /// @brief Multiline token type.
   MULTILINE_COMMENT,
+  /// @brief Incomplete multiline token type.
+  ///        Incomplete means this token is not closed by "*/"
+  MULTILINE_COMMENT_INCOMPLETE,
   /// @brief Operator token type.
   OPERATOR,
   /// @brief Keyword token type.
@@ -108,6 +110,11 @@ public:
   /// @return Const reference to vector of Tokens.
   [[nodiscard]] const std::vector<Token>&
   tokenize(const std::string& str) noexcept;
+
+  [[nodiscard]] const std::vector<Token>& tokenize_from_imcomplete_token(
+    const std::string& str,
+    const Token& incomplete_token,
+    const bool& append_to_incomplete_token = false) noexcept;
 
   /// @brief Clears tokens stored in previous tokenization.
   void clear_tokens() noexcept;

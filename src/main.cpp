@@ -686,13 +686,11 @@ int main(int argc, char** argv)
       }
     }
     window->update_rects(rects.data(), rects.size());
-    // window->update();
 
     redraw = redraw || animator(&scroll_y_offset, &scroll_y_target);
 
     if(redraw)
     {
-      // window->clear_with_color({255, 255, 255, 255});
       window->clear_with_color(hexcode_to_SDL_Color(
         ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
 
@@ -999,7 +997,21 @@ void render_tokens(int32 x,
     }
     else if(token.type == CppTokenizer::TokenType::MULTILINE_COMMENT)
     {
-      ERROR_BOII("Rendering multiline comment un-implemented!");
+      std::string trimmed_token = token.value;
+      if(trimmed_token.back() == '\n')
+      {
+        trimmed_token.pop_back();
+      }
+      RocketRender::text(x,
+                         y,
+                         trimmed_token,
+                         hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                ->get_config_struct()
+                                                .cpp_token_colors.comment));
+      x += trimmed_token.size() * font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
+    {
       std::string trimmed_token = token.value;
       if(trimmed_token.back() == '\n')
       {
