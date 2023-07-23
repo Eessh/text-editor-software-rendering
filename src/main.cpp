@@ -435,10 +435,10 @@ int main(int argc, char** argv)
           font_extents.height,
           hexcode_to_SDL_Color(
             ConfigManager::get_instance()->get_config_struct().cursor.color));
-        rects.push_back({0,
-                         line_y,
-                         static_cast<int>(window->width()),
-                         static_cast<int>(font_extents.height)});
+        rects.push_back((SDL_Rect){0,
+                                   line_y,
+                                   static_cast<int>(window->width()),
+                                   static_cast<int>(font_extents.height)});
       }
       else if(command.type == BufferViewUpdateCommandType::RENDER_LINES)
       {
@@ -564,14 +564,14 @@ int main(int argc, char** argv)
           font_extents.height,
           hexcode_to_SDL_Color(
             ConfigManager::get_instance()->get_config_struct().cursor.color));
-        rects.push_back({0,
-                         old_line_y,
-                         static_cast<int>(window->width()),
-                         static_cast<int>(font_extents.height)});
-        rects.push_back({0,
-                         new_line_y,
-                         static_cast<int>(window->width()),
-                         static_cast<int>(font_extents.height)});
+        rects.push_back((SDL_Rect){0,
+                                   old_line_y,
+                                   static_cast<int>(window->width()),
+                                   static_cast<int>(font_extents.height)});
+        rects.push_back((SDL_Rect){0,
+                                   new_line_y,
+                                   static_cast<int>(window->width()),
+                                   static_cast<int>(font_extents.height)});
       }
       else
       {
@@ -597,10 +597,10 @@ int main(int argc, char** argv)
               hexcode_to_SDL_Color(ConfigManager::get_instance()
                                      ->get_config_struct()
                                      .colorscheme.bg));
-            rects.push_back({0,
-                             line_y,
-                             static_cast<int>(window->width()),
-                             static_cast<int>(font_extents.height)});
+            rects.push_back((SDL_Rect){0,
+                                       line_y,
+                                       static_cast<int>(window->width()),
+                                       static_cast<int>(font_extents.height)});
             line_y += font_extents.height;
             continue;
           }
@@ -665,10 +665,10 @@ int main(int argc, char** argv)
                                        .colorscheme.highlight));
             }
           }
-          rects.push_back({0,
-                           line_y,
-                           static_cast<int>(window->width()),
-                           static_cast<int>(font_extents.height)});
+          rects.push_back((SDL_Rect){0,
+                                     line_y,
+                                     static_cast<int>(window->width()),
+                                     static_cast<int>(font_extents.height)});
           line_y += font_extents.height;
         }
         std::string cursor_style =
