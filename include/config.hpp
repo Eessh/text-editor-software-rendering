@@ -21,7 +21,7 @@ typedef struct config
   struct scrolling
   {
     uint8 sensitivity;
-    float32 friction;
+    float32 acceleration;
   } scrolling;
 
   struct cpp_token_colors

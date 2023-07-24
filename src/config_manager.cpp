@@ -86,8 +86,8 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
 
   _config.scrolling.sensitivity =
     parsed_config["scrolling"]["sensitivity"].value_or<uint8>(80);
-  _config.scrolling.friction =
-    parsed_config["scrolling"]["friction"].value_or<float32>(0.4);
+  _config.scrolling.acceleration =
+    parsed_config["scrolling"]["acceleration"].value_or<float32>(0.4);
 
   _config.cpp_token_colors.semicolon =
     parsed_config["cpp_token_colors"]["semicolon"].value_or<std::string>(

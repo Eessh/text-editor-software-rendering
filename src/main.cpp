@@ -857,19 +857,32 @@ int main(int argc, char** argv)
 
       window->update();
       redraw = false;
+
+      double frame_end_time =
+        SDL_GetPerformanceCounter() / (double)SDL_GetPerformanceFrequency();
+      double time_elapsed = frame_end_time - frame_start_time;
+      double ideal_frame_time =
+        1.0f / ConfigManager::get_instance()->get_config_struct().fps;
+      if(time_elapsed >= ideal_frame_time)
+      {
+        // this souldn't be happening
+        // maybe the rendering is taking too much time
+        // or the updates
+        // if this is occuring frequently
+        // then its time to use multithreading
+        WARN_BOII("Frame time exceeded ideal frame time by: %lfms!",
+                  (time_elapsed - ideal_frame_time) * 1000);
+        continue;
+      }
+      uint32 time_to_delay = (ideal_frame_time - time_elapsed) * 1000;
+      INFO_BOII("Frame time: %lf, Delay: %ldms", time_elapsed, time_to_delay);
+      SDL_Delay(time_to_delay);
     }
     else
     {
+      INFO_BOII("Waiting for event...");
       SDL_WaitEventTimeout(NULL, wait_time);
     }
-
-    double frame_end_time =
-      SDL_GetPerformanceCounter() / (double)SDL_GetPerformanceFrequency();
-    double time_elapsed = frame_end_time - frame_start_time;
-    INFO_BOII("Frame time: %lf", time_elapsed);
-    SDL_Delay((1 / (ConfigManager::get_instance()->get_config_struct().fps -
-                    time_elapsed)) *
-              1000);
   }
 
   SDL_StopTextInput();
@@ -882,6 +895,17 @@ int main(int argc, char** argv)
   return 0;
 }
 
+float32 clamp(const float32 x, const float32 low, const float32 high)
+{
+  return std::max(std::min(x, high), low);
+}
+
+float32
+lerp(const float32 low, const float32 high, const float32 interpolated_point)
+{
+  return low + (high - low) * interpolated_point;
+}
+
 bool animator(float32* animatable, const float32* target) noexcept
 {
   const float32 delta = *target - *animatable;
@@ -890,15 +914,22 @@ bool animator(float32* animatable, const float32* target) noexcept
     return false;
   }
 
-  if(abs(delta) < 0.1f)
+  if(abs(delta) < 0.5f)
   {
-    *animatable = *animatable + delta;
+    *animatable += delta;
     return true;
   }
 
+  /// some experiments with scroll animation
+  // float32 rate = 0.5;
+  // float32 dt = 60.0f/static_cast<float32>(ConfigManager::get_instance()->get_config_struct().fps);
+  // rate = 1 - std::pow(clamp(1-rate, 1e-8, 1-1e-8), 1.0f*dt);
+
+  // *animatable = lerp(*animatable, *target, rate);
+
   *animatable +=
     delta *
-    ConfigManager::get_instance()->get_config_struct().scrolling.friction;
+    ConfigManager::get_instance()->get_config_struct().scrolling.acceleration;
   return true;
 }
 
