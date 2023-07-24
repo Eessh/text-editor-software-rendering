@@ -604,6 +604,11 @@ void Buffer::remove_most_recent_command() noexcept
   _buffer_view_update_commands_queue.pop_back();
 }
 
+const std::vector<uint32>& Buffer::lines_to_update_token_cache() const noexcept
+{
+  return _lines_to_update_token_cache;
+}
+
 bool Buffer::_base_move_cursor_left() noexcept
 {
   if(_cursor_col > -1) [[likely]]

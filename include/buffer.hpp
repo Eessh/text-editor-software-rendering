@@ -224,6 +224,10 @@ public:
   /// @brief Removes last inserted command, in the view updates queue.
   void remove_most_recent_command() noexcept;
 
+  /// @brief Gets the lines that have been edited and need re-tokenization
+  /// @return Returns a vector of lines.
+  const std::vector<uint32>& lines_to_update_token_cache() const noexcept;
+
 private:
   /// @brief Cursor row.
   uint32 _cursor_row;
@@ -239,6 +243,9 @@ private:
 
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
+
+  /// @brief Lines that need re-tokenization.
+  std::vector<uint32> _lines_to_update_token_cache;
 
   /// @brief View updates queue.
   std::deque<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
