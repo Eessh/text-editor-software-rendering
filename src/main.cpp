@@ -97,69 +97,8 @@ int main(int argc, char** argv)
   // Creating tokenizer
   // CppTokenizer::Tokenizer tokenizer;
 
-  // Initial render
-  {
-    window->clear_with_color(hexcode_to_SDL_Color(
-      ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
-    float32 y = 0.0f;
-    auto cursor_coords = buffer.cursor_coords();
-    uint32 row = 0;
-    // for(const std::string& line : buffer.lines())
-    // {
-    //   if(y < 0 && -y > font_extents.height)
-    //   {
-    //     y += font_extents.height;
-    //     row++;
-    //     continue;
-    //   }
-    //   if(cursor_coords.first == row)
-    //   {
-    //     // highlight cursor line
-    //     RocketRender::rectangle_filled(
-    //       0, y, 200, font_extents.height, {255, 0, 0, 200});
-    //   }
-    //   RocketRender::text(0, y, line, {0, 0, 0, 255});
-    //   y += font_extents.height;
-    //   row++;
-    //   if(y > static_cast<int16>(window->height()))
-    //   {
-    //     break;
-    //   }
-    // }
-    for(const std::vector<CppTokenizer::Token>& line_tokens :
-        tokenizer_cache.tokens())
-    {
-      if(y < 0 && -y > font_extents.height)
-      {
-        y += font_extents.height;
-        row++;
-        continue;
-      }
-      if(cursor_coords.first == row)
-      {
-        // highlight cursor line
-        RocketRender::rectangle_filled(
-          0,
-          y,
-          window->width(),
-          font_extents.height,
-          hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                 ->get_config_struct()
-                                 .colorscheme.highlight));
-      }
-      render_tokens(0, y, line_tokens, font_extents);
-      y += font_extents.height;
-      row++;
-      if(y > static_cast<int32>(window->height()))
-      {
-        break;
-      }
-    }
-    window->update();
-  }
-
   // main loop
-  bool redraw = false, fingerdown = false;
+  bool redraw = true;
   float32 scroll_y_offset = 0.0f, scroll_y_target = 0.0f;
   uint8 scroll_sensitivity = ConfigManager::get_instance()
                                ->get_config_struct()
