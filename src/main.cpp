@@ -114,12 +114,7 @@ int main(int argc, char** argv)
     {
       if(event.type == SDL_QUIT)
       {
-        SDL_StopTextInput();
-        ConfigManager::delete_instance();
-        CursorManager::delete_insance();
-        CairoContext::delete_instance();
-        delete window;
-        SDL_Quit();
+        goto cleanup;
         return 0;
       }
       else if(event.type == SDL_WINDOWEVENT)
@@ -854,6 +849,7 @@ int main(int argc, char** argv)
     }
   }
 
+cleanup:
   SDL_StopTextInput();
   ConfigManager::delete_instance();
   CursorManager::delete_insance();
@@ -863,7 +859,7 @@ int main(int argc, char** argv)
 
   return 0;
 }
-
+/*
 float32 clamp(const float32 x, const float32 low, const float32 high)
 {
   return std::max(std::min(x, high), low);
@@ -874,7 +870,7 @@ lerp(const float32 low, const float32 high, const float32 interpolated_point)
 {
   return low + (high - low) * interpolated_point;
 }
-
+*/
 bool animator(float32* animatable, const float32* target) noexcept
 {
   const float32 delta = *target - *animatable;
