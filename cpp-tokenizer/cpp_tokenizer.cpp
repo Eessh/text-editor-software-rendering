@@ -166,6 +166,8 @@ std::string token_type_to_string(const CppTokenizer::TokenType& type)
     return "COMMENT";
   case CppTokenizer::TokenType::MULTILINE_COMMENT:
     return "MULTILINE_COMMENT";
+  case CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE:
+    return "MULTILINE_COMMENT_INCOMPLETE";
   case CppTokenizer::TokenType::OPERATOR:
     return "OPERATOR";
   case CppTokenizer::TokenType::KEYWORD:

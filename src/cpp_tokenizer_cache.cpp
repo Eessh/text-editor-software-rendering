@@ -5,8 +5,9 @@ void CppTokenizerCache::build_cache(const Buffer& buffer) noexcept
 {
   for(const std::string& line : buffer.lines())
   {
-    if(_tokens.back().back().type ==
-       CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
+    if(!_tokens.empty() && !_tokens.back().empty() &&
+       _tokens.back().back().type ==
+         CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
     {
       _tokens.push_back(
         _tokenizer.tokenize_from_imcomplete_token(line, _tokens.back().back()));
