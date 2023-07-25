@@ -182,7 +182,7 @@ int main(int argc, char** argv)
              effective_cursor_y + font_extents.height > window->height())
           {
             // delete last inserted command
-            buffer.remove_most_recent_command();
+            buffer.remove_most_recent_view_update_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_RIGHT)
@@ -205,7 +205,7 @@ int main(int argc, char** argv)
              effective_cursor_y + font_extents.height > window->height())
           {
             // delete last inserted command
-            buffer.remove_most_recent_command();
+            buffer.remove_most_recent_view_update_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_UP)
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
              effective_cursor_y + font_extents.height > window->height())
           {
             // delete last inserted command
-            buffer.remove_most_recent_command();
+            buffer.remove_most_recent_view_update_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_DOWN)
@@ -249,7 +249,7 @@ int main(int argc, char** argv)
              effective_cursor_y + font_extents.height > window->height())
           {
             // delete last inserted command
-            buffer.remove_most_recent_command();
+            buffer.remove_most_recent_view_update_command();
           }
         }
         else if(event.key.keysym.sym == SDLK_BACKSPACE)

@@ -525,23 +525,42 @@ bool Buffer::process_backspace() noexcept
     // remove character before cursor
     _lines[_cursor_row].erase(_cursor_col, 1);
     _cursor_col -= 1;
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    {
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+      cmd.row = _cursor_row;
+      _buffer_view_update_commands_queue.emplace_back(cmd);
+    }
+    {
+      TokenCacheUpdateCommand cmd;
+      cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+      cmd.row = _cursor_row;
+      _token_cache_update_commands_queue.emplace_back(cmd);
+    }
     return true;
   }
 
   // append the contents of this string to above line
   _cursor_col = _lines[_cursor_row - 1].size() - 1;
   _lines[_cursor_row - 1].append(_lines[_cursor_row]);
+  {
+    TokenCacheUpdateCommand cmd;
+    cmd.type = TokenCacheUpdateCommandType::DELETE_LINE_CACHE;
+    cmd.row = _cursor_row;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+    cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+    cmd.row = _cursor_row - 1;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+  }
   _lines.erase(_lines.begin() + _cursor_row);
   _cursor_row -= 1;
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  cmd.start_row = _cursor_row;
-  cmd.end_row = _lines.size() - 1;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  {
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+    cmd.start_row = _cursor_row;
+    cmd.end_row = _lines.size() - 1;
+    _buffer_view_update_commands_queue.push_back(cmd);
+  }
   return true;
 }
 
@@ -558,12 +577,22 @@ void Buffer::process_enter() noexcept
   _lines[_cursor_row + 1].append(_lines[_cursor_row].substr(_cursor_col + 1));
   _lines[_cursor_row].erase(_cursor_col + 1);
   _cursor_col = -1;
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  cmd.start_row = _cursor_row;
-  _cursor_row += 1;
-  cmd.end_row = _lines.size() - 1;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  {
+    TokenCacheUpdateCommand cmd;
+    cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+    cmd.row = _cursor_row;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+    cmd.type = TokenCacheUpdateCommandType::INSERT_NEW_LINE_CACHE_AND_TOKENIZE;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+  }
+  {
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+    cmd.start_row = _cursor_row;
+    _cursor_row += 1;
+    cmd.end_row = _lines.size() - 1;
+    _buffer_view_update_commands_queue.push_back(cmd);
+  }
 }
 
 void Buffer::insert_string(const std::string& str) noexcept
@@ -575,10 +604,18 @@ void Buffer::insert_string(const std::string& str) noexcept
 
   _lines[_cursor_row].insert(_cursor_col + 1, str);
   _cursor_col += str.size();
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-  cmd.row = _cursor_row;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  {
+    BufferViewUpdateCommand cmd;
+    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+    cmd.row = _cursor_row;
+    _buffer_view_update_commands_queue.push_back(cmd);
+  }
+  {
+    TokenCacheUpdateCommand cmd;
+    cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+    cmd.row = _cursor_row;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+  }
 }
 
 std::optional<BufferViewUpdateCommand>
@@ -594,7 +631,7 @@ Buffer::get_next_view_update_command() noexcept
   return command;
 }
 
-void Buffer::remove_most_recent_command() noexcept
+void Buffer::remove_most_recent_view_update_command() noexcept
 {
   if(_buffer_view_update_commands_queue.empty())
   {
@@ -604,9 +641,17 @@ void Buffer::remove_most_recent_command() noexcept
   _buffer_view_update_commands_queue.pop_back();
 }
 
-const std::vector<uint32>& Buffer::lines_to_update_token_cache() const noexcept
+std::optional<TokenCacheUpdateCommand>
+Buffer::get_next_token_cache_update_command() noexcept
 {
-  return _lines_to_update_token_cache;
+  if(_token_cache_update_commands_queue.empty())
+  {
+    return std::nullopt;
+  }
+
+  TokenCacheUpdateCommand cmd = _token_cache_update_commands_queue.front();
+  _token_cache_update_commands_queue.pop_front();
+  return cmd;
 }
 
 bool Buffer::_base_move_cursor_left() noexcept
@@ -715,7 +760,6 @@ void Buffer::_delete_selection() noexcept
     return;
   }
 
-  // delete selection
   auto selection = this->selection();
   if(selection.first.first == selection.second.first)
   {
@@ -723,18 +767,28 @@ void Buffer::_delete_selection() noexcept
     _lines[selection.first.first].erase(selection.first.second + 1,
                                         selection.second.second -
                                           selection.first.second);
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    {
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+      cmd.row = _cursor_row;
+      _buffer_view_update_commands_queue.push_back(cmd);
+    }
+    {
+      TokenCacheUpdateCommand cmd;
+      cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+      cmd.row = _cursor_row;
+      _token_cache_update_commands_queue.emplace_back(cmd);
+    }
   }
   else
   {
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-    cmd.start_row = selection.first.first;
-    cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    {
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
+      cmd.start_row = selection.first.first;
+      cmd.end_row = _lines.size() - 1;
+      _buffer_view_update_commands_queue.push_back(cmd);
+    }
 
     _lines[selection.first.first].erase(selection.first.second + 1);
     _lines[selection.second.first].erase(0, selection.second.second + 1);
@@ -742,6 +796,17 @@ void Buffer::_delete_selection() noexcept
     // deleting lines btw selection start end, which are fully selected
     _lines.erase(_lines.begin() + selection.first.first + 1,
                  _lines.begin() + selection.second.first + 1);
+
+    {
+      TokenCacheUpdateCommand cmd;
+      cmd.type = TokenCacheUpdateCommandType::DELETE_LINES_CACHE;
+      cmd.start_row = selection.first.first + 1;
+      cmd.end_row = selection.second.first;
+      _token_cache_update_commands_queue.emplace_back(cmd);
+      cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+      cmd.row = selection.first.first;
+      _token_cache_update_commands_queue.emplace_back(cmd);
+    }
   }
   _cursor_row = selection.first.first;
   _cursor_col = selection.first.second;

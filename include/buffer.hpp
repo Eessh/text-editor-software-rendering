@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include "cpp_tokenizer_cache.hpp"
 #include "types.hpp"
 
 /// @brief Cursor commands to process on buffer.
@@ -222,11 +223,12 @@ public:
   get_next_view_update_command() noexcept;
 
   /// @brief Removes last inserted command, in the view updates queue.
-  void remove_most_recent_command() noexcept;
+  void remove_most_recent_view_update_command() noexcept;
 
-  /// @brief Gets the lines that have been edited and need re-tokenization
-  /// @return Returns a vector of lines.
-  const std::vector<uint32>& lines_to_update_token_cache() const noexcept;
+  /// @brief Gets next token cache update command.
+  /// @return Returns std::nullopt if there are no commands.
+  std::optional<TokenCacheUpdateCommand>
+  get_next_token_cache_update_command() noexcept;
 
 private:
   /// @brief Cursor row.
@@ -244,11 +246,11 @@ private:
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
 
-  /// @brief Lines that need re-tokenization.
-  std::vector<uint32> _lines_to_update_token_cache;
-
   /// @brief View updates queue.
   std::deque<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
+
+  /// @brief Token cahce updates queue.
+  std::deque<TokenCacheUpdateCommand> _token_cache_update_commands_queue;
 
   /// @brief Base function for moving cursor to left.
   ///        Public functions of Buffer do some additional operations
