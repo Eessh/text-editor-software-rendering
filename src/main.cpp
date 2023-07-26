@@ -686,6 +686,33 @@ int main(int argc, char** argv)
       window->clear_with_color(hexcode_to_SDL_Color(
         ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
 
+      // rendering line numbers
+      float32 line_numbers_width =
+        (std::to_string(buffer.length()).length() + 2) *
+        font_extents.max_x_advance;
+      RocketRender::rectangle_filled(
+        0,
+        0,
+        line_numbers_width,
+        window->height(),
+        hexcode_to_SDL_Color(
+          ConfigManager::get_instance()->get_config_struct().colorscheme.gray));
+      for(uint32 i = 1; i <= buffer.length(); i++)
+      {
+        std::string string_to_render = std::move(std::to_string(i));
+        while(string_to_render.length() !=
+              std::to_string(buffer.length()).length())
+        {
+          string_to_render.insert(0, " ");
+        }
+        RocketRender::text(font_extents.max_x_advance,
+                           scroll_y_offset + font_extents.height * (i - 1),
+                           string_to_render,
+                           hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                  ->get_config_struct()
+                                                  .colorscheme.white));
+      }
+
       // drawing contents
       int32 y = scroll_y_offset;
       auto cursor_coord = buffer.cursor_coords();
@@ -707,10 +734,13 @@ int main(int argc, char** argv)
                                    ->get_config_struct()
                                    .colorscheme.gray);
           active_line_color.a = 64;
-          RocketRender::rectangle_filled(
-            0, y, window->width(), font_extents.height, active_line_color);
+          RocketRender::rectangle_filled(line_numbers_width + 1,
+                                         y,
+                                         window->width(),
+                                         font_extents.height,
+                                         active_line_color);
         }
-        render_tokens(0, y, line_tokens, font_extents);
+        render_tokens(line_numbers_width + 1, y, line_tokens, font_extents);
         y += font_extents.height;
         row++;
         if(y > static_cast<int32>(window->height()))
@@ -760,7 +790,8 @@ int main(int argc, char** argv)
         {
           // drawing only selections on single line
           RocketRender::rectangle_filled(
-            (selection.first.second + 1) * font_extents.max_x_advance,
+            line_numbers_width + 1 +
+              (selection.first.second + 1) * font_extents.max_x_advance,
             ceil(scroll_y_offset + selection.first.first * font_extents.height),
             (selection.second.second - selection.first.second) *
               font_extents.max_x_advance,
@@ -775,7 +806,8 @@ int main(int argc, char** argv)
             buffer.line_length(selection.first.first).value() -
             selection.first.second;
           RocketRender::rectangle_filled(
-            (selection.first.second + 1) * font_extents.max_x_advance,
+            line_numbers_width + 1 +
+              (selection.first.second + 1) * font_extents.max_x_advance,
             ceil(scroll_y_offset + selection.first.first * font_extents.height),
             selection_width * font_extents.max_x_advance,
             font_extents.height,
@@ -786,7 +818,7 @@ int main(int argc, char** argv)
               row++)
           {
             RocketRender::rectangle_filled(
-              0,
+              line_numbers_width + 1,
               ceil(scroll_y_offset + row * font_extents.height),
               (buffer.line_length(row).value() + 1) *
                 font_extents.max_x_advance,
@@ -795,7 +827,7 @@ int main(int argc, char** argv)
           }
           // drawing last line selection
           RocketRender::rectangle_filled(
-            0,
+            line_numbers_width + 1,
             ceil(scroll_y_offset +
                  selection.second.first * font_extents.height),
             (selection.second.second + 1) * font_extents.max_x_advance,
@@ -809,7 +841,8 @@ int main(int argc, char** argv)
       std::string cursor_style =
         ConfigManager::get_instance()->get_config_struct().cursor.style;
       RocketRender::rectangle_filled(
-        font_extents.max_x_advance * (cursor_coords.second + 1),
+        line_numbers_width + 1 +
+          font_extents.max_x_advance * (cursor_coords.second + 1),
         ceil(scroll_y_offset + font_extents.height * cursor_coords.first),
         (cursor_style == "ibeam" ? ConfigManager::get_instance()
                                      ->get_config_struct()
