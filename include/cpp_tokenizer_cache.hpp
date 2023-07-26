@@ -1,6 +1,9 @@
 #pragma once
 
+#include <deque>
+#include <optional>
 #include "../cpp-tokenizer/cpp_tokenizer.hpp"
+#include "incremental_render_update.hpp"
 #include "types.hpp"
 
 /// @brief forward declaration of Buffer class
@@ -50,6 +53,10 @@ public:
   CppTokenizerCache() = default;
 
   /// @brief Builds intial token cache for all lines in buffer.
+  ///        This is an EXPENSIVE operation! Consumes lot of memory to store
+  ///        the tokens, and maybe blocks the UI for some milliseconds.
+  ///        Better offload this to another thread.
+  ///        TODO: Deprecate this function, build cache incrementally!
   /// @param buffer const reference to buffer.
   void build_cache(const Buffer& buffer) noexcept;
 
@@ -62,6 +69,9 @@ public:
   /// @return const reference to lines of tokens.
   const std::vector<std::vector<CppTokenizer::Token>>& tokens() const noexcept;
 
+  std::optional<IncrementalRenderUpdateCommand>
+  get_next_incremental_render_update() noexcept;
+
 private:
   /// @brief Token cache.
   std::vector<std::vector<CppTokenizer::Token>> _tokens;
@@ -71,4 +81,6 @@ private:
 
   /// @brief Re-tokenized lines in update_cache method.
   std::vector<uint32> _re_tokenized_lines;
+
+  std::deque<IncrementalRenderUpdateCommand> _incremental_render_updates_queue;
 };
