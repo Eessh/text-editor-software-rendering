@@ -168,7 +168,6 @@ int main(int argc, char** argv)
           if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(BufferSelectionCommand::MOVE_LEFT);
-            // redraw = true;
           }
           else
           {
@@ -184,6 +183,7 @@ int main(int argc, char** argv)
             // delete last inserted command
             buffer.remove_most_recent_view_update_command();
           }
+          redraw = true;
         }
         else if(event.key.keysym.sym == SDLK_RIGHT)
         {
@@ -191,7 +191,6 @@ int main(int argc, char** argv)
           {
             buffer.execute_selection_command(
               BufferSelectionCommand::MOVE_RIGHT);
-            // redraw = true;
           }
           else
           {
@@ -207,13 +206,13 @@ int main(int argc, char** argv)
             // delete last inserted command
             buffer.remove_most_recent_view_update_command();
           }
+          redraw = true;
         }
         else if(event.key.keysym.sym == SDLK_UP)
         {
           if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(BufferSelectionCommand::MOVE_UP);
-            // redraw = true;
           }
           else
           {
@@ -229,13 +228,13 @@ int main(int argc, char** argv)
             // delete last inserted command
             buffer.remove_most_recent_view_update_command();
           }
+          redraw = true;
         }
         else if(event.key.keysym.sym == SDLK_DOWN)
         {
           if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(BufferSelectionCommand::MOVE_DOWN);
-            // redraw = true;
           }
           else
           {
@@ -251,15 +250,18 @@ int main(int argc, char** argv)
             // delete last inserted command
             buffer.remove_most_recent_view_update_command();
           }
+          redraw = true;
         }
         else if(event.key.keysym.sym == SDLK_BACKSPACE)
         {
           buffer.process_backspace();
+          tokenizer_cache.update_cache(buffer);
         }
         else if(event.key.keysym.sym == SDLK_RETURN ||
                 event.key.keysym.sym == SDLK_RETURN2)
         {
           buffer.process_enter();
+          tokenizer_cache.update_cache(buffer);
         }
 
         // calculating final scroll_y_offset
@@ -280,6 +282,7 @@ int main(int argc, char** argv)
           scroll_y_target = scroll_y_offset;
           redraw = true;
         }
+        redraw = true;
       }
       else if(event.type == SDL_MOUSEBUTTONDOWN)
       {
@@ -333,11 +336,13 @@ int main(int argc, char** argv)
         {
           buffer.execute_selection_command(BufferSelectionCommand::SELECT_LINE);
         }
-        // redraw = true;
+        redraw = true;
       }
       else if(event.type == SDL_TEXTINPUT)
       {
         buffer.insert_string(event.text.text);
+        tokenizer_cache.update_cache(buffer);
+        redraw = true;
       }
     }
 
@@ -747,11 +752,6 @@ int main(int argc, char** argv)
       if(buffer.has_selection())
       {
         auto selection = buffer.selection();
-        TRACE_BOII("sorted selection: {(%d, %d), (%d, %d)}",
-                   selection.first.first,
-                   selection.first.second,
-                   selection.second.first,
-                   selection.second.second);
         SDL_Color selection_color =
           hexcode_to_SDL_Color(ConfigManager::get_instance()
                                  ->get_config_struct()

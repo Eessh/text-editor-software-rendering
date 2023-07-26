@@ -1,5 +1,7 @@
 #include "../include/cpp_tokenizer_cache.hpp"
 #include <algorithm>
+#include "../include/buffer.hpp"
+#include "../include/macros.hpp"
 
 void CppTokenizerCache::build_cache(const Buffer& buffer) noexcept
 {
@@ -32,7 +34,7 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
     if(command.type == TokenCacheUpdateCommandType::RETOKENIZE_LINE)
     {
       uint32 row = command.row;
-      if(row - 1 >= 0 &&
+      if(row != 0 && !_tokens[row - 1].empty() &&
          _tokens[row - 1].back().type ==
            CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
       {
@@ -43,8 +45,9 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
           buffer.line(row).value().get(), _tokens[row - 1].back());
         _tokenizer.clear_tokens();
         _re_tokenized_lines.push_back(row);
-        if(_tokens[row].back().type !=
-           CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
+        if(!_tokens.empty() &&
+           _tokens[row].back().type !=
+             CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
         {
           // after this line is edited, multiline comment ended here
           // so lines after this should be retokenized till we encounter
@@ -73,10 +76,12 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
         // as previous line is not incompletely tokenized
         // we re-tokenize this line normally
         _tokens[row] = _tokenizer.tokenize(buffer.line(row).value().get());
+        _tokenizer.clear_tokens();
         _re_tokenized_lines.push_back(row);
 
-        if(_tokens[row].back().type ==
-           CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
+        if(!_tokens.empty() && !_tokens[row].empty() &&
+           _tokens[row].back().type ==
+             CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
         {
           // hekk it! we now need to re-tokenize all lines
           // below this line as multiline comment
@@ -100,9 +105,11 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
     else if(command.type ==
             TokenCacheUpdateCommandType::INSERT_NEW_LINE_CACHE_AND_TOKENIZE)
     {
-      _tokens.insert(_tokens.begin() + command.row + 1, {});
-      if(_tokens[command.row].back().type ==
-         CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
+      _tokens.insert(_tokens.begin() + command.row + 1,
+                     std::vector<CppTokenizer::Token>());
+      if(!_tokens[command.row].empty() &&
+         _tokens[command.row].back().type ==
+           CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
       {
         _tokens[command.row + 1] = _tokenizer.tokenize_from_imcomplete_token(
           buffer.line(command.row + 1).value().get(),

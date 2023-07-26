@@ -1,8 +1,11 @@
 #pragma once
 
 #include "../cpp-tokenizer/cpp_tokenizer.hpp"
-#include "buffer.hpp"
 #include "types.hpp"
+
+/// @brief forward declaration of Buffer class
+///        as including buffer.hpp results in tangled includes
+class Buffer;
 
 /// @brief Token cache update command type.
 enum class TokenCacheUpdateCommandType
