@@ -3,7 +3,7 @@
 fps = 60
 
 # Renders a small margin btw line numbers and the actual content
-line_numbers_margin = true
+line_numbers_margin = false
 
 [window]
   width = 1080

@@ -13,9 +13,9 @@ void RocketRender::line(const int32& x1,
                         (float)color.g / 255.0,
                         (float)color.b / 255.0,
                         (float)color.a / 255.0);
-  cairo_move_to(cr, x1, y1);
+  cairo_move_to(cr, x1 + 0.5f, y1 + 0.5f);
   cairo_set_line_width(cr, 0.5);
-  cairo_line_to(cr, x2, y2);
+  cairo_line_to(cr, x2 + 0.5f, y2 + 0.5f);
   cairo_stroke(cr);
   cairo_close_path(cr);
 }
