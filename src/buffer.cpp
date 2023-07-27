@@ -211,6 +211,31 @@ Buffer::selection_slice_for_line(const uint32& line_index) const noexcept
   return std::make_pair(-1, static_cast<int32>(_lines[line_index].size() - 1));
 }
 
+void Buffer::set_selection_start_coordinate(
+  const std::pair<uint32, int32>& coordinate) noexcept
+{
+  _has_selection = false;
+
+  /// FIXME: check the row, columns before assigning the coodinate u lazy shit.
+
+  _selection.first = coordinate;
+}
+
+void Buffer::set_selection_end_coordinate(
+  const std::pair<uint32, int32>& coordinate) noexcept
+{
+  if(_selection.first == coordinate)
+  {
+    return;
+  }
+
+  _has_selection = true;
+
+  /// FIXME: check the row, columns before assigning the coodinate u lazy shit.
+
+  _selection.second = coordinate;
+}
+
 void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
 {
   switch(command)

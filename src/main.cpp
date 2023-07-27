@@ -21,6 +21,20 @@ void render_tokens(int32 x,
                    const std::vector<CppTokenizer::Token>& tokens,
                    const cairo_font_extents_t& font_extents) noexcept;
 
+/// @brief Gives buffer grid position from mouse coordinates.
+/// @param x x-coordinate of mouse.
+/// @param y y-coordinate of mouse.
+/// @param x_offset offset for x-coordinate (ex: line numbers column).
+/// @param scroll_y_offset offset for y-coodinate (ex: y - scroll offset).
+/// @param buffer const reference to buffer.
+/// @return Returns pair of grid coorinates in buffer.
+std::pair<uint32, int32>
+mouse_coords_to_buffer_coords(const int& x,
+                              const int& y,
+                              const float32& x_offset,
+                              const float32& scroll_y_offset,
+                              const Buffer& buffer) noexcept;
+
 int main(int argc, char** argv)
 {
   // Checking arguments
@@ -98,12 +112,13 @@ int main(int argc, char** argv)
   // CppTokenizer::Tokenizer tokenizer;
 
   // main loop
-  bool redraw = true;
   float32 scroll_y_offset = 0.0f, scroll_y_target = 0.0f;
   uint8 scroll_sensitivity = ConfigManager::get_instance()
                                ->get_config_struct()
                                .scrolling.sensitivity,
         wait_time = 250;
+  bool redraw = true, mouse_single_tap_down = false,
+       mouse_double_tap_down = false, mouse_triple_tap_down = false;
   SDL_StartTextInput();
   while(1)
   {
@@ -139,11 +154,41 @@ int main(int argc, char** argv)
       else if(event.type == SDL_MOUSEMOTION)
       {
         SDL_PumpEvents();
-        SDL_Event e;
-        while(SDL_PeepEvents(
-                &e, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0)
+        SDL_Event future_event;
+        while(
+          SDL_PeepEvents(
+            &future_event, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) >
+          0)
         {
-          // do nothing my boi (for the time being)
+          event.motion.x = future_event.motion.x;
+          event.motion.y = future_event.motion.y;
+          event.motion.xrel += future_event.motion.xrel;
+          event.motion.yrel += future_event.motion.yrel;
+        }
+
+        float32 line_numbers_width =
+          (std::to_string(buffer.length()).length() + 2) *
+          font_extents.max_x_advance;
+        if(mouse_single_tap_down)
+        {
+          std::pair<uint32, int32> buffer_grid_coords =
+            mouse_coords_to_buffer_coords(event.motion.x,
+                                          event.motion.y,
+                                          line_numbers_width,
+                                          scroll_y_offset,
+                                          buffer);
+          buffer.set_cursor_row(buffer_grid_coords.first);
+          buffer.set_cursor_column(buffer_grid_coords.second);
+          buffer.set_selection_end_coordinate(buffer_grid_coords);
+          redraw = true;
+        }
+        else if(mouse_double_tap_down)
+        {
+          /// TODO: Implement mouse selection for words.
+        }
+        else if(mouse_triple_tap_down)
+        {
+          /// TODO: Implement mouse selection for lines.
         }
       }
       else if(event.type == SDL_MOUSEWHEEL)
@@ -289,54 +334,53 @@ int main(int argc, char** argv)
         // clearing buffer selection
         buffer.clear_selection();
 
-        uint32 row = (-scroll_y_offset + event.button.y) /
-                     CairoContext::get_instance()->get_font_extents().height;
-        int32 column = -1;
-        float32 max_x_advance =
-          CairoContext::get_instance()->get_font_extents().max_x_advance;
-        int32 left_grid_column = event.button.x / max_x_advance;
-        int32 right_grid_column = left_grid_column + 1;
-        if(event.button.x - max_x_advance * left_grid_column <
-           max_x_advance * right_grid_column - event.button.x)
+        float32 line_numbers_width =
+          (std::to_string(buffer.length()).length() + 2) *
+          font_extents.max_x_advance;
+        std::pair<uint32, int32> buffer_grid_coords =
+          mouse_coords_to_buffer_coords(event.button.x,
+                                        event.button.y,
+                                        line_numbers_width,
+                                        scroll_y_offset,
+                                        buffer);
+
+        // setting row
+        buffer.set_cursor_row(buffer_grid_coords.first);
+
+        // checking if clicked on line numbers
+        if(event.button.x < line_numbers_width)
         {
-          column = left_grid_column - 1;
+          buffer.execute_selection_command(BufferSelectionCommand::SELECT_LINE);
         }
         else
         {
-          column = right_grid_column - 1;
-        }
-        if(row > buffer.length() - 1)
-        {
-          buffer.set_cursor_row(buffer.length() - 1);
-        }
-        else
-        {
-          buffer.set_cursor_row(row);
-        }
-        if(column >
-           static_cast<int32>(buffer.line_length(buffer.cursor_row()).value()) -
-             1)
-        {
-          buffer.set_cursor_column(
-            static_cast<int32>(
-              buffer.line_length(buffer.cursor_row()).value()) -
-            1);
-        }
-        else
-        {
-          buffer.set_cursor_column(column);
+          // setting column
+          buffer.set_cursor_column(buffer_grid_coords.second);
         }
 
         // double click or triple click
         if(event.button.clicks == 2)
         {
           buffer.execute_selection_command(BufferSelectionCommand::SELECT_WORD);
+          mouse_double_tap_down = true;
         }
         else if(event.button.clicks == 3)
         {
           buffer.execute_selection_command(BufferSelectionCommand::SELECT_LINE);
+          mouse_triple_tap_down = true;
+        }
+        else
+        {
+          buffer.set_selection_start_coordinate(buffer_grid_coords);
+          mouse_single_tap_down = true;
         }
         redraw = true;
+      }
+      else if(event.type == SDL_MOUSEBUTTONUP)
+      {
+        mouse_single_tap_down = false;
+        mouse_double_tap_down = false;
+        mouse_triple_tap_down = false;
       }
       else if(event.type == SDL_TEXTINPUT)
       {
@@ -699,9 +743,9 @@ int main(int argc, char** argv)
           ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
       if(ConfigManager::get_instance()->get_config_struct().line_numbers_margin)
       {
-        RocketRender::line(line_numbers_width - 1,
+        RocketRender::line(line_numbers_width,
                            0,
-                           line_numbers_width - 1,
+                           line_numbers_width,
                            window->height(),
                            hexcode_to_SDL_Color(ConfigManager::get_instance()
                                                   ->get_config_struct()
@@ -1141,4 +1185,43 @@ void render_tokens(int32 x,
       x += token.value.size() * font_extents.max_x_advance;
     }
   }
+}
+
+std::pair<uint32, int32>
+mouse_coords_to_buffer_coords(const int& x,
+                              const int& y,
+                              const float32& x_offset,
+                              const float32& scroll_y_offset,
+                              const Buffer& buffer) noexcept
+{
+  uint32 row = (-scroll_y_offset + y) /
+               CairoContext::get_instance()->get_font_extents().height;
+  if(row > buffer.length() - 1)
+  {
+    row = buffer.length() - 1;
+  }
+
+  int32 column = -1;
+  float32 max_x_advance =
+    CairoContext::get_instance()->get_font_extents().max_x_advance;
+
+  // finding best column based on grid
+  int32 left_grid_column = (x - x_offset) / max_x_advance;
+  int32 right_grid_column = left_grid_column + 1;
+  if(x - x_offset - max_x_advance * left_grid_column <
+     max_x_advance * right_grid_column - x + x_offset)
+  {
+    column = left_grid_column - 1;
+  }
+  else
+  {
+    column = right_grid_column - 1;
+  }
+
+  if(column > static_cast<int32>(buffer.line_length(row).value()) - 1)
+  {
+    column = static_cast<int32>(buffer.line_length(row).value()) - 1;
+  }
+
+  return std::make_pair(row, column);
 }

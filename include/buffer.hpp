@@ -187,6 +187,7 @@ public:
   /// @brief Gives the selection region in buffer.
   ///        Check if buffer has selection before query.
   /// @return Returns const reference to pair of selection start, end.
+  /// TODO: Convert return type to optinal.
   [[nodiscard]] std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>
   selection() const noexcept;
 
@@ -196,6 +197,18 @@ public:
   ///         line contains no selection.
   [[nodiscard]] std::optional<std::pair<int32, int32>>
   selection_slice_for_line(const uint32& line_index) const noexcept;
+
+  /// @brief Sets starting point for selection.
+  ///        This will be handy when selection is changed by mouse dragging.
+  /// @param coordinate the starting point of selection.
+  void set_selection_start_coordinate(
+    const std::pair<uint32, int32>& coordinate) noexcept;
+
+  /// @brief Sets ending point for selection.
+  ///        This will be handy when selection is changed by mouse dragging.
+  /// @param coordinate the ending point for selection.
+  void set_selection_end_coordinate(
+    const std::pair<uint32, int32>& coordinate) noexcept;
 
   /// @brief Executes cursor commands.
   /// @param command the cursor command.
