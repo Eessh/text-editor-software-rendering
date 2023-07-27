@@ -696,7 +696,17 @@ int main(int argc, char** argv)
         line_numbers_width,
         window->height(),
         hexcode_to_SDL_Color(
-          ConfigManager::get_instance()->get_config_struct().colorscheme.gray));
+          ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
+      if(ConfigManager::get_instance()->get_config_struct().line_numbers_margin)
+      {
+        RocketRender::line(line_numbers_width - 1,
+                           0,
+                           line_numbers_width - 1,
+                           window->height(),
+                           hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                  ->get_config_struct()
+                                                  .colorscheme.gray));
+      }
       for(uint32 i = 1; i <= buffer.length(); i++)
       {
         std::string string_to_render = std::move(std::to_string(i));

@@ -2,6 +2,9 @@
 # high FPS consumes more CPU processing time!
 fps = 60
 
+# Renders a small margin btw line numbers and the actual content
+line_numbers_margin = true
+
 [window]
   width = 1080
   height = 720

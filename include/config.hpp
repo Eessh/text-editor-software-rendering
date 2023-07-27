@@ -7,6 +7,8 @@ typedef struct config
 {
   uint8 fps;
 
+  bool line_numbers_margin;
+
   struct window
   {
     uint16 width, height;

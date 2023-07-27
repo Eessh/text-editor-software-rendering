@@ -1,6 +1,25 @@
 #include "../include/rocket_render.hpp"
 #include "../include/cairo_context.hpp"
 
+void RocketRender::line(const int32& x1,
+                        const int32& y1,
+                        const int32& x2,
+                        const int32& y2,
+                        const SDL_Color& color)
+{
+  cairo_t* cr = CairoContext::get_instance()->get_context();
+  cairo_set_source_rgba(cr,
+                        (float)color.r / 255.0,
+                        (float)color.g / 255.0,
+                        (float)color.b / 255.0,
+                        (float)color.a / 255.0);
+  cairo_move_to(cr, x1, y1);
+  cairo_set_line_width(cr, 0.5);
+  cairo_line_to(cr, x2, y2);
+  cairo_stroke(cr);
+  cairo_close_path(cr);
+}
+
 void RocketRender::rectangle_filled(const int32& x,
                                     const int32& y,
                                     const uint16& width,

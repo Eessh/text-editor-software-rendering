@@ -7,6 +7,12 @@
 namespace RocketRender
 {
 
+void line(const int32& x1,
+          const int32& y1,
+          const int32& x2,
+          const int32& y2,
+          const SDL_Color& color);
+
 void rectangle_filled(const int32& x,
                       const int32& y,
                       const uint16& width,

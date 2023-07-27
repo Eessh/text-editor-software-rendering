@@ -48,6 +48,9 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
 
   _config.fps = parsed_config["fps"].value_or<uint8>(60);
 
+  _config.line_numbers_margin =
+    parsed_config["line_numbers_margin"].value_or<bool>(true);
+
   _config.window.width =
     parsed_config["window"]["width"].value_or<uint16>(1080);
   _config.window.height =
