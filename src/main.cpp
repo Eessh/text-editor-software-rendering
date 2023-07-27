@@ -1201,6 +1201,11 @@ mouse_coords_to_buffer_coords(const int& x,
     row = buffer.length() - 1;
   }
 
+  if(x < x_offset)
+  {
+    return std::make_pair(row, -1);
+  }
+
   int32 column = -1;
   float32 max_x_advance =
     CairoContext::get_instance()->get_font_extents().max_x_advance;
