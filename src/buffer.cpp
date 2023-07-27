@@ -146,7 +146,7 @@ void Buffer::clear_selection() noexcept
     return;
   }
 
-  auto selection = this->selection();
+  auto selection = this->selection().value();
   BufferViewUpdateCommand cmd;
   cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
   cmd.start_row = selection.first.first;
@@ -155,12 +155,13 @@ void Buffer::clear_selection() noexcept
   _has_selection = false;
 }
 
-std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>
+std::optional<std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>>
 Buffer::selection() const noexcept
 {
   if(!_has_selection) [[unlikely]]
   {
     ERROR_BOII("Called GET selection, when buffer has no selection!");
+    return std::nullopt;
   }
 
   // sort selection start, end
@@ -185,7 +186,7 @@ Buffer::selection_slice_for_line(const uint32& line_index) const noexcept
     return std::nullopt;
   }
 
-  auto selection = this->selection();
+  auto selection = this->selection().value();
   if(line_index < selection.first.first || line_index > selection.second.first)
   {
     return std::nullopt;
@@ -243,7 +244,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_LEFT: {
     if(_has_selection)
     {
-      auto selection = this->selection();
+      auto selection = this->selection().value();
       _cursor_row = selection.first.first;
       _cursor_col = selection.first.second;
       _has_selection = false;
@@ -262,7 +263,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_RIGHT: {
     if(_has_selection)
     {
-      auto selection = this->selection();
+      auto selection = this->selection().value();
       _cursor_row = selection.second.first;
       _cursor_col = selection.second.second;
       _has_selection = false;
@@ -281,7 +282,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_UP: {
     if(_has_selection)
     {
-      auto selection = this->selection();
+      auto selection = this->selection().value();
       _cursor_row = selection.first.first;
       _cursor_col = selection.first.second;
       _has_selection = false;
@@ -311,7 +312,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
   case BufferCursorCommand::MOVE_DOWN: {
     if(_has_selection)
     {
-      auto selection = this->selection();
+      auto selection = this->selection().value();
       _cursor_row = selection.second.first;
       _cursor_col = selection.second.second;
       _has_selection = false;
@@ -785,7 +786,7 @@ void Buffer::_delete_selection() noexcept
     return;
   }
 
-  auto selection = this->selection();
+  auto selection = this->selection().value();
   if(selection.first.first == selection.second.first)
   {
     // deletion happens in same line

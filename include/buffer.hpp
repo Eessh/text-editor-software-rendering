@@ -187,8 +187,8 @@ public:
   /// @brief Gives the selection region in buffer.
   ///        Check if buffer has selection before query.
   /// @return Returns const reference to pair of selection start, end.
-  /// TODO: Convert return type to optinal.
-  [[nodiscard]] std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>
+  [[nodiscard]] std::optional<
+    std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>>
   selection() const noexcept;
 
   /// @brief Gives slice of selection which overlaps with this line.

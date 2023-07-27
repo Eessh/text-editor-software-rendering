@@ -835,7 +835,7 @@ int main(int argc, char** argv)
       // drawing selection
       if(buffer.has_selection())
       {
-        auto selection = buffer.selection();
+        auto selection = buffer.selection().value();
         SDL_Color selection_color =
           hexcode_to_SDL_Color(ConfigManager::get_instance()
                                  ->get_config_struct()
