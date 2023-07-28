@@ -41,3 +41,4 @@ Makefile
 bin/Debug/text-editor-software-rendering
 bin/Release/text-editor-software-rendering
 res.res
+dist/windows/config.toml
