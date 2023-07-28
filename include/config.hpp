@@ -11,6 +11,8 @@ typedef struct config
 
   uint8 tab_width;
 
+  bool tab_lines;
+
   struct window
   {
     uint16 width, height;

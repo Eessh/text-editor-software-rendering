@@ -990,27 +990,44 @@ void render_tokens(int32 x,
                    const std::vector<CppTokenizer::Token>& tokens,
                    const cairo_font_extents_t& font_extents) noexcept
 {
-  for(const CppTokenizer::Token& token : tokens)
+  for(uint32 i = 0; i < tokens.size(); i++)
   {
+    CppTokenizer::Token token = tokens[i];
     if(token.value == "\r")
     {
       // do nothing
     }
     else if(token.type == CppTokenizer::TokenType::WHITESPACE)
     {
+      // drawing tab lines if before token is tab
+      if(ConfigManager::get_instance()->get_config_struct().tab_lines &&
+         i != 0 && tokens[i - 1].type == CppTokenizer::TokenType::TAB)
+      {
+        RocketRender::line(x,
+                           y,
+                           x,
+                           y + font_extents.height,
+                           hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                  ->get_config_struct()
+                                                  .colorscheme.gray));
+      }
       x += font_extents.max_x_advance;
     }
     else if(token.type == CppTokenizer::TokenType::TAB)
     {
+      // drawing tab lines
+      if(ConfigManager::get_instance()->get_config_struct().tab_lines)
+      {
+        RocketRender::line(x,
+                           y,
+                           x,
+                           y + font_extents.height,
+                           hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                  ->get_config_struct()
+                                                  .colorscheme.gray));
+      }
       x += ConfigManager::get_instance()->get_config_struct().tab_width *
            font_extents.max_x_advance;
-      // RocketRender::line(
-      //   x - 1,
-      //   y,
-      //   x - 1,
-      //   y + font_extents.height,
-      //   hexcode_to_SDL_Color(
-      //     ConfigManager::get_instance()->get_config_struct().colorscheme.gray));
     }
     else if(token.type == CppTokenizer::TokenType::SEMICOLON)
     {

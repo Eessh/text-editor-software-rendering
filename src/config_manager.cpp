@@ -53,6 +53,8 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
 
   _config.tab_width = parsed_config["tab_width"].value_or<uint8>(2);
 
+  _config.tab_lines = parsed_config["tab_lines"].value_or<bool>(true);
+
   _config.window.width =
     parsed_config["window"]["width"].value_or<uint16>(1080);
   _config.window.height =

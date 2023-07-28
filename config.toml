@@ -8,6 +8,9 @@ line_numbers_margin = false
 # Number of spaces to insert instead of tab
 tab_width = 2
 
+# Renders 1px width lines where there is a tabstop
+tab_lines = true
+
 [window]
   width = 1080
   height = 720
