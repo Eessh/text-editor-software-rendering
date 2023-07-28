@@ -302,6 +302,12 @@ int main(int argc, char** argv)
           buffer.process_backspace();
           tokenizer_cache.update_cache(buffer);
         }
+        else if(event.key.keysym.sym == SDLK_TAB)
+        {
+          buffer.insert_string(std::string(
+            ConfigManager::get_instance()->get_config_struct().tab_width, ' '));
+          tokenizer_cache.update_cache(buffer);
+        }
         else if(event.key.keysym.sym == SDLK_RETURN ||
                 event.key.keysym.sym == SDLK_RETURN2)
         {
