@@ -51,6 +51,8 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
   _config.line_numbers_margin =
     parsed_config["line_numbers_margin"].value_or<bool>(true);
 
+  _config.tab_width = parsed_config["tab_width"].value_or<uint8>(2);
+
   _config.window.width =
     parsed_config["window"]["width"].value_or<uint16>(1080);
   _config.window.height =

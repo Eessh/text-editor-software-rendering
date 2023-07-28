@@ -5,18 +5,20 @@
 
 void CppTokenizerCache::build_cache(const Buffer& buffer) noexcept
 {
-  for(const std::string& line : buffer.lines())
+  for(uint32 i = 0; i < buffer.length(); i++)
   {
     if(!_tokens.empty() && !_tokens.back().empty() &&
        _tokens.back().back().type ==
          CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
     {
-      _tokens.push_back(
-        _tokenizer.tokenize_from_imcomplete_token(line, _tokens.back().back()));
+      _tokens.push_back(_tokenizer.tokenize_from_imcomplete_token(
+        buffer.line_with_spaces_converted_to_tabs(i).value(),
+        _tokens.back().back()));
     }
     else
     {
-      _tokens.push_back(_tokenizer.tokenize(line));
+      _tokens.push_back(_tokenizer.tokenize(
+        buffer.line_with_spaces_converted_to_tabs(i).value()));
     }
     _tokenizer.clear_tokens();
   }
@@ -43,7 +45,8 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
         // or multiline comment ends in this line (as it is edited)
         std::vector<CppTokenizer::Token> tokens_ =
           _tokenizer.tokenize_from_imcomplete_token(
-            buffer.line(row).value().get(), _tokens[row - 1].back());
+            buffer.line_with_spaces_converted_to_tabs(row).value(),
+            _tokens[row - 1].back());
         {
           uint32 i = 0;
           while(i < std::min(tokens_.size(), _tokens[row].size()))
@@ -87,8 +90,8 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
             if(_tokens[next_row].back().type ==
                CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
             {
-              _tokens[next_row] =
-                _tokenizer.tokenize(buffer.line(next_row).value().get());
+              _tokens[next_row] = _tokenizer.tokenize(
+                buffer.line_with_spaces_converted_to_tabs(next_row).value());
               {
                 IncrementalRenderUpdateCommand cmd;
                 cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
@@ -110,8 +113,8 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
       {
         // as previous line is not incompletely tokenized
         // we re-tokenize this line normally
-        std::vector<CppTokenizer::Token> tokens_ =
-          _tokenizer.tokenize(buffer.line(row).value().get());
+        std::vector<CppTokenizer::Token> tokens_ = _tokenizer.tokenize(
+          buffer.line_with_spaces_converted_to_tabs(row).value());
         {
           uint32 i = 0;
           while(i < std::min(tokens_.size(), _tokens[row].size()))
@@ -152,8 +155,8 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
           uint32 next_row = row + 1;
           while(next_row < buffer.length())
           {
-            _tokens[next_row] =
-              _tokenizer.tokenize(buffer.line(next_row).value().get());
+            _tokens[next_row] = _tokenizer.tokenize(
+              buffer.line_with_spaces_converted_to_tabs(next_row).value());
             {
               IncrementalRenderUpdateCommand cmd;
               cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
@@ -200,8 +203,8 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
         if(token_index == 0)
         {
           // just re-tokenize it
-          _tokens[command.row] =
-            _tokenizer.tokenize(buffer.line(command.row).value().get());
+          _tokens[command.row] = _tokenizer.tokenize(
+            buffer.line_with_spaces_converted_to_tabs(command.row).value());
           _tokenizer.clear_tokens();
           IncrementalRenderUpdateCommand cmd;
           cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
@@ -211,7 +214,9 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
         else
         {
           auto tokens_ = _tokenizer.tokenize(
-            buffer.line(command.row).value().get().substr(line_length));
+            buffer.line_with_spaces_converted_to_tabs(command.row)
+              .value()
+              .substr(line_length));
           _tokenizer.clear_tokens();
           _tokens[command.row].insert(
             _tokens[command.row].end(), tokens_.begin(), tokens_.end());
@@ -230,13 +235,13 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
            CppTokenizer::TokenType::MULTILINE_COMMENT_INCOMPLETE)
       {
         _tokens[command.row + 1] = _tokenizer.tokenize_from_imcomplete_token(
-          buffer.line(command.row + 1).value().get(),
+          buffer.line_with_spaces_converted_to_tabs(command.row + 1).value(),
           _tokens[command.row].back());
       }
       else
       {
-        _tokens[command.row + 1] =
-          _tokenizer.tokenize(buffer.line(command.row + 1).value().get());
+        _tokens[command.row + 1] = _tokenizer.tokenize(
+          buffer.line_with_spaces_converted_to_tabs(command.row + 1).value());
       }
       _tokenizer.clear_tokens();
       IncrementalRenderUpdateCommand cmd;
@@ -261,7 +266,8 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
         while(next_row < _tokens.size())
         {
           _tokens[next_row] = _tokenizer.tokenize_from_imcomplete_token(
-            buffer.line(next_row).value().get(), _tokens[next_row - 1].back());
+            buffer.line_with_spaces_converted_to_tabs(next_row).value(),
+            _tokens[next_row - 1].back());
           {
             IncrementalRenderUpdateCommand cmd;
             cmd.type = IncrementalRenderUpdateType::RENDER_LINE;

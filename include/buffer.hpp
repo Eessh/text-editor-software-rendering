@@ -141,11 +141,18 @@ public:
   /// @brief Gives content of line in buffer.
   /// @param line_index index of line in buffer (0 based index).
   ///        Check line_index before query.
-  /// @return Returns "" if line_index is out of bounds.
+  /// @return Returns std::nullopt if line_index is out of bounds.
   // [[nodiscard]] const std::string&
   // line(const uint32& line_index) const noexcept;
   [[nodiscard]] std::optional<const std::reference_wrapper<std::string>>
   line(const uint32& line_index) const noexcept;
+
+  /// @brief Gives content of line in buffer, with leading spaces converted
+  ///        to indentation tabs.
+  /// @param line_index index of line.
+  /// @return Returns std::nullopt if line_index is out of bounds.
+  [[nodiscard]] std::optional<std::string>
+  line_with_spaces_converted_to_tabs(const uint32& line_index) const noexcept;
 
   /// @brief Cursor coordinates in buffer.
   /// @return Returns pair of cursor row (uint32), cursor column (int32).
@@ -291,4 +298,14 @@ private:
 
   /// @brief Deletes selection from text buffer.
   void _delete_selection() noexcept;
+
+  /// @brief Gives number of leading spaces for line.
+  /// @param line_index index of the line.
+  /// @return Returns leading spaces count.
+  uint32 _line_leading_spaces_count(const uint32& line_index) const noexcept;
+
+  /// @brief Converts leading spaces to indentation tabs.
+  /// @param str mutable reference to the string.
+  void
+  _convert_leading_spaces_to_indentation_tabs(std::string& str) const noexcept;
 };

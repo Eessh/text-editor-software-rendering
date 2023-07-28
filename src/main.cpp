@@ -45,6 +45,14 @@ int main(int argc, char** argv)
     exit(1);
   }
 
+  // Creating config manager
+  ConfigManager::create_instance();
+  if(!ConfigManager::get_instance()->load_config())
+  {
+    FATAL_BOII("Unable to load config: config.toml!");
+    exit(1);
+  }
+
   // Creating buffer
   std::string file_path(argv[1]);
   Buffer buffer;
@@ -70,14 +78,6 @@ int main(int argc, char** argv)
   SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
   SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
   SDL_SetHint("SDL_MOUSE_DOUBLE_CLICK_RADIUS", "4");
-
-  // Creating config manager
-  ConfigManager::create_instance();
-  if(!ConfigManager::get_instance()->load_config())
-  {
-    FATAL_BOII("Unable to load config: config.toml!");
-    exit(1);
-  }
 
   Window* window = new Window(
     "Text Editor - Software Rendering",
@@ -996,10 +996,21 @@ void render_tokens(int32 x,
     {
       // do nothing
     }
-    else if(token.type == CppTokenizer::TokenType::WHITESPACE ||
-            token.type == CppTokenizer::TokenType::TAB)
+    else if(token.type == CppTokenizer::TokenType::WHITESPACE)
     {
       x += font_extents.max_x_advance;
+    }
+    else if(token.type == CppTokenizer::TokenType::TAB)
+    {
+      x += ConfigManager::get_instance()->get_config_struct().tab_width *
+           font_extents.max_x_advance;
+      // RocketRender::line(
+      //   x - 1,
+      //   y,
+      //   x - 1,
+      //   y + font_extents.height,
+      //   hexcode_to_SDL_Color(
+      //     ConfigManager::get_instance()->get_config_struct().colorscheme.gray));
     }
     else if(token.type == CppTokenizer::TokenType::SEMICOLON)
     {

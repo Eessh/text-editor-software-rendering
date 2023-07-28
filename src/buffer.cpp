@@ -1,5 +1,7 @@
 #include "../include/buffer.hpp"
+#include <algorithm>
 #include <fstream>
+#include "../include/config_manager.hpp"
 #include "../include/macros.hpp"
 
 Buffer::Buffer() noexcept
@@ -85,6 +87,23 @@ Buffer::line(const uint32& line_index) const noexcept
   else [[likely]]
   {
     return const_cast<std::string&>(_lines[line_index]);
+  }
+}
+
+std::optional<std::string> Buffer::line_with_spaces_converted_to_tabs(
+  const uint32& line_index) const noexcept
+{
+  if(line_index >= _lines.size()) [[unlikely]]
+  {
+    ERROR_BOII("Accessing line with line_index: %ld out of bounds!",
+               line_index);
+    return std::nullopt;
+  }
+  else [[likely]]
+  {
+    std::string line(_lines[line_index]);
+    _convert_leading_spaces_to_indentation_tabs(line);
+    return line;
   }
 }
 
@@ -548,9 +567,21 @@ bool Buffer::process_backspace() noexcept
 
   if(_cursor_col != -1)
   {
-    // remove character before cursor
-    _lines[_cursor_row].erase(_cursor_col, 1);
-    _cursor_col -= 1;
+    int32 leading_spaces_count = this->_line_leading_spaces_count(_cursor_row);
+    int32 tab_width =
+      ConfigManager::get_instance()->get_config_struct().tab_width;
+    if(_cursor_col < leading_spaces_count && (_cursor_col + 1) % tab_width == 0)
+    {
+      // delete tab width amount of spaces
+      _lines[_cursor_row].erase(_cursor_col, tab_width);
+      _cursor_col -= tab_width;
+    }
+    else
+    {
+      // remove character before cursor
+      _lines[_cursor_row].erase(_cursor_col, 1);
+      _cursor_col -= 1;
+    }
     {
       BufferViewUpdateCommand cmd;
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
@@ -837,4 +868,46 @@ void Buffer::_delete_selection() noexcept
   _cursor_row = selection.first.first;
   _cursor_col = selection.first.second;
   _has_selection = false;
+}
+
+uint32
+Buffer::_line_leading_spaces_count(const uint32& line_index) const noexcept
+{
+  uint32 spaces_count = 0;
+  while(spaces_count < _lines[line_index].size())
+  {
+    if(_lines[line_index][spaces_count] == ' ')
+    {
+      spaces_count++;
+      continue;
+    }
+    break;
+  }
+
+  return spaces_count;
+}
+
+void Buffer::_convert_leading_spaces_to_indentation_tabs(
+  std::string& str) const noexcept
+{
+  // leading spaces count
+  uint32 spaces_count = 0;
+  while(spaces_count < str.size())
+  {
+    if(str[spaces_count] == ' ')
+    {
+      spaces_count++;
+      continue;
+    }
+    break;
+  }
+
+  uint8 tab_width =
+    ConfigManager::get_instance()->get_config_struct().tab_width;
+  uint32 tabs_count = spaces_count / tab_width;
+
+  str.erase(0, tabs_count * tab_width);
+
+  std::string tab_string(tabs_count, '\t');
+  str.insert(0, tab_string);
 }

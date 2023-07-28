@@ -9,6 +9,8 @@ typedef struct config
 
   bool line_numbers_margin;
 
+  uint8 tab_width;
+
   struct window
   {
     uint16 width, height;

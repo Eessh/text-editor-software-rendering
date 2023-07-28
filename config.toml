@@ -5,6 +5,9 @@ fps = 60
 # Renders a small margin btw line numbers and the actual content
 line_numbers_margin = false
 
+# Number of spaces to insert instead of tab
+tab_width = 2
+
 [window]
   width = 1080
   height = 720
