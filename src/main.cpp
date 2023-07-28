@@ -759,12 +759,13 @@ int main(int argc, char** argv)
         {
           string_to_render.insert(0, " ");
         }
-        RocketRender::text(font_extents.max_x_advance,
-                           scroll_y_offset + font_extents.height * (i - 1),
-                           string_to_render,
-                           hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                                  ->get_config_struct()
-                                                  .colorscheme.white));
+        RocketRender::text(
+          font_extents.max_x_advance,
+          ceil(scroll_y_offset + font_extents.height * (i - 1)),
+          string_to_render,
+          hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                 ->get_config_struct()
+                                 .colorscheme.white));
       }
 
       // drawing contents
