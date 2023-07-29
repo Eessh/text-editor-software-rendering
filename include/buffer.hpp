@@ -315,4 +315,8 @@ private:
   /// @param character the character to wrap selection with.
   void _wrap_selection_with_character(const char& wrap_begin_character,
                                       const char& wrap_end_character) noexcept;
+
+  /// @brief Tells if cursor is between brackets: (|), [|], {|}.
+  /// @return Returns true if cursor is between brackets.
+  bool _cursor_between_brackets() const noexcept;
 };

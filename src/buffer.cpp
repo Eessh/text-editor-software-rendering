@@ -628,22 +628,46 @@ void Buffer::process_enter() noexcept
     this->_delete_selection();
   }
 
-  if(/* cursor btw brackets */ false)
-  {
-    /// TODO: increase indentation of this line and place cursor at start.
-  }
-  else
+  uint32 leading_spaces = this->_line_leading_spaces_count(_cursor_row);
+  if(this->_cursor_between_brackets())
   {
     // insert new line after this line
-    // insert leading spaces of this line into new line
-    // and append contents of this line after the cursor to new line
-    uint32 leading_spaces = this->_line_leading_spaces_count(_cursor_row);
+    // insert leading space of this line + extra indent into new line
+    // insert another new line, with same amount if leading spaces as this line
+    // and append contents of this line after the cursor to another new line
+    uint8 tab_width =
+      ConfigManager::get_instance()->get_config_struct().tab_width;
     _lines.insert(_lines.begin() + _cursor_row + 1,
+                  std::string(leading_spaces + tab_width, ' '));
+    _lines.insert(_lines.begin() + _cursor_row + 2,
                   std::string(leading_spaces, ' '));
-    _lines[_cursor_row + 1].append(_lines[_cursor_row].substr(_cursor_col + 1));
+    _lines[_cursor_row + 2].append(_lines[_cursor_row].substr(_cursor_col + 1));
     _lines[_cursor_row].erase(_cursor_col + 1);
-    _cursor_col = leading_spaces - 1;
+
+    // updating token cache
+    TokenCacheUpdateCommand cmd;
+    cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+    cmd.row = _cursor_row;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+    cmd.type = TokenCacheUpdateCommandType::INSERT_NEW_LINE_CACHE_AND_TOKENIZE;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+    cmd.row = _cursor_row + 1;
+    _token_cache_update_commands_queue.emplace_back(cmd);
+
+    // updating cursor position
+    _cursor_row += 1;
+    _cursor_col = leading_spaces + tab_width - 1;
+    return;
   }
+
+  // insert new line after this line
+  // insert leading spaces of this line into new line
+  // and append contents of this line after the cursor to new line
+  _lines.insert(_lines.begin() + _cursor_row + 1,
+                std::string(leading_spaces, ' '));
+  _lines[_cursor_row + 1].append(_lines[_cursor_row].substr(_cursor_col + 1));
+  _lines[_cursor_row].erase(_cursor_col + 1);
+  _cursor_col = leading_spaces - 1;
 
   // updating token cache
   {
@@ -1017,4 +1041,25 @@ void Buffer::_wrap_selection_with_character(
     _selection.second.second += 1;
     _cursor_col += 1;
   }
+}
+
+bool Buffer::_cursor_between_brackets() const noexcept
+{
+  // cursor is at start or end of line
+  if(_cursor_col == -1 || _cursor_col == _lines[_cursor_row].size() - 1)
+  {
+    return false;
+  }
+
+  if((_lines[_cursor_row][_cursor_col] == '(' &&
+      _lines[_cursor_row][_cursor_col + 1] == ')') ||
+     (_lines[_cursor_row][_cursor_col] == '[' &&
+      _lines[_cursor_row][_cursor_col + 1] == ']') ||
+     (_lines[_cursor_row][_cursor_col] == '{' &&
+      _lines[_cursor_row][_cursor_col + 1] == '}'))
+  {
+    return true;
+  }
+
+  return false;
 }
