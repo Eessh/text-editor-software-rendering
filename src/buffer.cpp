@@ -570,10 +570,11 @@ bool Buffer::process_backspace() noexcept
     int32 leading_spaces_count = this->_line_leading_spaces_count(_cursor_row);
     int32 tab_width =
       ConfigManager::get_instance()->get_config_struct().tab_width;
+
     if(_cursor_col < leading_spaces_count && (_cursor_col + 1) % tab_width == 0)
     {
       // delete tab width amount of spaces
-      _lines[_cursor_row].erase(_cursor_col, tab_width);
+      _lines[_cursor_row].erase(0, tab_width);
       _cursor_col -= tab_width;
     }
     else
@@ -582,6 +583,7 @@ bool Buffer::process_backspace() noexcept
       _lines[_cursor_row].erase(_cursor_col, 1);
       _cursor_col -= 1;
     }
+    
     {
       BufferViewUpdateCommand cmd;
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
