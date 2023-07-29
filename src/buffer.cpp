@@ -667,7 +667,38 @@ void Buffer::insert_string(const std::string& str) noexcept
   {
     if(str == "(" || str == "[" || str == "{")
     {
-      /// TODO: wrap selection with these brackets
+      if(str == "(")
+      {
+        this->_wrap_selection_with_character('(', ')');
+      }
+      else if(str == "[")
+      {
+        this->_wrap_selection_with_character('[', ']');
+      }
+      else
+      {
+        this->_wrap_selection_with_character('{', '}');
+      }
+
+      // update token cache
+      {
+        auto sel = this->selection().value();
+
+        // for inline selection, only one re-tokenization is required
+        TokenCacheUpdateCommand cmd;
+        cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
+        cmd.row = sel.first.first;
+        _token_cache_update_commands_queue.emplace_back(cmd);
+
+        // for multiline selection
+        // re-tokenization of selection ending line is also needed
+        if(sel.first.first != sel.second.first)
+        {
+          cmd.row = sel.second.first;
+          _token_cache_update_commands_queue.emplace_back(cmd);
+        }
+      }
+      return;
     }
     else
     {
@@ -950,4 +981,37 @@ void Buffer::_convert_leading_spaces_to_indentation_tabs(
 
   std::string tab_string(tabs_count, '\t');
   str.insert(0, tab_string);
+}
+
+void Buffer::_wrap_selection_with_character(
+  const char& wrap_begin_character, const char& wrap_end_character) noexcept
+{
+  auto sel = this->selection().value();
+
+  _lines[sel.first.first].insert(sel.first.second + 1,
+                                 std::string(1, wrap_begin_character));
+
+  // inline selection
+  if(_selection.first.first == _selection.second.first)
+  {
+    _lines[sel.second.first].insert(sel.second.second + 2,
+                                    std::string(1, wrap_end_character));
+    _selection.first.second += 1;
+    _selection.second.second += 1;
+    _cursor_col += 1;
+    return;
+  }
+
+  // multiline selection
+  _lines[sel.second.first].insert(sel.second.second + 1,
+                                  std::string(1, wrap_end_character));
+  if(_selection.first < _selection.second)
+  {
+    _selection.first.second += 1;
+  }
+  else
+  {
+    _selection.second.second += 1;
+    _cursor_col += 1;
+  }
 }

@@ -308,4 +308,11 @@ private:
   /// @param str mutable reference to the string.
   void
   _convert_leading_spaces_to_indentation_tabs(std::string& str) const noexcept;
+
+  /// @brief Wraps selection with given character.
+  ///        Check for selection before using this!
+  ///        This doesn't check for selection internally.
+  /// @param character the character to wrap selection with.
+  void _wrap_selection_with_character(const char& wrap_begin_character,
+                                      const char& wrap_end_character) noexcept;
 };
