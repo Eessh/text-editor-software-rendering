@@ -628,6 +628,15 @@ void Buffer::process_enter() noexcept
     this->_delete_selection();
   }
 
+  if(/* cursor btw brackets */ true)
+  {
+    /// TODO: increase indentation of this line and place cursor at start.
+  }
+  else
+  {
+    /// TODO: auto indent new line using previous line indentation.
+  }
+
   // insert new line after this line
   // and append contents of this line after the cursor to new line
   _lines.insert(_lines.begin() + _cursor_row + 1, "");
@@ -656,11 +665,42 @@ void Buffer::insert_string(const std::string& str) noexcept
 {
   if(_has_selection)
   {
-    this->_delete_selection();
+    if(str == "(" || str == "[" || str == "{")
+    {
+      /// TODO: wrap selection with these brackets
+    }
+    else
+    {
+      this->_delete_selection();
+    }
   }
 
-  _lines[_cursor_row].insert(_cursor_col + 1, str);
-  _cursor_col += str.size();
+  // auto closing open brackets
+  if(str == "(")
+  {
+    std::string str_to_insert("()");
+    _lines[_cursor_row].insert(_cursor_col + 1, str_to_insert);
+    _cursor_col += 1;
+  }
+  else if(str == "[")
+  {
+    std::string str_to_insert("[]");
+    _lines[_cursor_row].insert(_cursor_col + 1, str_to_insert);
+    _cursor_col += 1;
+  }
+  else if(str == "{")
+  {
+    std::string str_to_insert("{}");
+    _lines[_cursor_row].insert(_cursor_col + 1, str_to_insert);
+    _cursor_col += 1;
+  }
+  // else inserting string normally
+  else
+  {
+    _lines[_cursor_row].insert(_cursor_col + 1, str);
+    _cursor_col += str.size();
+  }
+
   {
     BufferViewUpdateCommand cmd;
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
