@@ -41,6 +41,16 @@ bool Buffer::load_from_file(const std::string& filepath) noexcept
     {
       _lines.emplace_back("");
       std::getline(file, _lines.back());
+
+      // replace all tabs with corresponding amount of spaces
+      uint8 tab_width =
+        ConfigManager::get_instance()->get_config_struct().tab_width;
+      auto it = _lines.back().find('\t');
+      while(it != std::string::npos)
+      {
+        _lines.back().replace(it, 1, std::string(tab_width, ' '));
+        it = _lines.back().find('\t');
+      }
     }
     return true;
   }
