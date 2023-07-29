@@ -577,13 +577,19 @@ bool Buffer::process_backspace() noexcept
       _lines[_cursor_row].erase(0, tab_width);
       _cursor_col -= tab_width;
     }
+    else if(this->_cursor_between_brackets())
+    {
+      // auto deleting closing bracket
+      _lines[_cursor_row].erase(_cursor_col, 2);
+      _cursor_col -= 1;
+    }
     else
     {
       // remove character before cursor
       _lines[_cursor_row].erase(_cursor_col, 1);
       _cursor_col -= 1;
     }
-    
+
     {
       BufferViewUpdateCommand cmd;
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
