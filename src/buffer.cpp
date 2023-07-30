@@ -7,6 +7,7 @@
 Buffer::Buffer() noexcept
   : _cursor_row(0)
   , _cursor_col(-1)
+  , _cursor_col_target(-1)
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({""})
@@ -16,6 +17,7 @@ Buffer::Buffer() noexcept
 Buffer::Buffer(const std::string& init_string) noexcept
   : _cursor_row(0)
   , _cursor_col(-1)
+  , _cursor_col_target(-1)
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({init_string})
@@ -25,6 +27,7 @@ Buffer::Buffer(const std::string& init_string) noexcept
 Buffer::Buffer(const std::vector<std::string>& lines) noexcept
   : _cursor_row(0)
   , _cursor_col(-1)
+  , _cursor_col_target(-1)
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines(lines)
@@ -276,6 +279,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       auto selection = this->selection().value();
       _cursor_row = selection.first.first;
       _cursor_col = selection.first.second;
+      _cursor_col_target = _cursor_col;
       _has_selection = false;
       BufferViewUpdateCommand cmd;
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
@@ -295,6 +299,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       auto selection = this->selection().value();
       _cursor_row = selection.second.first;
       _cursor_col = selection.second.second;
+      _cursor_col_target = _cursor_col;
       _has_selection = false;
       BufferViewUpdateCommand cmd;
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
@@ -314,6 +319,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       auto selection = this->selection().value();
       _cursor_row = selection.first.first;
       _cursor_col = selection.first.second;
+      _cursor_col_target = _cursor_col;
       _has_selection = false;
       BufferViewUpdateCommand cmd;
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
@@ -326,7 +332,8 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       }
       --_cursor_row;
       cmd.start_row = _cursor_row;
-      if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+      if(static_cast<int32>(_lines[_cursor_row].size() - 1) <
+         _cursor_col_target)
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
@@ -344,6 +351,7 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       auto selection = this->selection().value();
       _cursor_row = selection.second.first;
       _cursor_col = selection.second.second;
+      _cursor_col_target = _cursor_col;
       _has_selection = false;
       BufferViewUpdateCommand cmd;
       cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
@@ -356,7 +364,8 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       }
       ++_cursor_row;
       cmd.end_row = _cursor_row;
-      if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+      if(static_cast<int32>(_lines[_cursor_row].size() - 1) <
+         _cursor_col_target)
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
@@ -871,6 +880,7 @@ bool Buffer::_base_move_cursor_left() noexcept
   if(_cursor_col > -1) [[likely]]
   {
     _cursor_col--;
+    _cursor_col_target = _cursor_col;
     BufferViewUpdateCommand cmd;
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
     cmd.row = _cursor_row;
@@ -888,6 +898,7 @@ bool Buffer::_base_move_cursor_left() noexcept
   cmd.old_active_line = _cursor_row;
   --_cursor_row;
   _cursor_col = _lines[_cursor_row].size() - 1;
+  _cursor_col_target = _cursor_col;
   cmd.new_active_line = _cursor_row;
   _buffer_view_update_commands_queue.push_back(cmd);
 
@@ -900,6 +911,7 @@ bool Buffer::_base_move_cursor_right() noexcept
     [[likely]]
   {
     _cursor_col++;
+    _cursor_col_target = _cursor_col;
     BufferViewUpdateCommand cmd;
     cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
     cmd.row = _cursor_row;
@@ -917,6 +929,7 @@ bool Buffer::_base_move_cursor_right() noexcept
   cmd.old_active_line = _cursor_row;
   ++_cursor_row;
   _cursor_col = -1;
+  _cursor_col_target = _cursor_col;
   cmd.new_active_line = _cursor_row;
   _buffer_view_update_commands_queue.push_back(cmd);
 
@@ -934,9 +947,13 @@ bool Buffer::_base_move_cursor_up() noexcept
   cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
   cmd.old_active_line = _cursor_row;
   --_cursor_row;
-  if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+  if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col_target)
   {
     _cursor_col = _lines[_cursor_row].size() - 1;
+  }
+  else
+  {
+    _cursor_col = _cursor_col_target;
   }
   cmd.new_active_line = _cursor_row;
   _buffer_view_update_commands_queue.push_back(cmd);
@@ -955,9 +972,13 @@ bool Buffer::_base_move_cursor_down() noexcept
   cmd.type = BufferViewUpdateCommandType::RENDER_LINES;
   cmd.old_active_line = _cursor_row;
   ++_cursor_row;
-  if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col)
+  if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col_target)
   {
     _cursor_col = _lines[_cursor_row].size() - 1;
+  }
+  else
+  {
+    _cursor_col = _cursor_col_target;
   }
   cmd.new_active_line = _cursor_row;
   _buffer_view_update_commands_queue.push_back(cmd);

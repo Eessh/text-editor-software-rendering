@@ -257,6 +257,11 @@ private:
   /// @brief Cursor column.
   int32 _cursor_col;
 
+  /// @brief Target cursor column.
+  ///        For natural or expected cursor movement.
+  ///        Trust your instincts ^_^
+  int32 _cursor_col_target;
+
   /// @brief Flag for buffer has selection or not.
   bool _has_selection;
 
