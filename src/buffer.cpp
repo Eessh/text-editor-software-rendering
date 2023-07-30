@@ -797,6 +797,18 @@ void Buffer::insert_string(const std::string& str) noexcept
     _lines[_cursor_row].insert(_cursor_col + 1, str_to_insert);
     _cursor_col += 1;
   }
+  else if(str == "\"")
+  {
+    std::string str_to_insert("\"\"");
+    _lines[_cursor_row].insert(_cursor_col + 1, str_to_insert);
+    _cursor_col += 1;
+  }
+  else if(str == "'")
+  {
+    std::string str_to_insert("''");
+    _lines[_cursor_row].insert(_cursor_col + 1, str_to_insert);
+    _cursor_col += 1;
+  }
   // else inserting string normally
   else
   {
