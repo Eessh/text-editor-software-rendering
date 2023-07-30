@@ -69,6 +69,9 @@ public:
   /// @param color color with which window should be painted.
   void clear_with_color(const SDL_Color& color);
 
+  /// @brief Toggles fullscreen mode for window.
+  void toggle_fullscreen() noexcept;
+
   /// @brief Updates given rectangle portions in window.
   /// @param rects pointer to SDL_Rect array.
   /// @param rects_count length of the SDL_Rect array.
@@ -86,6 +89,9 @@ private:
 
   /// @brief window title
   std::string _title;
+
+  /// @brief window in fullscreen mode
+  bool _fullscreen;
 
   /// @brief pointer to SDL_Window
   SDL_Window* _window;

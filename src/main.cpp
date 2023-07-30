@@ -314,6 +314,10 @@ int main(int argc, char** argv)
           buffer.process_enter();
           tokenizer_cache.update_cache(buffer);
         }
+        else if(event.key.keysym.sym == SDLK_F11)
+        {
+          window->toggle_fullscreen();
+        }
 
         // calculating final scroll_y_offset
         std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();

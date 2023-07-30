@@ -10,6 +10,7 @@ Window::Window(const std::string& title,
   : _title(title)
   , _width(width)
   , _height(height)
+  , _fullscreen(false)
   , _window(nullptr)
   , _window_surface(nullptr)
 {
@@ -145,6 +146,20 @@ void Window::clear_with_color(const SDL_Color& color)
   SDL_FillRect(_window_surface,
                NULL,
                SDL_MapRGB(_window_surface->format, color.r, color.g, color.b));
+}
+
+void Window::toggle_fullscreen() noexcept
+{
+  if(_fullscreen)
+  {
+    SDL_SetWindowFullscreen(_window, 0);
+    _fullscreen = false;
+  }
+  else
+  {
+    SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    _fullscreen = true;
+  }
 }
 
 void Window::reload_window_surface()
