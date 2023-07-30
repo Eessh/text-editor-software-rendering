@@ -729,7 +729,7 @@ void Buffer::insert_string(const std::string& str) noexcept
 {
   if(_has_selection)
   {
-    if(str == "(" || str == "[" || str == "{")
+    if(str == "(" || str == "[" || str == "{" || str == "\"" || str == "'")
     {
       if(str == "(")
       {
@@ -739,9 +739,17 @@ void Buffer::insert_string(const std::string& str) noexcept
       {
         this->_wrap_selection_with_character('[', ']');
       }
-      else
+      else if(str == "{")
       {
         this->_wrap_selection_with_character('{', '}');
+      }
+      else if(str == "\"")
+      {
+        this->_wrap_selection_with_character('"', '"');
+      }
+      else
+      {
+        this->_wrap_selection_with_character('\'', '\'');
       }
 
       // update token cache
