@@ -472,6 +472,7 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
           _position++;
           goto while_loop_continue;
         }
+
         _current_token = Token(TokenType::TAB);
         _current_token.start_offset = _position;
         _current_token.end_offset = _position;
@@ -676,8 +677,9 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
     {
       if(str.compare(_position, keyword.size(), keyword) == 0)
       {
-        if(seperators.find(str[_position + keyword.size()]) ==
-           std::string::npos)
+        if(_position + keyword.size() != str.size() &&
+           seperators.find(str[_position + keyword.size()]) ==
+             std::string::npos)
         {
           // next character after this keyword is not separator
           // so this must be an indentifier
@@ -745,20 +747,11 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
 }
 
 const std::vector<Token>& Tokenizer::tokenize_from_imcomplete_token(
-  const std::string& str,
-  const Token& incomplete_token,
-  const bool& append_to_incomplete_token) noexcept
+  const std::string& str, const Token& incomplete_token) noexcept
 {
   if(incomplete_token.type == TokenType::MULTILINE_COMMENT_INCOMPLETE)
   {
-    if(append_to_incomplete_token)
-    {
-      _current_token = Token(incomplete_token);
-    }
-    else
-    {
-      _current_token = Token(TokenType::MULTILINE_COMMENT_INCOMPLETE);
-    }
+    _current_token = Token(TokenType::MULTILINE_COMMENT_INCOMPLETE);
     bool inserted_multiline_comment_token = false;
     while(_position < str.size())
     {
@@ -831,20 +824,20 @@ void log_tokens(const std::vector<Token>& tokens) noexcept
     Token token = tokens[i];
     if(i != tokens.size() - 1)
     {
-      printf("\n  {\n    type: %s,\n    start_offset: %ld,\n    end_offset: "
-             "%ld,\n    value: \"%s\"\n  },",
+      printf("\n  {\n    type: %s,\n    start_offset: %lu,\n    end_offset: "
+             "%lu,\n    value: \"%s\"\n  },",
              token_type_to_string(token.type).c_str(),
-             token.start_offset,
-             token.end_offset,
+             (unsigned long)token.start_offset,
+             (unsigned long)token.end_offset,
              token.value.c_str());
     }
     else
     {
-      printf("\n  {\n    type: %s,\n    start_offset: %ld,\n    end_offset: "
-             "%ld,\n    value: \"%s\"\n  }",
+      printf("\n  {\n    type: %s,\n    start_offset: %lu,\n    end_offset: "
+             "%lu,\n    value: \"%s\"\n  }",
              token_type_to_string(token.type).c_str(),
-             token.start_offset,
-             token.end_offset,
+             (unsigned long)token.start_offset,
+             (unsigned long)token.end_offset,
              token.value.c_str());
     }
   }
