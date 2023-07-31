@@ -55,6 +55,9 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
 
   _config.tab_lines = parsed_config["tab_lines"].value_or<bool>(true);
 
+  _config.code_font = parsed_config["code_font"].value_or<std::string>(
+    "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf");
+
   _config.font_size = parsed_config["font_size"].value_or<uint8>(14);
 
   _config.window.width =

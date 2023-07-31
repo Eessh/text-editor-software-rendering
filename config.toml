@@ -15,6 +15,13 @@ tab_width = 2
 # Default: true
 tab_lines = true
 
+# Font for code.
+# Absolute path to font file is preferred.
+# Relative path to font file with respect to app executable also works.
+# Default: "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"
+# Example: "C:/Windows/Fonts/consola.ttf"
+code_font = "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"
+
 # Font size
 # Default: 16
 font_size = 16

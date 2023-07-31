@@ -95,14 +95,13 @@ int main(int argc, char** argv)
 
   // Loading font
   if(!CairoContext::get_instance()->load_font(
-       "JetBrainsMono",
-       "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"))
+       "code_font",
+       ConfigManager::get_instance()->get_config_struct().code_font))
   {
     ERROR_BOII("Unable to load font: JetBrainsMono!");
   }
   CairoContext::get_instance()->set_context_font(
-    "JetBrainsMono",
-    ConfigManager::get_instance()->get_config_struct().font_size);
+    "code_font", ConfigManager::get_instance()->get_config_struct().font_size);
 
   // Font extents
   cairo_font_extents_t font_extents =

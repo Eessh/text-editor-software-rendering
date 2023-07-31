@@ -13,6 +13,8 @@ typedef struct config
 
   bool tab_lines;
 
+  std::string code_font;
+
   uint8 font_size;
 
   struct window
