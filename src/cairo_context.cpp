@@ -66,15 +66,15 @@ cairo_t* CairoContext::get_context() noexcept
 
 void CairoContext::reload_context(Window& window) noexcept
 {
-  SDL_Surface* window_surface = window.surface();
   cairo_destroy(_context);
+  SDL_Surface* window_surface = window.surface();
   cairo_surface_t* cairo_surface =
     cairo_image_surface_create_for_data((unsigned char*)window_surface->pixels,
                                         CAIRO_FORMAT_RGB24,
                                         window_surface->w,
                                         window_surface->h,
                                         window_surface->pitch);
-  cairo_surface_set_device_scale(cairo_surface, 1, 1);
+  cairo_surface_set_device_scale(cairo_surface, 1.0, 1.0);
   _context = cairo_create(cairo_surface);
   cairo_surface_destroy(cairo_surface);
 }

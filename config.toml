@@ -1,15 +1,23 @@
 # Change only if your display supports it!
 # high FPS consumes more CPU processing time!
+# Default: 60
 fps = 60
 
 # Renders a small margin btw line numbers and the actual content
+# Default: false
 line_numbers_margin = false
 
 # Number of spaces to insert instead of tab
+# Default: 2
 tab_width = 2
 
 # Renders 1px width lines where there is a tabstop
+# Default: true
 tab_lines = true
+
+# Font size
+# Default: 16
+font_size = 16
 
 [window]
   width = 1080

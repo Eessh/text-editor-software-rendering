@@ -136,8 +136,17 @@ bool Window::set_dark_theme()
 
 void Window::handle_resize(const SDL_Event& event)
 {
-  _width = event.window.data1;
-  _height = event.window.data2;
+  _width = static_cast<uint16>(event.window.data1);
+  _height = static_cast<uint16>(event.window.data2);
+  this->reload_window_surface();
+}
+
+void Window::handle_maximize(const SDL_Event& event)
+{
+  int w, h;
+  SDL_GetWindowSizeInPixels(_window, &w, &h);
+  _width = static_cast<uint16>(w);
+  _height = static_cast<uint16>(h);
   this->reload_window_surface();
 }
 
@@ -160,6 +169,12 @@ void Window::toggle_fullscreen() noexcept
     SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     _fullscreen = true;
   }
+
+  // syncing window's size
+  int w, h;
+  SDL_GetWindowSizeInPixels(_window, &w, &h);
+  _width = static_cast<uint16>(w);
+  _height = static_cast<uint16>(h);
 }
 
 void Window::reload_window_surface()
@@ -169,8 +184,6 @@ void Window::reload_window_surface()
   {
     FATAL_BOII("Unable to reload window surface: %s", SDL_GetError());
   }
-  SDL_FillRect(
-    _window_surface, NULL, SDL_MapRGB(_window_surface->format, 255, 255, 255));
 }
 
 void Window::update_rects(SDL_Rect* rects, int rects_count)

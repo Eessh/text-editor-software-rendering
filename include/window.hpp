@@ -56,10 +56,15 @@ public:
   /// @return returns false if cannot be set (on platforms linux, macos).
   bool set_dark_theme();
 
-  /// @brief Handles the reloading of window surface.
+  /// @brief Handles reloading of window surface, when window is resized.
   ///        This should be called when window resize event occurs.
   /// @param event const reference to the event.
   void handle_resize(const SDL_Event& event);
+
+  /// @brief Handles reloading of window surface, when window is maxmized.
+  ///        This should be called when window maximize event occurs.
+  /// @param event const reference to the event.
+  void handle_maximize(const SDL_Event& event);
 
   /// @brief Reloads the cairo context of window,
   ///        this should be called when window is resized.

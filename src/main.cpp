@@ -79,6 +79,9 @@ int main(int argc, char** argv)
   SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
   SDL_SetHint("SDL_MOUSE_DOUBLE_CLICK_RADIUS", "4");
 
+  // Enabling screen saver
+  SDL_EnableScreenSaver();
+
   Window* window = new Window(
     "Text Editor - Software Rendering",
     ConfigManager::get_instance()->get_config_struct().window.width,
@@ -97,7 +100,9 @@ int main(int argc, char** argv)
   {
     ERROR_BOII("Unable to load font: JetBrainsMono!");
   }
-  CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
+  CairoContext::get_instance()->set_context_font(
+    "JetBrainsMono",
+    ConfigManager::get_instance()->get_config_struct().font_size);
 
   // Font extents
   cairo_font_extents_t font_extents =
@@ -138,7 +143,18 @@ int main(int argc, char** argv)
         {
           window->handle_resize(event);
           CairoContext::get_instance()->reload_context(*window);
-          CairoContext::get_instance()->set_context_font("JetBrainsMono", 16);
+          CairoContext::get_instance()->set_context_font(
+            "JetBrainsMono",
+            ConfigManager::get_instance()->get_config_struct().font_size);
+          redraw = true;
+        }
+        else if(event.window.event == SDL_WINDOWEVENT_MAXIMIZED)
+        {
+          window->handle_maximize(event);
+          CairoContext::get_instance()->reload_context(*window);
+          CairoContext::get_instance()->set_context_font(
+            "JetBrainsMono",
+            ConfigManager::get_instance()->get_config_struct().font_size);
           redraw = true;
         }
         // these should be handled in linux

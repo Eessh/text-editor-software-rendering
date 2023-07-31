@@ -13,6 +13,8 @@ typedef struct config
 
   bool tab_lines;
 
+  uint8 font_size;
+
   struct window
   {
     uint16 width, height;
