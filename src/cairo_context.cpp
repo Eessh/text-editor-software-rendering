@@ -5,7 +5,7 @@ CairoContext* CairoContext::_instance = nullptr;
 
 CairoContext::CairoContext() {}
 
-CairoContext::~CairoContext()
+CairoContext::~CairoContext() noexcept
 {
   // Destroying font faces
   for(auto it = _font_map.begin(); it != _font_map.end(); it++)
@@ -59,7 +59,7 @@ void CairoContext::initialize(Window& window) noexcept
   }
 }
 
-cairo_t* CairoContext::get_context() noexcept
+cairo_t* CairoContext::get_context() const noexcept
 {
   return _context;
 }

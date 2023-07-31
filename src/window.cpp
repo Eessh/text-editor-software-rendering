@@ -6,7 +6,7 @@
 
 Window::Window(const std::string& title,
                const uint16 width,
-               const uint16 height)
+               const uint16 height) noexcept
   : _title(title)
   , _width(width)
   , _height(height)
@@ -42,47 +42,47 @@ Window::Window(const std::string& title,
     _window_surface, NULL, SDL_MapRGB(_window_surface->format, 255, 255, 255));
 }
 
-Window::~Window()
+Window::~Window() noexcept
 {
   SDL_DestroyWindow(_window);
 }
 
-const uint16& Window::width() const
+const uint16& Window::width() const noexcept
 {
   return _width;
 }
 
-const uint16& Window::height() const
+const uint16& Window::height() const noexcept
 {
   return _height;
 }
 
-const std::string& Window::title() const
+const std::string& Window::title() const noexcept
 {
   return _title;
 }
 
-uint16& Window::width()
+uint16& Window::width() noexcept
 {
   return _width;
 }
 
-uint16& Window::height()
+uint16& Window::height() noexcept
 {
   return _height;
 }
 
-std::string& Window::title()
+std::string& Window::title() noexcept
 {
   return _title;
 }
 
-SDL_Surface* Window::surface()
+SDL_Surface* Window::surface() const noexcept
 {
   return _window_surface;
 }
 
-bool Window::set_icon(const char* icon_path)
+bool Window::set_icon(const char* icon_path) const noexcept
 {
   SDL_Surface* rocket_icon = SDL_LoadBMP(icon_path);
   if(!rocket_icon)
@@ -95,7 +95,7 @@ bool Window::set_icon(const char* icon_path)
   return true;
 }
 
-bool Window::set_dark_theme()
+bool Window::set_dark_theme() const noexcept
 {
 #if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
   SDL_SysWMinfo wmi;
@@ -134,14 +134,14 @@ bool Window::set_dark_theme()
   return false;
 }
 
-void Window::handle_resize(const SDL_Event& event)
+void Window::handle_resize(const SDL_Event& event) noexcept
 {
   _width = static_cast<uint16>(event.window.data1);
   _height = static_cast<uint16>(event.window.data2);
   this->reload_window_surface();
 }
 
-void Window::handle_maximize(const SDL_Event& event)
+void Window::handle_maximize(const SDL_Event& event) noexcept
 {
   int w, h;
   SDL_GetWindowSizeInPixels(_window, &w, &h);
@@ -150,7 +150,7 @@ void Window::handle_maximize(const SDL_Event& event)
   this->reload_window_surface();
 }
 
-void Window::clear_with_color(const SDL_Color& color)
+void Window::clear_with_color(const SDL_Color& color) const noexcept
 {
   SDL_FillRect(_window_surface,
                NULL,
@@ -177,7 +177,7 @@ void Window::toggle_fullscreen() noexcept
   _height = static_cast<uint16>(h);
 }
 
-void Window::reload_window_surface()
+void Window::reload_window_surface() noexcept
 {
   _window_surface = SDL_GetWindowSurface(_window);
   if(!_window_surface)
@@ -186,12 +186,12 @@ void Window::reload_window_surface()
   }
 }
 
-void Window::update_rects(SDL_Rect* rects, int rects_count)
+void Window::update_rects(SDL_Rect* rects, int rects_count) const noexcept
 {
   SDL_UpdateWindowSurfaceRects(_window, rects, rects_count);
 }
 
-void Window::update()
+void Window::update() const noexcept
 {
   SDL_UpdateWindowSurface(_window);
 }

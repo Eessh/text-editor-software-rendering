@@ -18,35 +18,43 @@ public:
   CairoContext operator=(CairoContext&& context) = delete;
 
   /// @brief CairoContext destructor.
-  ~CairoContext();
+  /// @throws No exceptions.
+  ~CairoContext() noexcept;
 
   /// @brief Creates an instance of CairoContext.
+  /// @throws No exceptions.
   static void create_instance() noexcept;
 
   /// @brief Gets CairoContext instance.
   /// @return Returns pointer to CairoContext instance.
+  /// @throws No exceptions.
   [[nodiscard]] static CairoContext* get_instance() noexcept;
 
   /// @brief Deletes CairoContext instance.
+  /// @throws No exceptions.
   static void delete_instance() noexcept;
 
   /// @brief Initializes cairo's context for window's surface.
   /// @param window reference to window.
+  /// @throws No exceptions.
   void initialize(Window& window) noexcept;
 
   /// @brief Gets cairo's context.
   /// @return Returns pointer to cairo's context.
-  [[nodiscard]] cairo_t* get_context() noexcept;
+  /// @throws No exceptions.
+  [[nodiscard]] cairo_t* get_context() const noexcept;
 
   /// @brief Reloads cairo's context,
   ///        this should be called when window is resized.
   /// @param window reference to window.
+  /// @throws No exceptions.
   void reload_context(Window& window) noexcept;
 
   /// @brief Loads font and assigns it a name.
   /// @param font_name_to_assign name to assign for the loaded font.
   /// @param font_file_path path to font file.
   /// @return Returns false if unable to load font.
+  /// @throws No exceptions.
   [[nodiscard]] bool load_font(const std::string& font_name_to_assign,
                                const std::string& font_file_path) noexcept;
 
@@ -54,16 +62,19 @@ public:
   /// @param font_name assigned font name.
   /// @param font_size font size to set for context.
   /// @return Returns false if no font is assigned for given font name.
+  /// @throws No exceptions.
   bool set_context_font(const std::string& font_name,
                         const uint8 font_size) noexcept;
 
   /// @brief Gives the font extents of context's active font.
   /// @return Returns font extents struct (cairo_font_extents_t).
+  /// @throws No exceptions.
   [[nodiscard]] cairo_font_extents_t get_font_extents() const noexcept;
 
   /// @brief Gives the text extents for text calculated using context's font.
   /// @param text the text for which extents should be calculated.
   /// @return Returns text extents struct (cairo_text_extents_t).
+  /// @throws No exceptions.
   [[nodiscard]] cairo_text_extents_t
   get_text_extents(const std::string& text) const noexcept;
 

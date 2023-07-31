@@ -58,15 +58,18 @@ public:
   ///        Better offload this to another thread.
   ///        TODO: Deprecate this function, build cache incrementally!
   /// @param buffer const reference to buffer.
+  /// @throws No exceptions.
   void build_cache(const Buffer& buffer) noexcept;
 
   /// @brief Incrementally updates the token cache
   ///        from lines updated in buffer.
   /// @param buffer const reference to buffer.
+  /// @throws No exceptions.
   void update_cache(Buffer& buffer) noexcept;
 
   /// @brief Gives tokens line-wise.
   /// @return const reference to lines of tokens.
+  /// @throws No exceptions.
   const std::vector<std::vector<CppTokenizer::Token>>& tokens() const noexcept;
 
   std::optional<IncrementalRenderUpdateCommand>
