@@ -143,18 +143,12 @@ int main(int argc, char** argv)
         {
           window->handle_resize(event);
           CairoContext::get_instance()->reload_context(*window);
-          CairoContext::get_instance()->set_context_font(
-            "JetBrainsMono",
-            ConfigManager::get_instance()->get_config_struct().font_size);
           redraw = true;
         }
         else if(event.window.event == SDL_WINDOWEVENT_MAXIMIZED)
         {
           window->handle_maximize(event);
           CairoContext::get_instance()->reload_context(*window);
-          CairoContext::get_instance()->set_context_font(
-            "JetBrainsMono",
-            ConfigManager::get_instance()->get_config_struct().font_size);
           redraw = true;
         }
         // these should be handled in linux

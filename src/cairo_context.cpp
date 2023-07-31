@@ -77,6 +77,10 @@ void CairoContext::reload_context(Window& window) noexcept
   cairo_surface_set_device_scale(cairo_surface, 1.0, 1.0);
   _context = cairo_create(cairo_surface);
   cairo_surface_destroy(cairo_surface);
+
+  // setting previous fonts
+  cairo_set_font_face(_context, _active_font_face);
+  cairo_set_font_size(_context, _active_font_size);
 }
 
 bool CairoContext::load_font(const std::string& font_name_to_assign,
@@ -112,6 +116,10 @@ bool CairoContext::set_context_font(const std::string& font_name,
 
   cairo_set_font_face(_context, (*it).second.second);
   cairo_set_font_size(_context, font_size);
+
+  _active_font_face = (*it).second.second;
+  _active_font_size = font_size;
+
   return true;
 }
 

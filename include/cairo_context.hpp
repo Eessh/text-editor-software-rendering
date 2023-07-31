@@ -78,6 +78,12 @@ private:
   std::unordered_map<std::string, std::pair<FT_Face, cairo_font_face_t*>>
     _font_map;
 
+  /// @brief Context's active font.
+  cairo_font_face_t* _active_font_face;
+
+  /// @brief Context's font size.
+  uint8 _active_font_size;
+
   /// @brief Private CairoContext constructor
   CairoContext();
 
