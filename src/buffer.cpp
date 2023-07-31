@@ -267,6 +267,7 @@ void Buffer::set_selection_end_coordinate(
 {
   if(_selection.first == coordinate)
   {
+    _has_selection = false;
     return;
   }
 
