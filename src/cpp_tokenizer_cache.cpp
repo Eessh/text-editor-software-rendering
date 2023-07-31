@@ -5,6 +5,7 @@
 
 void CppTokenizerCache::build_cache(const Buffer& buffer) noexcept
 {
+  _tokens.clear();
   for(uint32 i = 0; i < buffer.length(); i++)
   {
     if(!_tokens.empty() && !_tokens.back().empty() &&

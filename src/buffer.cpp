@@ -39,7 +39,15 @@ bool Buffer::load_from_file(const std::string& filepath) noexcept
   std::ifstream file(filepath);
   if(file.is_open()) [[likely]]
   {
+    // setting to defaults
+    _cursor_row = 0;
+    _cursor_col = -1;
+    _cursor_col_target = -1;
+    _has_selection = false;
+    _selection = {{0, -1}, {0, -1}};
     _lines.clear();
+    _buffer_view_update_commands_queue.clear();
+
     while(file.good())
     {
       _lines.emplace_back("");
