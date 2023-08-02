@@ -52,12 +52,12 @@ void RocketRender::rectangle_outlined(const int32& x,
   cairo_stroke(cr);
 }
 
-void RocketRender::rectangle_rounded(const int32& x,
-                                     const int32& y,
-                                     const uint16& width,
-                                     const uint16& height,
-                                     const uint16& radius,
-                                     const SDL_Color& color)
+void RocketRender::rectangle_filled_rounded(const int32& x,
+                                            const int32& y,
+                                            const uint16& width,
+                                            const uint16& height,
+                                            const uint16& radius,
+                                            const SDL_Color& color)
 {
   cairo_t* cr = CairoContext::get_instance()->get_context();
   cairo_set_source_rgba(cr,
@@ -73,6 +73,28 @@ void RocketRender::rectangle_rounded(const int32& x,
   cairo_arc(cr, x + radius, y + height - radius, radius, M_PI / 2, M_PI);
   cairo_close_path(cr);
   cairo_fill(cr);
+}
+
+void RocketRender::rectangle_outlined_rounded(const int32& x,
+                                              const int32& y,
+                                              const uint16& width,
+                                              const uint16& height,
+                                              const uint16& radius,
+                                              const SDL_Color& outline_color)
+{
+  cairo_t* cr = CairoContext::get_instance()->get_context();
+  cairo_set_source_rgba(cr,
+                        (float)outline_color.r / 255.0,
+                        (float)outline_color.g / 255.0,
+                        (float)outline_color.b / 255.0,
+                        (float)outline_color.a / 255.0);
+  cairo_new_sub_path(cr);
+  cairo_arc(cr, x + radius, y + radius, radius, M_PI, 3 * M_PI / 2);
+  cairo_arc(cr, x + width - radius, y + radius, radius, 3 * M_PI / 2, 2 * M_PI);
+  cairo_arc(cr, x + width - radius, y + height - radius, radius, 0, M_PI / 2);
+  cairo_arc(cr, x + radius, y + height - radius, radius, M_PI / 2, M_PI);
+  cairo_close_path(cr);
+  cairo_stroke(cr);
 }
 
 void RocketRender::text(const int32& x,

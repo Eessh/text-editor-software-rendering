@@ -849,7 +849,7 @@ int main(int argc, char** argv)
           ratio = viewport_height / content_height;
           scrollbar_height = scrollbar_min_height;
         }
-        RocketRender::rectangle_rounded(
+        RocketRender::rectangle_filled_rounded(
           window->width() - scrollbar_width - scrollbar_edge_padding,
           -scroll_y_offset * ratio + scrollbar_edge_padding,
           scrollbar_width,
