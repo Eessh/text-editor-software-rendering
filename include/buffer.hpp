@@ -105,15 +105,18 @@ class Buffer
 {
 public:
   /// @brief Default constructor.
+  /// @throws No exceptions.
   Buffer() noexcept;
 
   /// @brief Creates buffer with the given string.
   /// @param init_string const reference to the string
   ///        with which the buffer should be initialized.
+  /// @throws No exceptions.
   Buffer(const std::string& init_string) noexcept;
 
   /// @brief Creates buffer with given lines.
   /// @param lines const reference to vector of strings.
+  /// @throws No exceptions.
   Buffer(const std::vector<std::string>& lines) noexcept;
 
   /// @brief Destructor
@@ -122,20 +125,24 @@ public:
   /// @brief Loads file contents into buffer.
   /// @param filepath path to file.
   /// @return Returns false if unable to load file.
+  /// @throws No exceptions.
   [[nodiscard]] bool load_from_file(const std::string& filepath) noexcept;
 
   /// @brief Length of buffer (or) number of lines in buffer.
   /// @return Returns number of lines in unsigned int32 type.
+  /// @throws No exceptions.
   [[nodiscard]] uint32 length() const noexcept;
 
   /// @brief Length of line in buffer.
   /// @param line_index index of line.
   /// @return Returns std::nullopt if line_index is out of bounds.
+  /// @throws No exceptions.
   [[nodiscard]] std::optional<uint32>
   line_length(const uint32& line_index) const noexcept;
 
   /// @brief Gives buffer in lines format, would be easy for the frontend.
   /// @return Returns const reference to vector of strings.
+  /// @throws No exceptions.
   [[nodiscard]] const std::vector<std::string>& lines() const noexcept;
 
   /// @brief Gives content of line in buffer.
@@ -144,6 +151,7 @@ public:
   /// @return Returns std::nullopt if line_index is out of bounds.
   // [[nodiscard]] const std::string&
   // line(const uint32& line_index) const noexcept;
+  /// @throws No exceptions.
   [[nodiscard]] std::optional<const std::reference_wrapper<std::string>>
   line(const uint32& line_index) const noexcept;
 
@@ -151,49 +159,60 @@ public:
   ///        to indentation tabs.
   /// @param line_index index of line.
   /// @return Returns std::nullopt if line_index is out of bounds.
+  /// @throws No exceptions.
   [[nodiscard]] std::optional<std::string>
   line_with_spaces_converted_to_tabs(const uint32& line_index) const noexcept;
 
   /// @brief Cursor coordinates in buffer.
   /// @return Returns pair of cursor row (uint32), cursor column (int32).
+  /// @throws No exceptions.
   [[nodiscard]] std::pair<uint32, int32> cursor_coords() const noexcept;
 
   /// @brief Gets cursor row.
   /// @return Returns const reference to uint32 cursor row.
+  /// @throws No exceptions.
   [[nodiscard]] const uint32& cursor_row() const noexcept;
 
   /// @brief Getter & Setter for cursor row, this doesn't
   ///        implement effective buffer view updates.
   /// @return Returns mutable reference to uint32 cursor row;
+  /// @throws No exceptions.
   [[nodiscard]] uint32& cursor_row() noexcept;
 
   /// @brief Sets cursor row, this implements effective buffer view updates.
   /// @param row the row to set cursor at.
+  /// @throws No exceptions.
   void set_cursor_row(const uint32& row) noexcept;
 
   /// @brief Gets cursor column.
   /// @return Returns const reference to int32 cursor column.
+  /// @throws No exceptions.
   [[nodiscard]] const int32& cursor_column() const noexcept;
 
   /// @brief Getter & Setter for cursor column, this doesn't
   ///        implement effective buffer view updates.
   /// @return Returns mutable reference to int32 cursor column.
+  /// @throws No exceptions.
   [[nodiscard]] int32& cursor_column() noexcept;
 
   /// @brief Sets cursor column, this implements effective buffer view updates.
   /// @param column the column to set cursor at.
+  /// @throws No exceptions.
   void set_cursor_column(const int32& column) noexcept;
 
   /// @brief Tells if buffer has selection.
   /// @return Returns false if buffer has no selection.
+  /// @throws No exceptions.
   [[nodiscard]] bool has_selection() const noexcept;
 
   /// @brief Clears selection in buffer.
+  /// @throws No exceptions.
   void clear_selection() noexcept;
 
   /// @brief Gives the selection region in buffer.
   ///        Check if buffer has selection before query.
   /// @return Returns const reference to pair of selection start, end.
+  /// @throws No exceptions.
   [[nodiscard]] std::optional<
     std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>>
   selection() const noexcept;
@@ -202,51 +221,62 @@ public:
   /// @param line_index index of line in buffer.
   /// @return Returns std::nullopt if there is no selection or
   ///         line contains no selection.
+  /// @throws No exceptions.
   [[nodiscard]] std::optional<std::pair<int32, int32>>
   selection_slice_for_line(const uint32& line_index) const noexcept;
 
   /// @brief Sets starting point for selection.
   ///        This will be handy when selection is changed by mouse dragging.
   /// @param coordinate the starting point of selection.
+  /// @throws No exceptions.
   void set_selection_start_coordinate(
     const std::pair<uint32, int32>& coordinate) noexcept;
 
   /// @brief Sets ending point for selection.
   ///        This will be handy when selection is changed by mouse dragging.
   /// @param coordinate the ending point for selection.
+  /// @throws No exceptions.
   void set_selection_end_coordinate(
     const std::pair<uint32, int32>& coordinate) noexcept;
 
   /// @brief Executes cursor commands.
   /// @param command the cursor command.
+  /// @throws No exceptions.
   void execute_cursor_command(const BufferCursorCommand& command) noexcept;
 
   /// @brief Executes selection commands.
   /// @param command the selection command.
+  /// @throws No exceptions.
   void
   execute_selection_command(const BufferSelectionCommand& command) noexcept;
 
   /// @brief Processes BACKSPACE on internal text buffer.
   /// @return Returns true if there is a change in text buffer.
+  /// @throws No exceptions.
   bool process_backspace() noexcept;
 
   /// @brief Processes ENTER on internal text buffer.
+  /// @throws No exceptions.
   void process_enter() noexcept;
 
   /// @brief Inserts string (without a newline character '\n').
   /// @param str string to insert.
+  /// @throws No exceptions.
   void insert_string(const std::string& str) noexcept;
 
   /// @brief Gets next view update command.
   /// @return Returns std::nullopt if there are no commands.
+  /// @throws No exceptions.
   std::optional<BufferViewUpdateCommand>
   get_next_view_update_command() noexcept;
 
   /// @brief Removes last inserted command, in the view updates queue.
+  /// @throws No exceptions.
   void remove_most_recent_view_update_command() noexcept;
 
   /// @brief Gets next token cache update command.
   /// @return Returns std::nullopt if there are no commands.
+  /// @throws No exceptions.
   std::optional<TokenCacheUpdateCommand>
   get_next_token_cache_update_command() noexcept;
 
@@ -281,36 +311,43 @@ private:
   ///        Public functions of Buffer do some additional operations
   ///        on top of this function.
   /// @return Returns false if cursor hasn't moved.
+  /// @throws No exceptions.
   bool _base_move_cursor_left() noexcept;
 
   /// @brief Base function for moving cursor to right.
   ///        Public functions of Buffer do some additional operations
   ///        on top of this function.
   /// @return Returns false if cursor hasn't moved.
+  /// @throws No exceptions.
   bool _base_move_cursor_right() noexcept;
 
   /// @brief Base function for moving cursor up.
   ///        Public functions of Buffer do some additional operations
   ///        on top of this function.
   /// @return Returns false if cursor hasn't moved.
+  /// @throws No exceptions.
   bool _base_move_cursor_up() noexcept;
 
   /// @brief Base function for moving cursor down.
   ///        Public functions of Buffer do some additional operations
   ///        on top of this function.
   /// @return Returns false if cursor hasn't moved.
+  /// @throws No exceptions.
   bool _base_move_cursor_down() noexcept;
 
   /// @brief Deletes selection from text buffer.
+  /// @throws No exceptions.
   void _delete_selection() noexcept;
 
   /// @brief Gives number of leading spaces for line.
   /// @param line_index index of the line.
   /// @return Returns leading spaces count.
+  /// @throws No exceptions.
   uint32 _line_leading_spaces_count(const uint32& line_index) const noexcept;
 
   /// @brief Converts leading spaces to indentation tabs.
   /// @param str mutable reference to the string.
+  /// @throws No exceptions.
   void
   _convert_leading_spaces_to_indentation_tabs(std::string& str) const noexcept;
 
@@ -318,14 +355,17 @@ private:
   ///        Check for selection before using this!
   ///        This doesn't check for selection internally.
   /// @param character the character to wrap selection with.
+  /// @throws No exceptions.
   void _wrap_selection_with_character(const char& wrap_begin_character,
                                       const char& wrap_end_character) noexcept;
 
   /// @brief Tells if cursor is at bracket: (|, [|, {|
   /// @return
+  /// @throws No exceptions.
   bool _cursor_at_bracket() const noexcept;
 
   /// @brief Tells if cursor is between brackets: (|), [|], {|}.
   /// @return Returns true if cursor is between brackets.
+  /// @throws No exceptions.
   bool _cursor_between_brackets() const noexcept;
 };
