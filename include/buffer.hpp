@@ -23,6 +23,12 @@ typedef enum class BufferCursorCommand
 
   /// @brief Move cursor down.
   MOVE_DOWN,
+
+  /// @brief Move cursor to previous word starting.
+  MOVE_TO_PREVIOUS_WORD_START,
+
+  /// @brief Move cursor to next word ending.
+  MOVE_TO_NEXT_WORD_END
 } BufferCursorCommand;
 
 /// @brief Selection commands to process on buffer.
@@ -334,6 +340,20 @@ private:
   /// @return Returns false if cursor hasn't moved.
   /// @throws No exceptions.
   bool _base_move_cursor_down() noexcept;
+
+  /// @brief Base function for moving cursor to previous word starting.
+  ///        Public functions of Buffer do some additional operations
+  ///        on top of this function.
+  /// @return Returns false if cursor hasn't moved.
+  /// @throws No exceptions.
+  bool _base_move_cursor_to_previous_word_start() noexcept;
+
+  /// @brief Base function for moving cursor to next word ending.
+  ///        Public functions of Buffer do some additional operations
+  ///        on top of this function.
+  /// @return Returns false if cursor hasn't moved.
+  /// @throws No exceptions.
+  bool _base_move_cursor_to_next_word_end() noexcept;
 
   /// @brief Deletes selection from text buffer.
   /// @throws No exceptions.

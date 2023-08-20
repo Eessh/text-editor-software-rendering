@@ -218,7 +218,17 @@ int main(int argc, char** argv)
       {
         if(event.key.keysym.sym == SDLK_LEFT)
         {
-          if(event.key.keysym.mod & KMOD_LSHIFT)
+          if((event.key.keysym.mod & KMOD_LCTRL) &&
+             (event.key.keysym.mod & KMOD_LSHIFT))
+          {
+            /// TODO: Handle CTRL+SHIFT+LEFT_ARROW
+          }
+          else if(event.key.keysym.mod & KMOD_LCTRL)
+          {
+            buffer.execute_cursor_command(
+              BufferCursorCommand::MOVE_TO_PREVIOUS_WORD_START);
+          }
+          else if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(BufferSelectionCommand::MOVE_LEFT);
           }
@@ -240,7 +250,17 @@ int main(int argc, char** argv)
         }
         else if(event.key.keysym.sym == SDLK_RIGHT)
         {
-          if(event.key.keysym.mod & KMOD_LSHIFT)
+          if((event.key.keysym.mod & KMOD_LCTRL) &&
+             (event.key.keysym.mod & KMOD_LSHIFT))
+          {
+            /// TODO: Handle CTRL+SHIFT+RIGHT_ARROW
+          }
+          else if(event.key.keysym.mod & KMOD_LCTRL)
+          {
+            buffer.execute_cursor_command(
+              BufferCursorCommand::MOVE_TO_NEXT_WORD_END);
+          }
+          else if(event.key.keysym.mod & KMOD_LSHIFT)
           {
             buffer.execute_selection_command(
               BufferSelectionCommand::MOVE_RIGHT);
