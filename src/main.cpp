@@ -134,7 +134,6 @@ int main(int argc, char** argv)
       if(event.type == SDL_QUIT)
       {
         goto cleanup;
-        return 0;
       }
       else if(event.type == SDL_WINDOWEVENT)
       {
@@ -966,12 +965,13 @@ int main(int argc, char** argv)
 
 cleanup:
   SDL_StopTextInput();
-  ConfigManager::delete_instance();
   CursorManager::delete_insance();
   CairoContext::delete_instance();
   delete window;
   SDL_Quit();
+  ConfigManager::delete_instance();
 
+  INFO_BOII("Stopped text input");
   return 0;
 }
 /*

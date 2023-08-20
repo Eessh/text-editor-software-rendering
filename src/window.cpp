@@ -144,7 +144,7 @@ void Window::handle_resize(const SDL_Event& event) noexcept
 void Window::handle_maximize(const SDL_Event& event) noexcept
 {
   int w, h;
-  SDL_GetWindowSizeInPixels(_window, &w, &h);
+  SDL_GetWindowSize(_window, &w, &h);
   _width = static_cast<uint16>(w);
   _height = static_cast<uint16>(h);
   this->reload_window_surface();
@@ -172,7 +172,7 @@ void Window::toggle_fullscreen() noexcept
 
   // syncing window's size
   int w, h;
-  SDL_GetWindowSizeInPixels(_window, &w, &h);
+  SDL_GetWindowSize(_window, &w, &h);
   _width = static_cast<uint16>(w);
   _height = static_cast<uint16>(h);
 }
