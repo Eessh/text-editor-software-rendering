@@ -1,6 +1,7 @@
 #include "../include/buffer.hpp"
 #include <algorithm>
 #include <fstream>
+#include <string_view>
 #include "../include/config_manager.hpp"
 #include "../include/macros.hpp"
 
@@ -396,6 +397,9 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
     break;
   }
   case BufferCursorCommand::MOVE_TO_PREVIOUS_WORD_START: {
+    /// TODO: handle selection case
+
+    this->_base_move_cursor_to_previous_word_start();
     break;
   }
   case BufferCursorCommand::MOVE_TO_NEXT_WORD_END: {
@@ -1018,6 +1022,36 @@ bool Buffer::_base_move_cursor_down() noexcept
 bool Buffer::_base_move_cursor_to_previous_word_start() noexcept
 {
   /// TODO: Implement base move cursor to previous word start
+  const std::string_view word_separators =
+    ConfigManager::get_instance()->get_config_struct().word_separators;
+  int32 row = _cursor_row, col = _cursor_col;
+  bool found_word = false;
+  while(1)
+  {
+    if(col == -1)
+    {
+      if(row == 0)
+      {
+        return false;
+      }
+      row -= 1;
+      col = _lines[row].size() - 1;
+      continue;
+    }
+    if(word_separators.find(_lines[row][col]) == std::string::npos)
+    {
+      // inside word or found word need to move to its starting
+      found_word = true;
+    }
+    else if(found_word)
+    {
+      // encountered separator
+      _cursor_row = row;
+      _cursor_col = col;
+      return true;
+    }
+    col -= 1;
+  }
   return false;
 }
 

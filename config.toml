@@ -27,7 +27,7 @@ code_font = "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"
 font_size = 16
 
 # Characters which separate words or which act as delimiters for word.
-word_separators = " \n\r.!\t;:\\/+-*&%<>=(){}[]\"',|~^"
+word_separators = " \n\r.!\t;:\\/+-*&%<>=(){}[]\"',|~^#@`$"
 
 [window]
   width = 1080
