@@ -18,6 +18,7 @@ workspace("text-editor-software-rendering")
 			kind("WindowedApp")
 		filter({})
 		language("C++")
+		cppdialect("C++2a")
 		includedirs({
 			"include",
 			"log-boii",

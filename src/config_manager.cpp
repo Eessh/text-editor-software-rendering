@@ -60,6 +60,10 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
 
   _config.font_size = parsed_config["font_size"].value_or<uint8>(14);
 
+  _config.word_separators =
+    parsed_config["word_separators"].value_or<std::string>(
+      " \n\r.!\t;:\\/+-*&%<>=(){}[]\"',|~^");
+
   _config.window.width =
     parsed_config["window"]["width"].value_or<uint16>(1080);
   _config.window.height =

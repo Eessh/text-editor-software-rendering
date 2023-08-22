@@ -1,6 +1,7 @@
 #include "../include/buffer.hpp"
 #include <algorithm>
 #include <fstream>
+#include <string_view>
 #include "../include/config_manager.hpp"
 #include "../include/macros.hpp"
 
@@ -37,39 +38,41 @@ Buffer::Buffer(const std::vector<std::string>& lines) noexcept
 bool Buffer::load_from_file(const std::string& filepath) noexcept
 {
   std::ifstream file(filepath);
-  if(file.is_open()) [[likely]]
-  {
-    // setting to defaults
-    _cursor_row = 0;
-    _cursor_col = -1;
-    _cursor_col_target = -1;
-    _has_selection = false;
-    _selection = {{0, -1}, {0, -1}};
-    _lines.clear();
-    _buffer_view_update_commands_queue.clear();
-
-    while(file.good())
+  if(file.is_open())
+    [[likely]]
     {
-      _lines.emplace_back("");
-      std::getline(file, _lines.back());
+      // setting to defaults
+      _cursor_row = 0;
+      _cursor_col = -1;
+      _cursor_col_target = -1;
+      _has_selection = false;
+      _selection = {{0, -1}, {0, -1}};
+      _lines.clear();
+      _buffer_view_update_commands_queue.clear();
 
-      // replace all tabs with corresponding amount of spaces
-      uint8 tab_width =
-        ConfigManager::get_instance()->get_config_struct().tab_width;
-      auto it = _lines.back().find('\t');
-      while(it != std::string::npos)
+      while(file.good())
       {
-        _lines.back().replace(it, 1, std::string(tab_width, ' '));
-        it = _lines.back().find('\t');
+        _lines.emplace_back("");
+        std::getline(file, _lines.back());
+
+        // replace all tabs with corresponding amount of spaces
+        uint8 tab_width =
+          ConfigManager::get_instance()->get_config_struct().tab_width;
+        auto it = _lines.back().find('\t');
+        while(it != std::string::npos)
+        {
+          _lines.back().replace(it, 1, std::string(tab_width, ' '));
+          it = _lines.back().find('\t');
+        }
       }
+      return true;
     }
-    return true;
-  }
-  else [[unlikely]]
-  {
-    ERROR_BOII("Unable to open file: %s", filepath.c_str());
-    return false;
-  }
+  else
+    [[unlikely]]
+    {
+      ERROR_BOII("Unable to open file: %s", filepath.c_str());
+      return false;
+    }
 }
 
 uint32 Buffer::length() const noexcept
@@ -80,15 +83,17 @@ uint32 Buffer::length() const noexcept
 std::optional<uint32>
 Buffer::line_length(const uint32& line_index) const noexcept
 {
-  if(line_index >= _lines.size()) [[unlikely]]
-  {
-    ERROR_BOII("Accessing line length with line_index out of bounds!");
-    return std::nullopt;
-  }
-  else [[likely]]
-  {
-    return _lines[line_index].size();
-  }
+  if(line_index >= _lines.size())
+    [[unlikely]]
+    {
+      ERROR_BOII("Accessing line length with line_index out of bounds!");
+      return std::nullopt;
+    }
+  else
+    [[likely]]
+    {
+      return _lines[line_index].size();
+    }
 }
 
 const std::vector<std::string>& Buffer::lines() const noexcept
@@ -99,33 +104,37 @@ const std::vector<std::string>& Buffer::lines() const noexcept
 std::optional<const std::reference_wrapper<std::string>>
 Buffer::line(const uint32& line_index) const noexcept
 {
-  if(line_index >= _lines.size()) [[unlikely]]
-  {
-    ERROR_BOII("Accessing line with line_index: %ld out of bounds!",
-               line_index);
-    return std::nullopt;
-  }
-  else [[likely]]
-  {
-    return const_cast<std::string&>(_lines[line_index]);
-  }
+  if(line_index >= _lines.size())
+    [[unlikely]]
+    {
+      ERROR_BOII("Accessing line with line_index: %ld out of bounds!",
+                 line_index);
+      return std::nullopt;
+    }
+  else
+    [[likely]]
+    {
+      return const_cast<std::string&>(_lines[line_index]);
+    }
 }
 
 std::optional<std::string> Buffer::line_with_spaces_converted_to_tabs(
   const uint32& line_index) const noexcept
 {
-  if(line_index >= _lines.size()) [[unlikely]]
-  {
-    ERROR_BOII("Accessing line with line_index: %ld out of bounds!",
-               line_index);
-    return std::nullopt;
-  }
-  else [[likely]]
-  {
-    std::string line(_lines[line_index]);
-    _convert_leading_spaces_to_indentation_tabs(line);
-    return line;
-  }
+  if(line_index >= _lines.size())
+    [[unlikely]]
+    {
+      ERROR_BOII("Accessing line with line_index: %ld out of bounds!",
+                 line_index);
+      return std::nullopt;
+    }
+  else
+    [[likely]]
+    {
+      std::string line(_lines[line_index]);
+      _convert_leading_spaces_to_indentation_tabs(line);
+      return line;
+    }
 }
 
 std::pair<uint32, int32> Buffer::cursor_coords() const noexcept
@@ -198,11 +207,12 @@ void Buffer::clear_selection() noexcept
 std::optional<std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>>>
 Buffer::selection() const noexcept
 {
-  if(!_has_selection) [[unlikely]]
-  {
-    ERROR_BOII("Called GET selection, when buffer has no selection!");
-    return std::nullopt;
-  }
+  if(!_has_selection)
+    [[unlikely]]
+    {
+      ERROR_BOII("Called GET selection, when buffer has no selection!");
+      return std::nullopt;
+    }
 
   // sort selection start, end
   if(_selection.first.first < _selection.second.first)
@@ -386,6 +396,18 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
 
     break;
   }
+  case BufferCursorCommand::MOVE_TO_PREVIOUS_WORD_START: {
+    /// TODO: handle selection case
+
+    this->_base_move_cursor_to_previous_word_start();
+    break;
+  }
+  case BufferCursorCommand::MOVE_TO_NEXT_WORD_END: {
+    /// TODO: handle selection case
+
+    this->_base_move_cursor_to_next_word_end();
+    break;
+  }
   default:
     break;
   }
@@ -406,12 +428,13 @@ void Buffer::execute_selection_command(
       _selection.first.second = _cursor_col;
 
       // this also handles the view update command
-      if(!this->_base_move_cursor_left()) [[unlikely]]
-      {
-        // cursor hasn't moved
-        _has_selection = false;
-        return;
-      }
+      if(!this->_base_move_cursor_left())
+        [[unlikely]]
+        {
+          // cursor hasn't moved
+          _has_selection = false;
+          return;
+        }
 
       _selection.second.first = _cursor_row;
       _selection.second.second = _cursor_col;
@@ -434,12 +457,13 @@ void Buffer::execute_selection_command(
       _selection.first.second = _cursor_col;
 
       // this also handles the view update command
-      if(!this->_base_move_cursor_right()) [[unlikely]]
-      {
-        // cursor hasn't moved
-        _has_selection = false;
-        return;
-      }
+      if(!this->_base_move_cursor_right())
+        [[unlikely]]
+        {
+          // cursor hasn't moved
+          _has_selection = false;
+          return;
+        }
 
       _selection.second.first = _cursor_row;
       _selection.second.second = _cursor_col;
@@ -462,12 +486,13 @@ void Buffer::execute_selection_command(
       _selection.first.second = _cursor_col;
 
       // this also handles the view update command
-      if(!this->_base_move_cursor_up()) [[unlikely]]
-      {
-        // cursor hasn't moved
-        _has_selection = false;
-        return;
-      }
+      if(!this->_base_move_cursor_up())
+        [[unlikely]]
+        {
+          // cursor hasn't moved
+          _has_selection = false;
+          return;
+        }
 
       _selection.second.first = _cursor_row;
       _selection.second.second = _cursor_col;
@@ -490,12 +515,13 @@ void Buffer::execute_selection_command(
       _selection.first.second = _cursor_col;
 
       // this also handles the view update command
-      if(!this->_base_move_cursor_down()) [[unlikely]]
-      {
-        // cursor hasn't moved
-        _has_selection = false;
-        return;
-      }
+      if(!this->_base_move_cursor_down())
+        [[unlikely]]
+        {
+          // cursor hasn't moved
+          _has_selection = false;
+          return;
+        }
 
       _selection.second.first = _cursor_row;
       _selection.second.second = _cursor_col;
@@ -886,16 +912,17 @@ Buffer::get_next_token_cache_update_command() noexcept
 
 bool Buffer::_base_move_cursor_left() noexcept
 {
-  if(_cursor_col > -1) [[likely]]
-  {
-    _cursor_col--;
-    _cursor_col_target = _cursor_col;
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
-    return true;
-  }
+  if(_cursor_col > -1)
+    [[likely]]
+    {
+      _cursor_col--;
+      _cursor_col_target = _cursor_col;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+      cmd.row = _cursor_row;
+      _buffer_view_update_commands_queue.push_back(cmd);
+      return true;
+    }
 
   if(_cursor_row == 0)
   {
@@ -918,15 +945,15 @@ bool Buffer::_base_move_cursor_right() noexcept
 {
   if(_cursor_col < static_cast<int32>(_lines[_cursor_row].size() - 1))
     [[likely]]
-  {
-    _cursor_col++;
-    _cursor_col_target = _cursor_col;
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
-    return true;
-  }
+    {
+      _cursor_col++;
+      _cursor_col_target = _cursor_col;
+      BufferViewUpdateCommand cmd;
+      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
+      cmd.row = _cursor_row;
+      _buffer_view_update_commands_queue.push_back(cmd);
+      return true;
+    }
 
   if(_cursor_row == _lines.size() - 1)
   {
@@ -993,6 +1020,76 @@ bool Buffer::_base_move_cursor_down() noexcept
   _buffer_view_update_commands_queue.push_back(cmd);
 
   return true;
+}
+
+bool Buffer::_base_move_cursor_to_previous_word_start() noexcept
+{
+  /// TODO: Implement base move cursor to previous word start
+  const std::string_view word_separators =
+    ConfigManager::get_instance()->get_config_struct().word_separators;
+  int32 row = _cursor_row, col = _cursor_col;
+  bool found_word = false;
+  while(1)
+  {
+    if(col == -1)
+    {
+      if(row == 0)
+      {
+        return false;
+      }
+      row -= 1;
+      col = _lines[row].size() - 1;
+    }
+    if(word_separators.find(_lines[row][col]) == std::string::npos)
+    {
+      // inside word or found word need to move to its starting
+      found_word = true;
+    }
+    else if(found_word)
+    {
+      // encountered separator
+      _cursor_row = row;
+      _cursor_col = col;
+      return true;
+    }
+    col -= 1;
+  }
+  return false;
+}
+
+bool Buffer::_base_move_cursor_to_next_word_end() noexcept
+{
+  /// TODO: Implement base move cursor to next word end
+  const std::string_view word_separators =
+    ConfigManager::get_instance()->get_config_struct().word_separators;
+  int32 row = _cursor_row, col = _cursor_col;
+  bool found_word = false;
+  while(1)
+  {
+    if(col == _lines[row].size() - 1)
+    {
+      if(row == _lines.size() - 1)
+      {
+        return false;
+      }
+      row += 1;
+      col = 1;
+    }
+    if(word_separators.find(_lines[row][col]) == std::string::npos)
+    {
+      // inside word or found word need to move to its starting
+      found_word = true;
+    }
+    else if(found_word)
+    {
+      // encountered separator
+      _cursor_row = row;
+      _cursor_col = col - 1;
+      return true;
+    }
+    col += 1;
+  }
+  return false;
 }
 
 void Buffer::_delete_selection() noexcept

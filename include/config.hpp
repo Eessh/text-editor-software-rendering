@@ -17,6 +17,8 @@ typedef struct config
 
   uint8 font_size;
 
+  std::string word_separators;
+
   struct window
   {
     uint16 width, height;
