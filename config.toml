@@ -20,7 +20,8 @@ tab_lines = true
 # Relative path to font file with respect to app executable also works.
 # Default: "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"
 # Example: "C:/Windows/Fonts/consola.ttf"
-code_font = "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"
+# code_font = "assets/fonts/JetBrains Mono Regular Nerd Font Complete.ttf"
+code_font = "assets/fonts/SauceCodeProNerdFont-Regular.ttf"
 
 # Font size
 # Default: 16

@@ -24,6 +24,9 @@ g++ src\*.cpp log-boii\*.c cpp-tokenizer\*.cpp^
 echo Copying config ...
 copy config.toml dist\windows\config.toml
 
+echo Copying assets ...
+robocopy /s assets\ dist\windows\assets\
+
 echo:
 echo Done.
 echo Rocket app is here: dist/windows/Rocket.exe
