@@ -36,6 +36,8 @@ Makefile
 *.make
 
 # Mine :)
+build
+*.user
 *.sublime-workspace
 .lite_project.lua
 bin/Debug/text-editor-software-rendering

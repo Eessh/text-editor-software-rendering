@@ -48,7 +48,7 @@ word_separators = " \n\r.!\t;:\\/+-*&%<>=(){}[]\"',|~^#@`$"
   black = "#282c34"
   gray = "#5c6370"
   # RRGGBBAA color code for highlight
-  highlight = "#61afef44"
+  highlight = "#61afef30"
   comment = "#7f848e"
   # RRGGBBAA color code for scrollbar
   scrollbar = "#e5c07b88"
