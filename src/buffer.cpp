@@ -1070,7 +1070,7 @@ bool Buffer::_base_move_cursor_to_next_word_end() noexcept
   bool found_word = false;
   while(1)
   {
-    if(col == _lines[row].size() - 1)
+    if(col == _lines[row].size())
     {
       if(row == _lines.size() - 1)
       {
@@ -1081,11 +1081,17 @@ bool Buffer::_base_move_cursor_to_next_word_end() noexcept
     }
     if(word_separators.find(_lines[row][col]) == std::string::npos)
     {
-      // inside word or found word need to move to its starting
-      found_word = true;
+      log_info("inside word");
+      if(row != _cursor_row || col != _cursor_col)
+      {
+        found_word = true;
+      }
+      // cursor maybe at just the end of the word
+      // we should find the next word skipping all separators between
     }
     else if(found_word)
     {
+      log_info("found separator");
       // encountered separator
       _cursor_row = row;
       _cursor_col = col - 1;
