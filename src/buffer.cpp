@@ -1032,6 +1032,7 @@ bool Buffer::_base_move_cursor_to_previous_word_start() noexcept
 {
   const std::string_view word_separators =
     ConfigManager::get_instance()->get_config_struct().word_separators;
+
   int32 row = _cursor_row, col = _cursor_col;
   bool found_word = false;
   while(1)
@@ -1045,20 +1046,26 @@ bool Buffer::_base_move_cursor_to_previous_word_start() noexcept
       row -= 1;
       col = _lines[row].size() - 1;
     }
-    if(word_separators.find(_lines[row][col]) == std::string::npos)
+    if(col != -1 && word_separators.find(_lines[row][col]) == std::string::npos)
     {
-      // inside word or found word need to move to its starting
       found_word = true;
     }
-    else if(found_word)
+    else
     {
-      // encountered separator
+      if(found_word)
+      {
+        _cursor_row = row;
+        _cursor_col = col;
+        return true;
+      }
+
       _cursor_row = row;
-      _cursor_col = col;
+      _cursor_col = col - 1;
       return true;
     }
     col -= 1;
   }
+
   return false;
 }
 
@@ -1082,17 +1089,14 @@ bool Buffer::_base_move_cursor_to_next_word_end() noexcept
     }
     if(col != -1 && word_separators.find(_lines[row][col]) == std::string::npos)
     {
-      log_info("inside word");
       if(row != _cursor_row || col != _cursor_col)
       {
         found_word = true;
       }
       // cursor maybe at just the end of the word
-      // we should find the next word skipping all separators between
     }
     else
     {
-      log_info("found separator");
       if(found_word)
       {
         _cursor_row = row;
