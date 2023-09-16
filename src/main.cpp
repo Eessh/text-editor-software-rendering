@@ -221,7 +221,8 @@ int main(int argc, char** argv)
           if((event.key.keysym.mod & KMOD_LCTRL) &&
              (event.key.keysym.mod & KMOD_LSHIFT))
           {
-            /// TODO: Handle CTRL+SHIFT+LEFT_ARROW
+            buffer.execute_selection_command(
+              BufferSelectionCommand::EXTEND_TO_PREVIOUS_WORD_START);
           }
           else if(event.key.keysym.mod & KMOD_LCTRL)
           {
@@ -253,7 +254,8 @@ int main(int argc, char** argv)
           if((event.key.keysym.mod & KMOD_LCTRL) &&
              (event.key.keysym.mod & KMOD_LSHIFT))
           {
-            /// TODO: Handle CTRL+SHIFT+RIGHT_ARROW
+            buffer.execute_selection_command(
+              BufferSelectionCommand::EXTENT_TO_NEXT_WORD_END);
           }
           else if(event.key.keysym.mod & KMOD_LCTRL)
           {

@@ -541,6 +541,54 @@ void Buffer::execute_selection_command(
     _selection.second.second = _cursor_col;
     break;
   }
+  case BufferSelectionCommand::EXTEND_TO_PREVIOUS_WORD_START: {
+    if(!_has_selection)
+    {
+      _has_selection = true;
+      _selection.first.first = _cursor_row;
+      _selection.first.second = _cursor_col;
+
+      if(!this->_base_move_cursor_to_previous_word_start())
+      {
+        _has_selection = false;
+      }
+
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+      return;
+    }
+
+    if(this->_base_move_cursor_to_previous_word_start())
+    {
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+    }
+    break;
+  }
+  case BufferSelectionCommand::EXTENT_TO_NEXT_WORD_END: {
+    if(!_has_selection)
+    {
+      _has_selection = true;
+      _selection.first.first = _cursor_row;
+      _selection.first.second = _cursor_col;
+
+      if(!this->_base_move_cursor_to_next_word_end())
+      {
+        _has_selection = false;
+      }
+
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+      return;
+    }
+
+    if(this->_base_move_cursor_to_next_word_end())
+    {
+      _selection.second.first = _cursor_row;
+      _selection.second.second = _cursor_col;
+    }
+    break;
+  }
   case BufferSelectionCommand::SELECT_WORD: {
     std::string word_delimiters = " \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-";
     int16 left = 0, right = 1;

@@ -50,6 +50,14 @@ typedef enum class BufferSelectionCommand
   ///        it creates a selection.
   MOVE_DOWN,
 
+  /// Extends selection to starting of next word.
+  /// If no selection exists, it creates a selection.
+  EXTEND_TO_PREVIOUS_WORD_START,
+
+  /// Extends selection to ending of next word.
+  /// If no selection exists, it creates a selection.
+  EXTENT_TO_NEXT_WORD_END,
+
   /// @brief Selects word under cursor.
   SELECT_WORD,
 
