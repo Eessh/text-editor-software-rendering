@@ -631,6 +631,7 @@ void Buffer::execute_selection_command(
     _has_selection = true;
     _selection.first.first = _cursor_row;
     _selection.first.second = -1;
+    _selected_line = _cursor_row;
     if(_cursor_row == _lines.size() - 1)
     {
       // ending line
@@ -659,6 +660,71 @@ void Buffer::execute_selection_command(
   default:
     break;
   }
+}
+
+void Buffer::extend_line_selection_to_line(const uint32& line_index) noexcept
+{
+  if(!_has_selection)
+  {
+    this->execute_selection_command(BufferSelectionCommand::SELECT_LINE);
+    return;
+  }
+
+  if(line_index < _selected_line)
+  {
+    if(_selection.second.first > _selection.first.first)
+    {
+      // currently selected only one line
+      std::swap(_selection.first.first, _selection.second.first);
+      std::swap(_selection.first.second, _selection.second.second);
+    }
+
+    _selection.second.first = line_index;
+    _selection.second.second = -1;
+
+    _cursor_row = line_index;
+    _cursor_col = -1;
+    return;
+  }
+
+  if(line_index == _selected_line)
+  {
+    _selection.first.first = line_index;
+    _selection.first.second = -1;
+    if(line_index == _lines.size())
+    {
+      _selection.second.first = line_index;
+      _selection.second.second = _lines[line_index].size() - 1;
+
+      _cursor_row = line_index;
+      _cursor_col = _lines[line_index].size() - 1;
+    }
+    else
+    {
+      _selection.second.first = line_index + 1;
+      _selection.second.second = -1;
+
+      _cursor_row = line_index + 1;
+      _cursor_col = -1;
+    }
+    return;
+  }
+
+  if(line_index == _lines.size() - 1)
+  {
+    _selection.second.first = line_index;
+    _selection.second.second = _lines[line_index].size() - 1;
+
+    _cursor_row = line_index;
+    _cursor_col = _lines[line_index].size() - 1;
+    return;
+  }
+
+  _selection.second.first = line_index + 1;
+  _selection.second.second = -1;
+
+  _cursor_row = line_index + 1;
+  _cursor_col = -1;
 }
 
 bool Buffer::process_backspace() noexcept

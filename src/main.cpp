@@ -177,14 +177,14 @@ int main(int argc, char** argv)
         float32 line_numbers_width =
           (std::to_string(buffer.length()).length() + 2) *
           font_extents.max_x_advance;
+        std::pair<uint32, int32> buffer_grid_coords =
+          mouse_coords_to_buffer_coords(event.motion.x,
+                                        event.motion.y,
+                                        line_numbers_width,
+                                        scroll_y_offset,
+                                        buffer);
         if(mouse_single_tap_down)
         {
-          std::pair<uint32, int32> buffer_grid_coords =
-            mouse_coords_to_buffer_coords(event.motion.x,
-                                          event.motion.y,
-                                          line_numbers_width,
-                                          scroll_y_offset,
-                                          buffer);
           buffer.set_cursor_row(buffer_grid_coords.first);
           buffer.set_cursor_column(buffer_grid_coords.second);
           buffer.set_selection_end_coordinate(buffer_grid_coords);
@@ -196,7 +196,8 @@ int main(int argc, char** argv)
         }
         else if(mouse_triple_tap_down)
         {
-          /// TODO: Implement mouse selection for lines.
+          buffer.extend_line_selection_to_line(buffer_grid_coords.first);
+          redraw = true;
         }
       }
       else if(event.type == SDL_MOUSEWHEEL)

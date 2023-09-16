@@ -264,6 +264,10 @@ public:
   void
   execute_selection_command(const BufferSelectionCommand& command) noexcept;
 
+  /// Extends line selection to the given line.
+  /// If no selection is present, selects the given line.
+  void extend_line_selection_to_line(const uint32& line_index) noexcept;
+
   /// @brief Processes BACKSPACE on internal text buffer.
   /// @return Returns true if there is a change in text buffer.
   /// @throws No exceptions.
@@ -311,6 +315,12 @@ private:
 
   /// @brief Selection region.
   std::pair<std::pair<uint32, int32>, std::pair<uint32, int32>> _selection;
+
+  /// Line selection.
+  /// Useful when extending line selection to previous and next lines.
+  /// Read this value only if buffer has selection, else
+  /// this value maybe of the last selected line.
+  uint32 _selected_line;
 
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
