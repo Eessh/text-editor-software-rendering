@@ -70,12 +70,17 @@ typedef enum class BufferSelectionCommand
 ///        render two lines (or) render a range of lines.
 typedef enum class BufferViewUpdateCommandType
 {
-  /// @brief Render a single line - row.
+  /// @brief Render a single line - `start_row`.
   RENDER_LINE,
 
-  /// @brief Render two lines, where first line is - old_active_line,
-  ///        second line is - new_active_line.
-  RENDER_LINES,
+  /// Renders a slice of line - `start_row`, `slice_start`, `slice_end`.
+  RENDER_LINE_SLICE,
+
+  /// Renders line selection - `start_row`.
+  RENDER_LINE_SELECTION,
+
+  /// Renders line slice selection - `start_row`, `slice_start`, `slice_end`.
+  RENDER_LINE_SLICE_SELECTION,
 
   /// @brief Render range of lines, where first line is - start_row,
   ///        last line is - end_row.
@@ -89,29 +94,25 @@ struct BufferViewUpdateCommand
   /// @brief Command type.
   BufferViewUpdateCommandType type;
 
-  /// @brief Row to render (for RENDER_LINE command type).
-  uint32 row;
-
-  /// @brief Old active line (for RENDER_LINES command type).
-  uint32 old_active_line;
-
-  /// @brief New active line (for RENDER_LINES command type).
-  uint32 new_active_line;
-
   /// @brief Starting row (for RENDER_LINE_RANGE command type).
   uint32 start_row;
 
   /// @brief Ending row (for RENDER_LINE_RANGE command type).
   uint32 end_row;
 
+  /// Starting column of line slice.
+  int32 slice_start;
+
+  /// Ending column of line slice.
+  int32 slice_end;
+
   /// @brief Default constructor.
   BufferViewUpdateCommand()
     : type(BufferViewUpdateCommandType::RENDER_LINE)
-    , row(0)
-    , old_active_line(0)
-    , new_active_line(0)
     , start_row(0)
     , end_row(0)
+    , slice_start(-1)
+    , slice_end(-1)
   {}
 };
 
