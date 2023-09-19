@@ -12,7 +12,7 @@ Buffer::Buffer() noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({""})
-  , _buffer_view_update_commands_queue(std::deque<BufferViewUpdateCommand>())
+// , _buffer_incremental_render_update_commands(std::deque<BufferViewUpdateCommand>())
 {}
 
 Buffer::Buffer(const std::string& init_string) noexcept
@@ -22,7 +22,7 @@ Buffer::Buffer(const std::string& init_string) noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines({init_string})
-  , _buffer_view_update_commands_queue(std::deque<BufferViewUpdateCommand>())
+// , _buffer_incremental_render_update_commands(std::deque<BufferViewUpdateCommand>())
 {}
 
 Buffer::Buffer(const std::vector<std::string>& lines) noexcept
@@ -32,7 +32,7 @@ Buffer::Buffer(const std::vector<std::string>& lines) noexcept
   , _has_selection(false)
   , _selection({{0, -1}, {0, -1}})
   , _lines(lines)
-  , _buffer_view_update_commands_queue(std::deque<BufferViewUpdateCommand>())
+// , _buffer_incremental_render_update_commands(std::deque<BufferViewUpdateCommand>())
 {}
 
 bool Buffer::load_from_file(const std::string& filepath) noexcept
@@ -47,7 +47,8 @@ bool Buffer::load_from_file(const std::string& filepath) noexcept
     _has_selection = false;
     _selection = {{0, -1}, {0, -1}};
     _lines.clear();
-    _buffer_view_update_commands_queue.clear();
+    // _buffer_incremental_render_update_commands.clear();
+    _buffer_incremental_render_update_commands.clear();
 
     while(file.good())
     {
@@ -146,12 +147,11 @@ uint32& Buffer::cursor_row() noexcept
 
 void Buffer::set_cursor_row(const uint32& row) noexcept
 {
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  // cmd.rows = {_cursor_row, row};
-  cmd.start_row = _cursor_row;
-  cmd.end_row = row;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  IncrementalRenderUpdateCommand cmd;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINES;
+  cmd.row_start = _cursor_row;
+  cmd.row_end = row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
   DEBUG_BOII("set row: %ld", row);
   _cursor_row = row;
 }
@@ -168,10 +168,10 @@ int32& Buffer::cursor_column() noexcept
 
 void Buffer::set_cursor_column(const int32& column) noexcept
 {
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-  cmd.start_row = _cursor_row;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  IncrementalRenderUpdateCommand cmd;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+  cmd.row_start = _cursor_row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
   _cursor_col = column;
 }
 
@@ -188,11 +188,11 @@ void Buffer::clear_selection() noexcept
   }
 
   auto selection = this->selection().value();
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  cmd.start_row = selection.first.first;
-  cmd.end_row = selection.second.first;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  IncrementalRenderUpdateCommand cmd;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+  cmd.row_start = selection.first.first;
+  cmd.row_end = selection.second.first;
+  _buffer_incremental_render_update_commands.push_back(cmd);
   _has_selection = false;
 }
 
@@ -291,11 +291,12 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_col = selection.first.second;
       _cursor_col_target = _cursor_col;
       _has_selection = false;
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-      cmd.start_row = selection.first.first;
-      cmd.end_row = selection.second.first;
-      _buffer_view_update_commands_queue.push_back(cmd);
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_CURSOR;
+      _buffer_incremental_render_update_commands.push_back(cmd);
+      cmd.type = IncrementalRenderUpdateType::RENDER_CHARACTER;
+      cmd.row_start = selection.first.first;
+      cmd.row_end = selection.second.first;
       return;
     }
 
@@ -311,11 +312,11 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_col = selection.second.second;
       _cursor_col_target = _cursor_col;
       _has_selection = false;
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-      cmd.start_row = selection.first.first;
-      cmd.end_row = selection.second.first;
-      _buffer_view_update_commands_queue.push_back(cmd);
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+      cmd.row_start = selection.first.first;
+      cmd.row_end = selection.second.first;
+      _buffer_incremental_render_update_commands.push_back(cmd);
       return;
     }
 
@@ -331,23 +332,23 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_col = selection.first.second;
       _cursor_col_target = _cursor_col;
       _has_selection = false;
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-      cmd.end_row = selection.second.first;
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+      cmd.row_end = selection.second.first;
       if(_cursor_row == 0)
       {
-        cmd.start_row = selection.first.first;
-        _buffer_view_update_commands_queue.push_back(cmd);
+        cmd.row_start = selection.first.first;
+        _buffer_incremental_render_update_commands.push_back(cmd);
         return;
       }
       --_cursor_row;
-      cmd.start_row = _cursor_row;
+      cmd.row_start = _cursor_row;
       if(static_cast<int32>(_lines[_cursor_row].size() - 1) <
          _cursor_col_target)
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
-      _buffer_view_update_commands_queue.push_back(cmd);
+      _buffer_incremental_render_update_commands.push_back(cmd);
       return;
     }
 
@@ -363,23 +364,23 @@ void Buffer::execute_cursor_command(const BufferCursorCommand& command) noexcept
       _cursor_col = selection.second.second;
       _cursor_col_target = _cursor_col;
       _has_selection = false;
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-      cmd.start_row = selection.first.first;
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+      cmd.row_start = selection.first.first;
       if(_cursor_row == _lines.size() - 1)
       {
-        cmd.end_row = selection.second.first;
-        _buffer_view_update_commands_queue.push_back(cmd);
+        cmd.row_end = selection.second.first;
+        _buffer_incremental_render_update_commands.push_back(cmd);
         return;
       }
       ++_cursor_row;
-      cmd.end_row = _cursor_row;
+      cmd.row_end = _cursor_row;
       if(static_cast<int32>(_lines[_cursor_row].size() - 1) <
          _cursor_col_target)
       {
         _cursor_col = _lines[_cursor_row].size() - 1;
       }
-      _buffer_view_update_commands_queue.push_back(cmd);
+      _buffer_incremental_render_update_commands.push_back(cmd);
       return;
     }
 
@@ -621,10 +622,10 @@ void Buffer::execute_selection_command(
     _selection.second.first = _cursor_row;
     _selection.second.second = _cursor_col + right - 1;
     _cursor_col += right - 1;
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.start_row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    IncrementalRenderUpdateCommand cmd;
+    cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+    cmd.row_start = _cursor_row;
+    _buffer_incremental_render_update_commands.push_back(cmd);
     break;
   }
   case BufferSelectionCommand::SELECT_LINE: {
@@ -638,22 +639,22 @@ void Buffer::execute_selection_command(
       _selection.second.first = _cursor_row;
       _selection.second.second = _lines[_cursor_row].size() - 1;
       _cursor_col = _lines[_cursor_row].size() - 1;
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-      cmd.start_row = _cursor_row;
-      _buffer_view_update_commands_queue.push_back(cmd);
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+      cmd.row_start = _cursor_row;
+      _buffer_incremental_render_update_commands.push_back(cmd);
     }
     else
     {
       _selection.second.first = _cursor_row + 1;
       _selection.second.second = -1;
       _cursor_col = -1;
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-      cmd.start_row = _cursor_row;
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+      cmd.row_start = _cursor_row;
       _cursor_row += 1;
-      cmd.end_row = _cursor_row;
-      _buffer_view_update_commands_queue.push_back(cmd);
+      cmd.row_end = _cursor_row;
+      _buffer_incremental_render_update_commands.push_back(cmd);
     }
     break;
   }
@@ -766,10 +767,10 @@ bool Buffer::process_backspace() noexcept
     }
 
     {
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-      cmd.start_row = _cursor_row;
-      _buffer_view_update_commands_queue.emplace_back(cmd);
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+      cmd.row_start = _cursor_row;
+      _buffer_incremental_render_update_commands.emplace_back(cmd);
     }
     {
       TokenCacheUpdateCommand cmd;
@@ -795,11 +796,11 @@ bool Buffer::process_backspace() noexcept
   _lines.erase(_lines.begin() + _cursor_row);
   _cursor_row -= 1;
   {
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-    cmd.start_row = _cursor_row;
-    cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    IncrementalRenderUpdateCommand cmd;
+    cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+    cmd.row_start = _cursor_row;
+    cmd.row_end = _lines.size() - 1;
+    _buffer_incremental_render_update_commands.push_back(cmd);
   }
   return true;
 }
@@ -881,12 +882,12 @@ void Buffer::process_enter() noexcept
     _token_cache_update_commands_queue.emplace_back(cmd);
   }
   {
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-    cmd.start_row = _cursor_row;
+    IncrementalRenderUpdateCommand cmd;
+    cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+    cmd.row_start = _cursor_row;
     _cursor_row += 1;
-    cmd.end_row = _lines.size() - 1;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    cmd.row_end = _lines.size() - 1;
+    _buffer_incremental_render_update_commands.push_back(cmd);
   }
 }
 
@@ -982,10 +983,10 @@ void Buffer::insert_string(const std::string& str) noexcept
   }
 
   {
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.start_row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    IncrementalRenderUpdateCommand cmd;
+    cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+    cmd.row_start = _cursor_row;
+    _buffer_incremental_render_update_commands.push_back(cmd);
   }
   {
     TokenCacheUpdateCommand cmd;
@@ -995,27 +996,27 @@ void Buffer::insert_string(const std::string& str) noexcept
   }
 }
 
-std::optional<BufferViewUpdateCommand>
-Buffer::get_next_view_update_command() noexcept
-{
-  if(_buffer_view_update_commands_queue.empty())
-  {
-    return std::nullopt;
-  }
+// std::optional<BufferViewUpdateCommand>
+// Buffer::get_next_view_update_command() noexcept
+// {
+//   if(_buffer_incremental_render_update_commands.empty())
+//   {
+//     return std::nullopt;
+//   }
 
-  BufferViewUpdateCommand command = _buffer_view_update_commands_queue.front();
-  _buffer_view_update_commands_queue.pop_front();
-  return command;
-}
+//   BufferViewUpdateCommand command = _buffer_incremental_render_update_commands.front();
+//   _buffer_incremental_render_update_commands.pop_front();
+//   return command;
+// }
 
 void Buffer::remove_most_recent_view_update_command() noexcept
 {
-  if(_buffer_view_update_commands_queue.empty())
+  if(_buffer_incremental_render_update_commands.empty())
   {
     return;
   }
 
-  _buffer_view_update_commands_queue.pop_back();
+  _buffer_incremental_render_update_commands.pop_back();
 }
 
 std::optional<TokenCacheUpdateCommand>
@@ -1037,10 +1038,10 @@ bool Buffer::_base_move_cursor_left() noexcept
   {
     _cursor_col--;
     _cursor_col_target = _cursor_col;
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.start_row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    IncrementalRenderUpdateCommand cmd;
+    cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+    cmd.row_start = _cursor_row;
+    _buffer_incremental_render_update_commands.push_back(cmd);
     return true;
   }
 
@@ -1049,14 +1050,14 @@ bool Buffer::_base_move_cursor_left() noexcept
     return false;
   }
 
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  cmd.start_row = _cursor_row;
+  IncrementalRenderUpdateCommand cmd;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+  cmd.row_start = _cursor_row;
   --_cursor_row;
   _cursor_col = _lines[_cursor_row].size() - 1;
   _cursor_col_target = _cursor_col;
-  cmd.end_row = _cursor_row;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  cmd.row_end = _cursor_row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
 
   return true;
 }
@@ -1068,10 +1069,10 @@ bool Buffer::_base_move_cursor_right() noexcept
   {
     _cursor_col++;
     _cursor_col_target = _cursor_col;
-    BufferViewUpdateCommand cmd;
-    cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-    cmd.start_row = _cursor_row;
-    _buffer_view_update_commands_queue.push_back(cmd);
+    IncrementalRenderUpdateCommand cmd;
+    cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+    cmd.row_start = _cursor_row;
+    _buffer_incremental_render_update_commands.push_back(cmd);
     return true;
   }
 
@@ -1080,14 +1081,14 @@ bool Buffer::_base_move_cursor_right() noexcept
     return false;
   }
 
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  cmd.start_row = _cursor_row;
+  IncrementalRenderUpdateCommand cmd;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+  cmd.row_start = _cursor_row;
   ++_cursor_row;
   _cursor_col = -1;
   _cursor_col_target = _cursor_col;
-  cmd.end_row = _cursor_row;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  cmd.row_end = _cursor_row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
 
   return true;
 }
@@ -1099,9 +1100,9 @@ bool Buffer::_base_move_cursor_up() noexcept
     return false;
   }
 
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  cmd.start_row = _cursor_row;
+  IncrementalRenderUpdateCommand cmd;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+  cmd.row_start = _cursor_row;
   --_cursor_row;
   if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col_target)
   {
@@ -1111,8 +1112,8 @@ bool Buffer::_base_move_cursor_up() noexcept
   {
     _cursor_col = _cursor_col_target;
   }
-  cmd.end_row = _cursor_row;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  cmd.row_end = _cursor_row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
 
   return true;
 }
@@ -1124,9 +1125,9 @@ bool Buffer::_base_move_cursor_down() noexcept
     return false;
   }
 
-  BufferViewUpdateCommand cmd;
-  cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-  cmd.start_row = _cursor_row;
+  IncrementalRenderUpdateCommand cmd;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+  cmd.row_start = _cursor_row;
   ++_cursor_row;
   if(static_cast<int32>(_lines[_cursor_row].size() - 1) < _cursor_col_target)
   {
@@ -1136,8 +1137,8 @@ bool Buffer::_base_move_cursor_down() noexcept
   {
     _cursor_col = _cursor_col_target;
   }
-  cmd.end_row = _cursor_row;
-  _buffer_view_update_commands_queue.push_back(cmd);
+  cmd.row_end = _cursor_row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
 
   return true;
 }
@@ -1246,10 +1247,10 @@ void Buffer::_delete_selection() noexcept
                                         selection.second.second -
                                           selection.first.second);
     {
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE;
-      cmd.start_row = _cursor_row;
-      _buffer_view_update_commands_queue.push_back(cmd);
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+      cmd.row_start = _cursor_row;
+      _buffer_incremental_render_update_commands.push_back(cmd);
     }
     {
       TokenCacheUpdateCommand cmd;
@@ -1261,11 +1262,11 @@ void Buffer::_delete_selection() noexcept
   else
   {
     {
-      BufferViewUpdateCommand cmd;
-      cmd.type = BufferViewUpdateCommandType::RENDER_LINE_RANGE;
-      cmd.start_row = selection.first.first;
-      cmd.end_row = _lines.size() - 1;
-      _buffer_view_update_commands_queue.push_back(cmd);
+      IncrementalRenderUpdateCommand cmd;
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+      cmd.row_start = selection.first.first;
+      cmd.row_end = _lines.size() - 1;
+      _buffer_incremental_render_update_commands.push_back(cmd);
     }
 
     _lines[selection.first.first].erase(selection.first.second + 1);

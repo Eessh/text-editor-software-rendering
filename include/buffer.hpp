@@ -65,56 +65,56 @@ typedef enum class BufferSelectionCommand
   SELECT_LINE
 } BufferSelectionCommand;
 
-/// @brief Buffer view update command type, tells which
-///        type of command it is: render single line (or)
-///        render two lines (or) render a range of lines.
-typedef enum class BufferViewUpdateCommandType
-{
-  /// @brief Render a single line - `start_row`.
-  RENDER_LINE,
+// /// @brief Buffer view update command type, tells which
+// ///        type of command it is: render single line (or)
+// ///        render two lines (or) render a range of lines.
+// typedef enum class BufferViewUpdateCommandType
+// {
+//   /// @brief Render a single line - `start_row`.
+//   RENDER_LINE,
 
-  /// Renders a slice of line - `start_row`, `slice_start`, `slice_end`.
-  RENDER_LINE_SLICE,
+//   /// Renders a slice of line - `start_row`, `slice_start`, `slice_end`.
+//   RENDER_LINE_SLICE,
 
-  /// Renders line selection - `start_row`.
-  RENDER_LINE_SELECTION,
+//   /// Renders line selection - `start_row`.
+//   RENDER_LINE_SELECTION,
 
-  /// Renders line slice selection - `start_row`, `slice_start`, `slice_end`.
-  RENDER_LINE_SLICE_SELECTION,
+//   /// Renders line slice selection - `start_row`, `slice_start`, `slice_end`.
+//   RENDER_LINE_SLICE_SELECTION,
 
-  /// @brief Render range of lines, where first line is - start_row,
-  ///        last line is - end_row.
-  RENDER_LINE_RANGE
-} BufferViewUpdateCommandType;
+//   /// @brief Render range of lines, where first line is - start_row,
+//   ///        last line is - end_row.
+//   RENDER_LINE_RANGE
+// } BufferViewUpdateCommandType;
 
-/// @brief Buffer view update command, tells UI which
-///        lines are updated, hence should be redrawn.
-struct BufferViewUpdateCommand
-{
-  /// @brief Command type.
-  BufferViewUpdateCommandType type;
+// /// @brief Buffer view update command, tells UI which
+// ///        lines are updated, hence should be redrawn.
+// struct BufferViewUpdateCommand
+// {
+//   /// @brief Command type.
+//   BufferViewUpdateCommandType type;
 
-  /// @brief Starting row (for RENDER_LINE_RANGE command type).
-  uint32 start_row;
+//   /// @brief Starting row (for RENDER_LINE_RANGE command type).
+//   uint32 start_row;
 
-  /// @brief Ending row (for RENDER_LINE_RANGE command type).
-  uint32 end_row;
+//   /// @brief Ending row (for RENDER_LINE_RANGE command type).
+//   uint32 end_row;
 
-  /// Starting column of line slice.
-  int32 slice_start;
+//   /// Starting column of line slice.
+//   int32 slice_start;
 
-  /// Ending column of line slice.
-  int32 slice_end;
+//   /// Ending column of line slice.
+//   int32 slice_end;
 
-  /// @brief Default constructor.
-  BufferViewUpdateCommand()
-    : type(BufferViewUpdateCommandType::RENDER_LINE)
-    , start_row(0)
-    , end_row(0)
-    , slice_start(-1)
-    , slice_end(-1)
-  {}
-};
+//   /// @brief Default constructor.
+//   BufferViewUpdateCommand()
+//     : type(BufferViewUpdateCommandType::RENDER_LINE)
+//     , start_row(0)
+//     , end_row(0)
+//     , slice_start(-1)
+//     , slice_end(-1)
+//   {}
+// };
 
 class Buffer
 {
@@ -283,11 +283,15 @@ public:
   /// @throws No exceptions.
   void insert_string(const std::string& str) noexcept;
 
-  /// @brief Gets next view update command.
-  /// @return Returns std::nullopt if there are no commands.
-  /// @throws No exceptions.
-  std::optional<BufferViewUpdateCommand>
-  get_next_view_update_command() noexcept;
+  // /// @brief Gets next view update command.
+  // /// @return Returns std::nullopt if there are no commands.
+  // /// @throws No exceptions.
+  // std::optional<BufferViewUpdateCommand>
+  // get_next_view_update_command() noexcept;
+
+  /// Gets next incremental render update command.
+  std::optional<IncrementalRenderUpdateCommand>
+  get_next_incremental_render_update_command() noexcept;
 
   /// @brief Removes last inserted command, in the view updates queue.
   /// @throws No exceptions.
@@ -326,8 +330,12 @@ private:
   /// @brief Lines of buffer.
   std::vector<std::string> _lines;
 
-  /// @brief View updates queue.
-  std::deque<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
+  // /// @brief View updates queue.
+  // std::deque<BufferViewUpdateCommand> _buffer_view_update_commands_queue;
+
+  /// Incremental render update commands.
+  std::deque<IncrementalRenderUpdateCommand>
+    _buffer_incremental_render_update_commands;
 
   /// @brief Token cahce updates queue.
   std::deque<TokenCacheUpdateCommand> _token_cache_update_commands_queue;
