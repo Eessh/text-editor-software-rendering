@@ -397,6 +397,7 @@ int main(int argc, char** argv)
         {
           // setting column
           buffer.set_cursor_column(buffer_grid_coords.second);
+          buffer.set_cursor_column_target(buffer_grid_coords.second);
         }
 
         // double click or triple click

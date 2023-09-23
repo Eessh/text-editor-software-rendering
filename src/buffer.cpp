@@ -175,6 +175,11 @@ void Buffer::set_cursor_column(const int32& column) noexcept
   _cursor_col = column;
 }
 
+void Buffer::set_cursor_column_target(const int32& column_target) noexcept
+{
+  _cursor_col_target = column_target;
+}
+
 bool Buffer::has_selection() const noexcept
 {
   return _has_selection;

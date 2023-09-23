@@ -215,6 +215,13 @@ public:
   /// @throws No exceptions.
   void set_cursor_column(const int32& column) noexcept;
 
+  /// @brief Sets cursor's target column.
+  ///        Target column is the column cursor tries to reach, when it is
+  ///        moving between lines.
+  /// @param column_target the target column.
+  /// @throws No exceptions.
+  void set_cursor_column_target(const int32& column_target) noexcept;
+
   /// @brief Tells if buffer has selection.
   /// @return Returns false if buffer has no selection.
   /// @throws No exceptions.
