@@ -242,7 +242,7 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
       }
     }
 
-    /// Seperator
+    /// Separator
     if(seperators.find(character) != std::string::npos)
     {
       if(character == '\'')
@@ -450,7 +450,7 @@ const std::vector<Token>& Tokenizer::tokenize(const std::string& str) noexcept
       }
       else if(character == ' ')
       {
-        if(_inside_comment || _inside_multiline_comment || _inside_string)
+        if(_inside_comment || _inside_multiline_comment || _inside_char || _inside_string)
         {
           _current_token.value.push_back(character);
           _position++;
