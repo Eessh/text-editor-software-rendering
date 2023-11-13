@@ -48,30 +48,30 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
             buffer.line(row).value().get(), _tokens[row - 1].back());
         {
           uint32 i = 0;
-          while(i < std::min(tokens_.size(), _tokens[row].size()))
-          {
-            if(tokens_[i] != _tokens[row][i])
-            {
-              IncrementalRenderUpdateCommand cmd;
-              cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
-              cmd.row = row;
-              cmd.token_start = i;
-              cmd.token_end = tokens_.size() - 1;
-              _incremental_render_updates_queue.emplace_back(cmd);
-              break;
-            }
-            i++;
-          }
-          // new token is added to pervious tokens
-          if(i == std::min(tokens_.size(), _tokens[row].size()))
-          {
-            IncrementalRenderUpdateCommand cmd;
-            cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
-            cmd.row = row;
-            cmd.token_start = i;
-            cmd.token_end = tokens_.size() - 1;
-            _incremental_render_updates_queue.emplace_back(cmd);
-          }
+          //          while(i < std::min(tokens_.size(), _tokens[row].size()))
+          //          {
+          //            if(tokens_[i] != _tokens[row][i])
+          //            {
+          //              IncrementalRenderUpdateCommand cmd;
+          //              cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
+          //              cmd.row_start = row;
+          //              cmd.token_start = i;
+          //              cmd.token_end = tokens_.size() - 1;
+          //              _incremental_render_updates_queue.emplace_back(cmd);
+          //              break;
+          //            }
+          //            i++;
+          //          }
+          //          // new token is added to pervious tokens
+          //          if(i == std::min(tokens_.size(), _tokens[row].size()))
+          //          {
+          //            IncrementalRenderUpdateCommand cmd;
+          //            cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
+          //            cmd.row = row;
+          //            cmd.token_start = i;
+          //            cmd.token_end = tokens_.size() - 1;
+          //            _incremental_render_updates_queue.emplace_back(cmd);
+          //          }
         }
         _tokens[row] = tokens_;
         _tokenizer.clear_tokens();
@@ -94,7 +94,7 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
               {
                 IncrementalRenderUpdateCommand cmd;
                 cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
-                cmd.row = next_row;
+                cmd.row_start = next_row;
                 _incremental_render_updates_queue.emplace_back(cmd);
               }
               _tokenizer.clear_tokens();
@@ -116,30 +116,30 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
           buffer.line_with_spaces_converted_to_tabs(row).value());
         {
           uint32 i = 0;
-          while(i < std::min(tokens_.size(), _tokens[row].size()))
-          {
-            if(tokens_[i] != _tokens[row][i])
-            {
-              IncrementalRenderUpdateCommand cmd;
-              cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
-              cmd.row = row;
-              cmd.token_start = i;
-              cmd.token_end = tokens_.size() - 1;
-              _incremental_render_updates_queue.emplace_back(cmd);
-              break;
-            }
-            i++;
-          }
-          // new token is added to pervious tokens
-          if(i == std::min(tokens_.size(), _tokens[row].size()))
-          {
-            IncrementalRenderUpdateCommand cmd;
-            cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
-            cmd.row = row;
-            cmd.token_start = i;
-            cmd.token_end = tokens_.size() - 1;
-            _incremental_render_updates_queue.emplace_back(cmd);
-          }
+          //          while(i < std::min(tokens_.size(), _tokens[row].size()))
+          //          {
+          //            if(tokens_[i] != _tokens[row][i])
+          //            {
+          //              IncrementalRenderUpdateCommand cmd;
+          //              cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
+          //              cmd.row = row;
+          //              cmd.token_start = i;
+          //              cmd.token_end = tokens_.size() - 1;
+          //              _incremental_render_updates_queue.emplace_back(cmd);
+          //              break;
+          //            }
+          //            i++;
+          //          }
+          //          // new token is added to pervious tokens
+          //          if(i == std::min(tokens_.size(), _tokens[row].size()))
+          //          {
+          //            IncrementalRenderUpdateCommand cmd;
+          //            cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
+          //            cmd.row = row;
+          //            cmd.token_start = i;
+          //            cmd.token_end = tokens_.size() - 1;
+          //            _incremental_render_updates_queue.emplace_back(cmd);
+          //          }
         }
         _tokens[row] = tokens_;
         _tokenizer.clear_tokens();
@@ -159,7 +159,7 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
             {
               IncrementalRenderUpdateCommand cmd;
               cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
-              cmd.row = next_row;
+              cmd.row_start = next_row;
               _incremental_render_updates_queue.emplace_back(cmd);
             }
             _tokenizer.clear_tokens();
@@ -207,25 +207,25 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
           _tokenizer.clear_tokens();
           IncrementalRenderUpdateCommand cmd;
           cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
-          cmd.row = command.row;
+          cmd.row_start = command.row;
           _incremental_render_updates_queue.emplace_back(cmd);
         }
-        else
-        {
-          auto tokens_ = _tokenizer.tokenize(
-            buffer.line_with_spaces_converted_to_tabs(command.row)
-              .value()
-              .substr(line_length));
-          _tokenizer.clear_tokens();
-          _tokens[command.row].insert(
-            _tokens[command.row].end(), tokens_.begin(), tokens_.end());
-          IncrementalRenderUpdateCommand cmd;
-          cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
-          cmd.row = command.row;
-          cmd.token_start = token_index + 1;
-          cmd.token_end = _tokens[command.row].size() - 1;
-          _incremental_render_updates_queue.emplace_back(cmd);
-        }
+        //        else
+        //        {
+        //          auto tokens_ = _tokenizer.tokenize(
+        //            buffer.line_with_spaces_converted_to_tabs(command.row)
+        //              .value()
+        //              .substr(line_length));
+        //          _tokenizer.clear_tokens();
+        //          _tokens[command.row].insert(
+        //            _tokens[command.row].end(), tokens_.begin(), tokens_.end());
+        //          IncrementalRenderUpdateCommand cmd;
+        //          cmd.type = IncrementalRenderUpdateType::RENDER_LINE_SLICE;
+        //          cmd.row = command.row;
+        //          cmd.token_start = token_index + 1;
+        //          cmd.token_end = _tokens[command.row].size() - 1;
+        //          _incremental_render_updates_queue.emplace_back(cmd);
+        //        }
       }
       _tokens.insert(_tokens.begin() + command.row + 1,
                      std::vector<CppTokenizer::Token>());
@@ -243,10 +243,10 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
           buffer.line_with_spaces_converted_to_tabs(command.row + 1).value());
       }
       _tokenizer.clear_tokens();
-      IncrementalRenderUpdateCommand cmd;
-      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_FROM;
-      cmd.row = command.row + 1;
-      _incremental_render_updates_queue.emplace_back(cmd);
+      //      IncrementalRenderUpdateCommand cmd;
+      //      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_FROM;
+      //      cmd.row_start = command.row + 1;
+      //      _incremental_render_updates_queue.emplace_back(cmd);
     }
     else if(command.type == TokenCacheUpdateCommandType::DELETE_LINE_CACHE)
     {
@@ -269,7 +269,7 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
           {
             IncrementalRenderUpdateCommand cmd;
             cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
-            cmd.row = next_row;
+            cmd.row_start = next_row;
             _incremental_render_updates_queue.emplace_back(cmd);
           }
           _tokenizer.clear_tokens();
@@ -286,13 +286,13 @@ void CppTokenizerCache::update_cache(Buffer& buffer) noexcept
       {
         // just delete the line
         _tokens.erase(_tokens.begin() + command.row);
-        if(command.row < _tokens.size())
-        {
-          IncrementalRenderUpdateCommand cmd;
-          cmd.type = IncrementalRenderUpdateType::RENDER_LINES_FROM;
-          cmd.row = command.row;
-          _incremental_render_updates_queue.emplace_back(cmd);
-        }
+        //        if(command.row < _tokens.size())
+        //        {
+        //          IncrementalRenderUpdateCommand cmd;
+        //          cmd.type = IncrementalRenderUpdateType::RENDER_LINES_FROM;
+        //          cmd.row = command.row;
+        //          _incremental_render_updates_queue.emplace_back(cmd);
+        //        }
       }
     }
     else
