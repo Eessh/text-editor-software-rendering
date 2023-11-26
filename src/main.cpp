@@ -974,9 +974,9 @@ int main(int argc, char** argv)
                   (time_elapsed - ideal_frame_time) * 1000);
         continue;
       }
-      uint32 time_to_delay = (ideal_frame_time - time_elapsed) * 1000;
-      INFO_BOII("Frame time: %lf, Delay: %ldms", time_elapsed, time_to_delay);
-      SDL_Delay(time_to_delay);
+      double time_to_sleep = (ideal_frame_time - time_elapsed) * 1000;
+      INFO_BOII("Frame time: %lfms, Sleeping for: %lfms", time_elapsed*1000, time_to_sleep);
+      SDL_Delay((uint32)time_to_sleep);
     }
     else
     {
