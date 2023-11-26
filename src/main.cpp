@@ -1,4 +1,5 @@
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -83,7 +84,8 @@ int main(int argc, char** argv)
   SDL_EnableScreenSaver();
 
   Window* window = new Window(
-    "Text Editor - Software Rendering",
+    "Rocket - " +
+      std::filesystem::absolute(std::filesystem::path(file_path)).string(),
     ConfigManager::get_instance()->get_config_struct().window.width,
     ConfigManager::get_instance()->get_config_struct().window.height);
   window->set_icon("assets/images/rocket.bmp");
