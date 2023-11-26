@@ -780,7 +780,7 @@ int main(int argc, char** argv)
       window->clear_with_color(hexcode_to_SDL_Color(
         ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
 
-      // rendering line numbers
+      // rendering line numbers background
       float32 line_numbers_width =
         (std::to_string(buffer.length()).length() + 2) *
         font_extents.max_x_advance;
@@ -801,29 +801,12 @@ int main(int argc, char** argv)
                                                   ->get_config_struct()
                                                   .colorscheme.gray));
       }
-      for(uint32 i = 1; i <= buffer.length(); i++)
-      {
-        std::string string_to_render = std::move(std::to_string(i));
-        while(string_to_render.length() !=
-              std::to_string(buffer.length()).length())
-        {
-          string_to_render.insert(0, " ");
-        }
-        RocketRender::text(
-          font_extents.max_x_advance,
-          ceil(scroll_y_offset + font_extents.height * (i - 1)),
-          string_to_render,
-          hexcode_to_SDL_Color(ConfigManager::get_instance()
-                                 ->get_config_struct()
-                                 .colorscheme.white));
-      }
 
       // drawing contents
       int32 y = scroll_y_offset;
       auto cursor_coord = buffer.cursor_coords();
       uint32 row = 0;
-      for(const std::vector<CppTokenizer::Token>& line_tokens :
-          tokenizer_cache.tokens())
+      for(uint32 i = 0; i < buffer.length(); i++)
       {
         if(y < 0 && -y > font_extents.height)
         {
@@ -831,6 +814,18 @@ int main(int argc, char** argv)
           row++;
           continue;
         }
+
+        // drawing line numbers
+        std::string number_string = std::move(std::to_string(i + 1));
+        RocketRender::text((std::to_string(buffer.length()).length() -
+                            number_string.length() + 1) *
+                             (font_extents.max_x_advance),
+                           ceil(scroll_y_offset + font_extents.height * (i)),
+                           number_string,
+                           hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                  ->get_config_struct()
+                                                  .colorscheme.white));
+
         if(cursor_coord.first == row)
         {
           // highlight cursor line
@@ -845,7 +840,10 @@ int main(int argc, char** argv)
                                          font_extents.height,
                                          active_line_color);
         }
-        render_tokens(line_numbers_width + 1, y, line_tokens, font_extents);
+        render_tokens(line_numbers_width + 1,
+                      y,
+                      *tokenizer_cache.tokens_for_line(i),
+                      font_extents);
         y += font_extents.height;
         row++;
         if(y > static_cast<int32>(window->height()))
