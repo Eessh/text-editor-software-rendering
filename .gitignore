@@ -27,7 +27,7 @@
 # *.lib
 
 # Executables
-*.exe
+# *.exe
 *.out
 *.app
 
@@ -41,6 +41,10 @@ build
 *.sublime-workspace
 .lite_project.lua
 bin/Debug/text-editor-software-rendering
+bin/Debug/text-editor-software-rendering.exe
 bin/Release/text-editor-software-rendering
+bin/Release/text-editor-software-rendering.exe
 res.res
 dist/windows/config.toml
+.vs
+CMakeSettings.json
