@@ -440,11 +440,20 @@ int main(int argc, char** argv)
       }
       else if(event.type == SDL_DROPFILE)
       {
-        auto _ = buffer.load_from_file(event.drop.file);
-        tokenizer_cache.build_cache(buffer);
-        scroll_y_offset = 0;
-        scroll_y_target = 0;
-        redraw = true;
+        bool loaded = buffer.load_from_file(event.drop.file);
+        if(loaded)
+        {
+          window->title().erase();
+          window->title().append(
+            "Rocket - " +
+            std::filesystem::absolute(std::filesystem::path(event.drop.file))
+              .string());
+          window->update_title();
+          tokenizer_cache.build_cache(buffer);
+          scroll_y_offset = 0;
+          scroll_y_target = 0;
+          redraw = true;
+        }
       }
     }
 

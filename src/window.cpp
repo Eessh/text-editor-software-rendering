@@ -77,6 +77,11 @@ std::string& Window::title() noexcept
   return _title;
 }
 
+void Window::update_title() noexcept
+{
+  SDL_SetWindowTitle(_window, _title.c_str());
+}
+
 SDL_Surface* Window::surface() const noexcept
 {
   return _window_surface;

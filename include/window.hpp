@@ -54,6 +54,10 @@ public:
   /// @throws No exceptions.
   std::string& title() noexcept;
 
+  /// @brief Update window title.
+  /// @throws No exceptions.
+  void update_title() noexcept;
+
   /// @brief Window's surface.
   /// @return Returns pointer to window's surface.
   /// @throws No exceptions.
