@@ -217,7 +217,13 @@ int main(int argc, char** argv)
       }
       else if(event.type == SDL_KEYDOWN)
       {
-        if(event.key.keysym.sym == SDLK_LEFT)
+        // Save file event
+        if(event.key.keysym.sym == SDLK_s &&
+           (event.key.keysym.mod & KMOD_LCTRL))
+        {
+          bool _ = buffer.save();
+        }
+        else if(event.key.keysym.sym == SDLK_LEFT)
         {
           if((event.key.keysym.mod & KMOD_LCTRL) &&
              (event.key.keysym.mod & KMOD_LSHIFT))
@@ -975,7 +981,9 @@ int main(int argc, char** argv)
         continue;
       }
       double time_to_sleep = (ideal_frame_time - time_elapsed) * 1000;
-      INFO_BOII("Frame time: %lfms, Sleeping for: %lfms", time_elapsed*1000, time_to_sleep);
+      INFO_BOII("Frame time: %lfms, Sleeping for: %lfms",
+                time_elapsed * 1000,
+                time_to_sleep);
       SDL_Delay((uint32)time_to_sleep);
     }
     else

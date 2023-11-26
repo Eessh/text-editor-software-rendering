@@ -40,6 +40,7 @@ bool Buffer::load_from_file(const std::string& filepath) noexcept
   std::ifstream file(filepath);
   if(file.is_open()) [[likely]]
   {
+    _file_path = filepath;
     // setting to defaults
     _cursor_row = 0;
     _cursor_col = -1;
@@ -65,11 +66,32 @@ bool Buffer::load_from_file(const std::string& filepath) noexcept
         it = _lines.back().find('\t');
       }
     }
+    file.close();
     return true;
   }
   else [[unlikely]]
   {
     ERROR_BOII("Unable to open file: %s", filepath.c_str());
+    return false;
+  }
+}
+
+bool Buffer::save() noexcept
+{
+  std::ofstream file(_file_path);
+  if(file.is_open()) [[likely]]
+  {
+    for(const std::string& line : _lines)
+    {
+      file << line << "\n";
+    }
+    file.close();
+    return true;
+  }
+  else
+  {
+    ERROR_BOII("Unable to open file: %s, when trying to save.",
+               _file_path.c_str());
     return false;
   }
 }

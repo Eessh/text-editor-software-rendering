@@ -143,6 +143,11 @@ public:
   /// @throws No exceptions.
   [[nodiscard]] bool load_from_file(const std::string& filepath) noexcept;
 
+  /// @brief Saves contents to the file.
+  /// @returns Returns false if unable to write to file.
+  /// @throws No exceptions.
+  [[nodiscard]] bool save() noexcept;
+
   /// @brief Length of buffer (or) number of lines in buffer.
   /// @return Returns number of lines in unsigned int32 type.
   /// @throws No exceptions.
@@ -311,6 +316,9 @@ public:
   get_next_token_cache_update_command() noexcept;
 
 private:
+  /// @brief Path to the file.
+  std::string _file_path;
+
   /// @brief Cursor row.
   uint32 _cursor_row;
 
