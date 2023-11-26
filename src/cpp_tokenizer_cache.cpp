@@ -315,6 +315,17 @@ CppTokenizerCache::tokens() const noexcept
   return _tokens;
 }
 
+const std::vector<CppTokenizer::Token>*
+CppTokenizerCache::tokens_for_line(const uint32& line_index) const noexcept
+{
+  if(line_index >= _tokens.size())
+  {
+    return nullptr;
+  }
+
+  return &_tokens[line_index];
+}
+
 std::optional<IncrementalRenderUpdateCommand>
 CppTokenizerCache::get_next_incremental_render_update() noexcept
 {

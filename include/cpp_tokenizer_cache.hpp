@@ -72,6 +72,13 @@ public:
   /// @throws No exceptions.
   const std::vector<std::vector<CppTokenizer::Token>>& tokens() const noexcept;
 
+  /// @brief Gives tokens for given line.
+  /// @returns const reference to lines of tokens, std::nullopt if line
+  ///          is out of bounds.
+  /// @throws No exceptions.
+  const std::vector<CppTokenizer::Token>*
+  tokens_for_line(const uint32& line_index) const noexcept;
+
   std::optional<IncrementalRenderUpdateCommand>
   get_next_incremental_render_update() noexcept;
 
