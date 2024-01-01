@@ -1,5 +1,5 @@
 # Change only if your display supports it!
-# high FPS consumes more CPU processing time!
+# high FPS consumes more CPU!
 # Default: 60
 fps = 60
 
@@ -30,8 +30,11 @@ font_size = 16
 # Characters which separate words or which act as delimiters for word.
 word_separators = " \n\r.!\t;:\\/+-*&%<>=(){}[]\"',|~^#@`$"
 
+# Window size, when launched.
 [window]
+  # Default: 1080
   width = 1080
+  # Default: 720
   height = 720
 
 [colorscheme]
@@ -76,17 +79,17 @@ word_separators = " \n\r.!\t;:\\/+-*&%<>=(){}[]\"',|~^#@`$"
   # scroll sensitivity is how many pixels to scroll when
   # a scroll event is occurred
   # default value: 60
-  sensitivity = 60
+  sensitivity = 120
   # scroll acceleration is how fast the scrolling should happen
   # value: 0.0 to 1.0
   # 0.0 => doesn't even scroll
   # 1.0 => instantly scrolls to desired scroll point
   # [0.35 - 0.5] => smooth scrolling
   # default value: 0.45
-  acceleration = 0.45
+  acceleration = 0.2
 
-[cursor]
+[caret]
   color = "#abb2bf"
-  # Cursor styles: ibeam, block
+  # Caret styles: ibeam, block
   style = "ibeam"
   ibeam_width = 2
