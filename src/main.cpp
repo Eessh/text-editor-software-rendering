@@ -790,7 +790,9 @@ int main(int argc, char** argv)
     // }
     // window->update_rects(rects.data(), rects.size());
 
-    redraw = redraw || animator(&scroll_y_offset, &scroll_y_target);
+    redraw = redraw ||
+             ConfigManager::get_instance()->reload_config_if_changed() ||
+             animator(&scroll_y_offset, &scroll_y_target);
 
     if(redraw)
     {
