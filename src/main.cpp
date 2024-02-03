@@ -39,12 +39,12 @@ mouse_coords_to_buffer_coords(const int& x,
 int main(int argc, char** argv)
 {
   // Checking arguments
-  if(argc < 2)
-  {
-    FATAL_BOII("Error: No file is provided as argument.");
-    INFO_BOII("Usage: text-editor-software-rendering.exe <file_path>");
-    exit(1);
-  }
+  //  if(argc < 2)
+  //  {
+  //    FATAL_BOII("Error: No file is provided as argument.");
+  //    INFO_BOII("Usage: text-editor-software-rendering.exe <file_path>");
+  //    exit(1);
+  //  }
 
   // Creating config manager
   ConfigManager::create_instance();
@@ -55,9 +55,9 @@ int main(int argc, char** argv)
   }
 
   // Creating buffer
-  std::string file_path(argv[1]);
+  //  std::string file_path(argv[1]);
   Buffer buffer;
-  if(!buffer.load_from_file(file_path))
+  if(argc > 1 && !buffer.load_from_file(argv[1]))
   {
     FATAL_BOII("Unable to load file: %s", argv[1]);
     exit(1);
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 
   Window* window = new Window(
     "Rocket - " +
-      std::filesystem::absolute(std::filesystem::path(file_path)).string(),
+      (argc > 1 ? std::filesystem::absolute(std::filesystem::path(argv[1])).string() : ""),
     ConfigManager::get_instance()->get_config_struct().window.width,
     ConfigManager::get_instance()->get_config_struct().window.height);
   window->set_icon("assets/images/rocket.bmp");
