@@ -43,9 +43,9 @@ typedef struct config
       keyword, preprocessor_directive, identifier, number, function, header;
   } cpp_token_colors;
 
-  struct cursor
+  struct caret
   {
     std::string color, style;
     uint8 ibeam_width;
-  } cursor;
+  } caret;
 } config;

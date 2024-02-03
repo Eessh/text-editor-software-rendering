@@ -961,18 +961,18 @@ int main(int argc, char** argv)
       // drawing cursor
       std::pair<uint32, int32> cursor_coords = buffer.cursor_coords();
       std::string cursor_style =
-        ConfigManager::get_instance()->get_config_struct().cursor.style;
+        ConfigManager::get_instance()->get_config_struct().caret.style;
       RocketRender::rectangle_filled(
         line_numbers_width + 1 +
           font_extents.max_x_advance * (cursor_coords.second + 1),
         ceil(scroll_y_offset + font_extents.height * cursor_coords.first),
         (cursor_style == "ibeam" ? ConfigManager::get_instance()
                                      ->get_config_struct()
-                                     .cursor.ibeam_width
+                                     .caret.ibeam_width
                                  : font_extents.max_x_advance),
         font_extents.height,
         hexcode_to_SDL_Color(
-          ConfigManager::get_instance()->get_config_struct().cursor.color));
+          ConfigManager::get_instance()->get_config_struct().caret.color));
 
       window->update();
       redraw = false;

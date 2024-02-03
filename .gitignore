@@ -46,5 +46,7 @@ bin/Release/text-editor-software-rendering
 bin/Release/text-editor-software-rendering.exe
 res.res
 dist/windows/config.toml
+dist/windows/Rocket.exe
+dist/windows/assets
 .vs
 CMakeSettings.json
