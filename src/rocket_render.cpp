@@ -110,6 +110,13 @@ void RocketRender::text(const int32& x,
                         (float)color.a / 255.0);
   cairo_font_extents_t font_extents;
   cairo_font_extents(cr, &font_extents);
-  cairo_move_to(cr, x, y + font_extents.height - font_extents.descent);
-  cairo_show_text(cr, text.c_str());
+  float32 painter_x = x, painter_y = y + font_extents.height - font_extents.descent;
+  // cairo_show_text(cr, text.c_str());
+  for (const char& c: text) {
+    cairo_move_to(cr, painter_x, painter_y);
+    char str[2] = {c, '\0'};
+    cairo_show_text(cr, str);
+    painter_x += font_extents.max_x_advance;
+  }
+  // cairo_show_glyphs(cr, nullptr, text.size());
 }
