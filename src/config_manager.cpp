@@ -1,4 +1,5 @@
 #include "../include/config_manager.hpp"
+#include <filesystem>
 #include "../include/macros.hpp"
 #include "../toml++/toml.h"
 
@@ -28,17 +29,20 @@ void ConfigManager::delete_instance() noexcept
 
 bool ConfigManager::load_config(const std::string& config_file_path) noexcept
 {
-  std::string config_path = "config.toml";
+  _config_path = "config.toml";
 
   if(!config_file_path.empty())
   {
-    config_path = config_file_path;
+    _config_path = config_file_path;
   }
+
+  _last_config_write_time =
+    std::filesystem::last_write_time(std::filesystem::path(_config_path));
 
   toml::table parsed_config;
   try
   {
-    parsed_config = toml::parse_file(config_path);
+    parsed_config = toml::parse_file(_config_path);
   }
   catch(const toml::parse_error& error)
   {
@@ -164,6 +168,21 @@ bool ConfigManager::load_config(const std::string& config_file_path) noexcept
     parsed_config["cursor"]["ibeam_width"].value_or<uint8>(2);
 
   return true;
+}
+
+bool ConfigManager::reload_config_if_changed() noexcept
+{
+  std::filesystem::file_time_type updated_write_time =
+    std::filesystem::last_write_time(std::filesystem::path(_config_path));
+
+  if(updated_write_time == _last_config_write_time)
+  {
+    return false;
+  }
+
+  _last_config_write_time = updated_write_time;
+
+  return this->load_config(_config_path);
 }
 
 const config& ConfigManager::get_config_struct() const noexcept

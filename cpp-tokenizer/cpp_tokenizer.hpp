@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 /// @brief CppTokenizer namespace.
 namespace CppTokenizer

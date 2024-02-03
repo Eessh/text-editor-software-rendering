@@ -35,55 +35,55 @@ word_separators = " \n\r.!\t;:\\/+-*&%<>=(){}[]\"',|~^#@`$"
   height = 720
 
 [colorscheme]
-  bg = "#282c34"
-  fg = "#abb2bf"
+  bg = "#24272e"
+  fg = "#e1e3e4"
   red = "#e06c75"
   orange = "#d19a66"
-  yellow = "#e5c07b"
+  yellow = "#828a9a"
   green = "#98c379"
-  cyan = "#56b6c2"
+  cyan = "#f69c5e"
   blue = "#61afef"
   purple = "#c678dd"
-  white = "#abb2bf"
-  black = "#282c34"
+  white = "#e1e3e4"
+  black = "#181a1c"
   gray = "#5c6370"
   # RRGGBBAA color code for highlight
   highlight = "#61afef30"
-  comment = "#7f848e"
+  comment = "#5a6477"
   # RRGGBBAA color code for scrollbar
-  scrollbar = "#e5c07b88"
+  scrollbar = "#9dd274aa"
 
 [cpp_token_colors]
-  semicolon = "#e5c07b"
-  comma = "#e5c07b"
-  escape_backslash = "#e5c07b"
-  bracket = "#e5c07b"
-  square_bracket = "#e5c07b"
-  curly_bracket = "#e5c07b"
-  character = "#56b6c2"
-  string = "#98c379"
-  comment = "#7f848e"
-  multiline_comment = "#7f848e"
-  operator = "#e5c07b"
-  keyword = "#e06c75"
-  preprocessor_directive = "#d19a66"
-  identifier = "#abb2bf"
-  number = "#61afef"
-  function = "#c678dd"
-  header = "#56b6c2"
+  semicolon = "#828a9a"
+  comma = "#828a9a"
+  escape_backslash = "#828a9a"
+  bracket = "#828a9a"
+  square_bracket = "#828a9a"
+  curly_bracket = "#828a9a"
+  character = "#f69c5e"
+  string = "#eacb64"
+  comment = "#5a6477"
+  multiline_comment = "#5a6477"
+  operator = "#72cce8"
+  keyword = "#ff6578"
+  preprocessor_directive = "#ff6578"
+  identifier = "#e1e3e4"
+  number = "#ba9cf3"
+  function = "#a5e179"
+  header = "#eacb64"
 
 [scrolling]
   # scroll sensitivity is how many pixels to scroll when
   # a scroll event is occurred
   # default value: 60
-  sensitivity = 60
+  sensitivity = 140
   # scroll acceleration is how fast the scrolling should happen
   # value: 0.0 to 1.0
   # 0.0 => doesn't even scroll
   # 1.0 => instantly scrolls to desired scroll point
   # [0.35 - 0.5] => smooth scrolling
   # default value: 0.45
-  acceleration = 0.45
+  acceleration = 0.2
 
 [cursor]
   color = "#abb2bf"
