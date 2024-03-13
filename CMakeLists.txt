@@ -28,6 +28,7 @@ add_executable(text-editor-software-rendering
   ${PROJECT_SOURCE_DIR}/src/config_manager.cpp
   ${PROJECT_SOURCE_DIR}/src/cpp_tokenizer_cache.cpp
   ${PROJECT_SOURCE_DIR}/src/cursor_manager.cpp
+  ${PROJECT_SOURCE_DIR}/src/incremental_render_update.cpp
   ${PROJECT_SOURCE_DIR}/src/main.cpp
   ${PROJECT_SOURCE_DIR}/src/rocket_render.cpp
   ${PROJECT_SOURCE_DIR}/src/utils.cpp

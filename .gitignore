@@ -37,6 +37,7 @@ Makefile
 
 # Mine :)
 build
+.cache
 *.user
 *.sublime-workspace
 .lite_project.lua

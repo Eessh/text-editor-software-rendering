@@ -1,6 +1,10 @@
 #pragma once
 
+#include "buffer.hpp"
+#include "cairo.hpp"
+#include "sdl2.hpp"
 #include "types.hpp"
+#include "window.hpp"
 
 enum class IncrementalRenderUpdateType
 {
@@ -31,3 +35,36 @@ struct IncrementalRenderUpdateCommand
     , slice_selection_end(-1)
   {}
 };
+
+void ExecuteIncrementalRenderUpdate(
+  const IncrementalRenderUpdateCommand& command,
+  const float32& scroll_y_offset,
+  const cairo_font_extents_t font_extents,
+  const Window* window,
+  const Buffer& buffer,
+  const CppTokenizerCache& tokenizer_cache,
+  std::vector<SDL_Rect>& update_rects) noexcept;
+
+void IncrementalUpdate_RenderLine(const IncrementalRenderUpdateCommand& command,
+                                  const float32& scroll_y_offset,
+                                  const cairo_font_extents_t font_extents,
+                                  const Window* window,
+                                  const Buffer& buffer,
+                                  const CppTokenizerCache& tokenizer_cache,
+                                  std::vector<SDL_Rect>& update_rects) noexcept;
+void IncrementalUpdate_RenderLines(
+  const IncrementalRenderUpdateCommand& command,
+  const float32& scroll_y_offset,
+  const cairo_font_extents_t font_extents,
+  const Window* window,
+  const Buffer& buffer,
+  const CppTokenizerCache& tokenizer_cache,
+  std::vector<SDL_Rect>& update_rects) noexcept;
+void IncrementalUpdate_RenderLinesInRange(
+  const IncrementalRenderUpdateCommand& command,
+  const float32& scroll_y_offset,
+  const cairo_font_extents_t font_extents,
+  const Window* window,
+  const Buffer& buffer,
+  const CppTokenizerCache& tokenizer_cache,
+  std::vector<SDL_Rect>& update_rects) noexcept;
