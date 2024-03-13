@@ -85,7 +85,9 @@ int main(int argc, char** argv)
 
   Window* window = new Window(
     "Rocket - " +
-      (argc > 1 ? std::filesystem::absolute(std::filesystem::path(argv[1])).string() : ""),
+      (argc > 1
+         ? std::filesystem::absolute(std::filesystem::path(argv[1])).string()
+         : ""),
     ConfigManager::get_instance()->get_config_struct().window.width,
     ConfigManager::get_instance()->get_config_struct().window.height);
   window->set_icon("assets/images/rocket.bmp");
@@ -204,6 +206,16 @@ int main(int argc, char** argv)
       }
       else if(event.type == SDL_MOUSEWHEEL)
       {
+        SDL_PumpEvents();
+        SDL_Event future_event;
+        while(
+          SDL_PeepEvents(
+            &future_event, 1, SDL_GETEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL) > 0)
+        {
+          event.wheel.preciseX += future_event.wheel.preciseX;
+          event.wheel.preciseY += future_event.wheel.preciseY;
+        }
+
         scroll_y_target +=
           static_cast<float32>(scroll_sensitivity) * event.wheel.preciseY;
         if(scroll_y_target > 0)
@@ -1017,7 +1029,7 @@ cleanup:
   INFO_BOII("Stopped text input");
   return 0;
 }
-/*
+
 float32 clamp(const float32 x, const float32 low, const float32 high)
 {
   return std::max(std::min(x, high), low);
@@ -1028,31 +1040,61 @@ lerp(const float32 low, const float32 high, const float32 interpolated_point)
 {
   return low + (high - low) * interpolated_point;
 }
-*/
+
 bool animator(float32* animatable, const float32* target) noexcept
 {
   const float32 delta = *target - *animatable;
+  const float32 abs_delta = abs(delta);
   if(delta == 0)
   {
     return false;
   }
 
-  if(abs(delta) < 0.5f)
+  if(abs_delta < 1.0f)
   {
     *animatable += delta;
     return true;
   }
 
   /// some experiments with scroll animation
-  // float32 rate = 0.5;
+  // float32 rate = ConfigManager::get_instance()->get_config_struct().scrolling.acceleration;
   // float32 dt = 60.0f/static_cast<float32>(ConfigManager::get_instance()->get_config_struct().fps);
   // rate = 1 - std::pow(clamp(1-rate, 1e-8, 1-1e-8), 1.0f*dt);
 
   // *animatable = lerp(*animatable, *target, rate);
 
-  *animatable +=
-    delta *
+  float32 configured_acceleration =
     ConfigManager::get_instance()->get_config_struct().scrolling.acceleration;
+  int32 configured_sensitivity =
+    ConfigManager::get_instance()->get_config_struct().scrolling.sensitivity;
+
+  /// varying acceleration rates depending upon amount left to scroll
+  if(abs_delta < 0.5 * configured_sensitivity)
+  {
+    configured_acceleration *= 0.5;
+  }
+  else if(abs_delta < 0.75 * configured_sensitivity)
+  {
+    configured_acceleration *= 0.75;
+  }
+  else if(abs_delta > 1.25 * configured_sensitivity)
+  {
+    configured_acceleration *= 1.25;
+  }
+  else if(abs_delta > 1.5 * configured_sensitivity)
+  {
+    configured_acceleration *= 1.5;
+  }
+  else if(abs_delta > 1.75 * configured_sensitivity)
+  {
+    configured_acceleration *= 1.75;
+  }
+  else if(abs_delta > 2 * configured_sensitivity)
+  {
+    configured_acceleration *= 2;
+  }
+
+  *animatable += delta * configured_acceleration;
   return true;
 }
 
