@@ -9,32 +9,12 @@
 #include "../include/config_manager.hpp"
 #include "../include/cpp_tokenizer_cache.hpp"
 #include "../include/cursor_manager.hpp"
+#include "../include/incremental_render_update.hpp"
 #include "../include/macros.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/sdl2.hpp"
 #include "../include/utils.hpp"
 #include "../include/window.hpp"
-
-bool animator(float32* animatable, const float32* target) noexcept;
-
-void render_tokens(int32 x,
-                   int32 y,
-                   const std::vector<CppTokenizer::Token>& tokens,
-                   const cairo_font_extents_t& font_extents) noexcept;
-
-/// @brief Gives buffer grid position from mouse coordinates.
-/// @param x x-coordinate of mouse.
-/// @param y y-coordinate of mouse.
-/// @param x_offset offset for x-coordinate (ex: line numbers column).
-/// @param scroll_y_offset offset for y-coodinate (ex: y - scroll offset).
-/// @param buffer const reference to buffer.
-/// @return Returns pair of grid coorinates in buffer.
-std::pair<uint32, int32>
-mouse_coords_to_buffer_coords(const int& x,
-                              const int& y,
-                              const float32& x_offset,
-                              const float32& scroll_y_offset,
-                              const Buffer& buffer) noexcept;
 
 int main(int argc, char** argv)
 {
@@ -85,7 +65,9 @@ int main(int argc, char** argv)
 
   Window* window = new Window(
     "Rocket - " +
-      (argc > 1 ? std::filesystem::absolute(std::filesystem::path(argv[1])).string() : ""),
+      (argc > 1
+         ? std::filesystem::absolute(std::filesystem::path(argv[1])).string()
+         : ""),
     ConfigManager::get_instance()->get_config_struct().window.width,
     ConfigManager::get_instance()->get_config_struct().window.height);
   window->set_icon("assets/images/rocket.bmp");
@@ -187,10 +169,10 @@ int main(int argc, char** argv)
                                         buffer);
         if(mouse_single_tap_down)
         {
+          buffer.set_selection_end_coordinate(buffer_grid_coords);
           buffer.set_cursor_row(buffer_grid_coords.first);
           buffer.set_cursor_column(buffer_grid_coords.second);
-          buffer.set_selection_end_coordinate(buffer_grid_coords);
-          redraw = true;
+          //          redraw = true;
         }
         else if(mouse_double_tap_down)
         {
@@ -424,7 +406,7 @@ int main(int argc, char** argv)
           buffer.set_selection_start_coordinate(buffer_grid_coords);
           mouse_single_tap_down = true;
         }
-        redraw = true;
+        //        redraw = true;
       }
       else if(event.type == SDL_MOUSEBUTTONUP)
       {
@@ -456,6 +438,26 @@ int main(int argc, char** argv)
         }
       }
     }
+
+    std::vector<SDL_Rect> rects;
+    while(1)
+    {
+      auto command_result = buffer.get_next_incremental_render_update_command();
+      if(command_result == std::nullopt)
+      {
+        break;
+      }
+
+      auto command = command_result.value();
+      ExecuteIncrementalRenderUpdate(command,
+                                     scroll_y_offset,
+                                     font_extents,
+                                     window,
+                                     buffer,
+                                     tokenizer_cache,
+                                     rects);
+    }
+//    window->update_rects(rects.data(), rects.size());
 
     // std::vector<SDL_Rect> rects;
     // while(1)
@@ -852,7 +854,7 @@ int main(int argc, char** argv)
             hexcode_to_SDL_Color(ConfigManager::get_instance()
                                    ->get_config_struct()
                                    .colorscheme.gray);
-          active_line_color.a = 64;
+          active_line_color.a = 32;
           RocketRender::rectangle_filled(line_numbers_width + 1,
                                          y,
                                          window->width(),
@@ -862,6 +864,8 @@ int main(int argc, char** argv)
         render_tokens(line_numbers_width + 1,
                       y,
                       *tokenizer_cache.tokens_for_line(i),
+                      buffer,
+                      i,
                       font_extents);
         y += font_extents.height;
         row++;
@@ -1001,6 +1005,8 @@ int main(int argc, char** argv)
     }
     else
     {
+      window->update_rects(rects.data(), rects.size());
+      TRACE_BOII("Updated %d rects", rects.size());
       INFO_BOII("Waiting for event...");
       SDL_WaitEventTimeout(NULL, wait_time);
     }
@@ -1059,14 +1065,51 @@ bool animator(float32* animatable, const float32* target) noexcept
 void render_tokens(int32 x,
                    int32 y,
                    const std::vector<CppTokenizer::Token>& tokens,
+                   const Buffer& buffer,
+                   const uint32& line_index,
                    const cairo_font_extents_t& font_extents) noexcept
 {
+  if(tokens.size() < 1)
+  {
+    uint8 indent_count =
+      buffer.line_tab_indent_count_to_show(line_index).value();
+    while(indent_count > 0)
+    {
+      RocketRender::line(
+        x,
+        y,
+        x,
+        y + font_extents.height,
+        hexcode_to_SDL_Color(
+          ConfigManager::get_instance()->get_config_struct().colorscheme.gray));
+      x += ConfigManager::get_instance()->get_config_struct().tab_width *
+           font_extents.max_x_advance;
+      --indent_count;
+    }
+
+    return;
+  }
+
   for(uint32 i = 0; i < tokens.size(); i++)
   {
     CppTokenizer::Token token = tokens[i];
     if(token.value == "\r")
     {
-      // do nothing
+      uint8 indent_count =
+        buffer.line_tab_indent_count_to_show(line_index).value();
+      while(indent_count > 0)
+      {
+        RocketRender::line(x,
+                           y,
+                           x,
+                           y + font_extents.height,
+                           hexcode_to_SDL_Color(ConfigManager::get_instance()
+                                                  ->get_config_struct()
+                                                  .colorscheme.gray));
+        x += ConfigManager::get_instance()->get_config_struct().tab_width *
+             font_extents.max_x_advance;
+        --indent_count;
+      }
     }
     else if(token.type == CppTokenizer::TokenType::WHITESPACE)
     {
