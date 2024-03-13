@@ -57,6 +57,8 @@ void CairoContext::initialize(Window& window) noexcept
   {
     ERROR_BOII("Unable to initialize freetype: %d", error);
   }
+  unsigned char weights[] = {0x10, 0x40, 0x70, 0x40, 0x10};
+  FT_Library_SetLcdFilterWeights(_freetype, weights);
 }
 
 cairo_t* CairoContext::get_context() const noexcept
@@ -95,7 +97,8 @@ bool CairoContext::load_font(const std::string& font_name_to_assign,
     return false;
   }
 
-  cairo_font_face_t* ct = cairo_ft_font_face_create_for_ft_face(font, 0);
+  cairo_font_face_t* ct =
+    cairo_ft_font_face_create_for_ft_face(font, FT_LOAD_FORCE_AUTOHINT);
   _font_map.insert(
     std::make_pair(font_name_to_assign, std::make_pair(font, ct)));
   return true;
