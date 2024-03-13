@@ -2,10 +2,15 @@
 
 #include <unordered_map>
 #include "../cairo-windows-1.17.2/include/cairo-ft.h"
-#include "../freetype/freetype/freetype.h"
+// #include "../freetype/freetype/freetype.h"
 #include "../freetype/ft2build.h"
 #include "cairo.hpp"
 #include "window.hpp"
+
+#include FT_FREETYPE_H
+#include FT_LCD_FILTER_H
+#include FT_OUTLINE_H
+#include FT_SYSTEM_H
 
 /// @brief CairoContext, wraps cairo context together with freetype
 ///        font loading and unloading capabilities and font, text metrics.
