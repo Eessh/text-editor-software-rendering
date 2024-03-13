@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string_view>
 #include "../include/config_manager.hpp"
+#include "../include/incremental_render_update.hpp"
 #include "../include/macros.hpp"
 
 Buffer::Buffer() noexcept
@@ -152,6 +153,50 @@ std::optional<std::string> Buffer::line_with_spaces_converted_to_tabs(
   }
 }
 
+std::optional<uint8>
+Buffer::line_tab_indent_count_to_show(const uint32& line_index) const noexcept
+{
+  if(line_index >= _lines.size()) [[unlikely]]
+  {
+    ERROR_BOII("Accessing line with line_index: %ld out of bounds!",
+               line_index);
+
+    return std::nullopt;
+  }
+
+  const uint8 tab_width =
+    ConfigManager::get_instance()->get_config_struct().tab_width;
+
+  if(!_lines[line_index].empty())
+  {
+    const uint32 spaces_count = _line_leading_spaces_count(line_index);
+
+    return (uint8)(spaces_count / tab_width);
+  }
+
+  const uint32 above_line_spaces_count =
+    line_index == 0 ? 0 : _line_leading_spaces_count(line_index - 1);
+  const uint32 below_line_spaces_count = _line_leading_spaces_count(
+    line_index == _lines.size() - 1 ? line_index : line_index + 1);
+
+  uint32 effective_lines_spaces_count = 0;
+  if(above_line_spaces_count == 0 || below_line_spaces_count == 0)
+  {
+    effective_lines_spaces_count =
+      std::max(above_line_spaces_count, below_line_spaces_count);
+  }
+  else if(above_line_spaces_count >= below_line_spaces_count)
+  {
+    effective_lines_spaces_count = above_line_spaces_count;
+  }
+  else
+  {
+    effective_lines_spaces_count = below_line_spaces_count;
+  }
+
+  return (uint8)(effective_lines_spaces_count / tab_width);
+}
+
 std::pair<uint32, int32> Buffer::cursor_coords() const noexcept
 {
   return std::make_pair(_cursor_row, _cursor_col);
@@ -169,10 +214,33 @@ uint32& Buffer::cursor_row() noexcept
 
 void Buffer::set_cursor_row(const uint32& row) noexcept
 {
+  // early return if new row is same as current row
+  if(row == _cursor_row)
+  {
+    if(!_has_selection)
+    {
+      return;
+    }
+
+    auto selection = this->selection().value();
+    if(row < selection.first.first || row > selection.second.first)
+    {
+      return;
+    }
+  }
+
+  //  IncrementalRenderUpdateCommand cmd;
+  //  cmd.type = IncrementalRenderUpdateType::RENDER_LINES;
+  //  cmd.row_start = _cursor_row;
+  //  cmd.row_end = row;
+  //  _buffer_incremental_render_update_commands.push_back(cmd);
+
+  // less optimized one
   IncrementalRenderUpdateCommand cmd;
-  cmd.type = IncrementalRenderUpdateType::RENDER_LINES;
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
   cmd.row_start = _cursor_row;
-  cmd.row_end = row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
+  cmd.row_start = row;
   _buffer_incremental_render_update_commands.push_back(cmd);
   DEBUG_BOII("set row: %ld", row);
   _cursor_row = row;
@@ -190,6 +258,12 @@ int32& Buffer::cursor_column() noexcept
 
 void Buffer::set_cursor_column(const int32& column) noexcept
 {
+  // early return if new column is same as current column
+  //  if(column == _cursor_col)
+  //  {
+  //    return;
+  //  }
+
   IncrementalRenderUpdateCommand cmd;
   cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
   cmd.row_start = _cursor_row;
@@ -1035,6 +1109,20 @@ void Buffer::insert_string(const std::string& str) noexcept
 //   _buffer_incremental_render_update_commands.pop_front();
 //   return command;
 // }
+
+std::optional<IncrementalRenderUpdateCommand>
+Buffer::get_next_incremental_render_update_command() noexcept
+{
+  if(_buffer_incremental_render_update_commands.empty())
+  {
+    return std::nullopt;
+  }
+
+  IncrementalRenderUpdateCommand command =
+    _buffer_incremental_render_update_commands.front();
+  _buffer_incremental_render_update_commands.pop_front();
+  return command;
+}
 
 void Buffer::remove_most_recent_view_update_command() noexcept
 {

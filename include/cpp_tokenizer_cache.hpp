@@ -3,12 +3,14 @@
 #include <deque>
 #include <optional>
 #include "../cpp-tokenizer/cpp_tokenizer.hpp"
-#include "incremental_render_update.hpp"
+//#include "incremental_render_update.hpp"
 #include "types.hpp"
 
 /// @brief forward declaration of Buffer class
 ///        as including buffer.hpp results in tangled includes
 class Buffer;
+
+struct IncrementalRenderUpdateCommand;
 
 /// @brief Token cache update command type.
 enum class TokenCacheUpdateCommandType

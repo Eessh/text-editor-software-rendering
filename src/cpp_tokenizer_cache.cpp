@@ -1,6 +1,7 @@
 #include "../include/cpp_tokenizer_cache.hpp"
 #include <algorithm>
 #include "../include/buffer.hpp"
+#include "../include/incremental_render_update.hpp"
 #include "../include/macros.hpp"
 
 void CppTokenizerCache::build_cache(const Buffer& buffer) noexcept
