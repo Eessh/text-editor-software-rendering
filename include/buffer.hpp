@@ -183,6 +183,9 @@ public:
   [[nodiscard]] std::optional<std::string>
   line_with_spaces_converted_to_tabs(const uint32& line_index) const noexcept;
 
+  [[nodiscard]] std::optional<uint8>
+  line_tab_indent_count_to_show(const uint32& line_index) const noexcept;
+
   /// @brief Cursor coordinates in buffer.
   /// @return Returns pair of cursor row (uint32), cursor column (int32).
   /// @throws No exceptions.
