@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "cairo.hpp"
+// #include "cairo.hpp"
 #include "sdl2.hpp"
 #include "types.hpp"
 
@@ -13,9 +13,7 @@ public:
   /// @param width width of window.
   /// @param height height of window.
   /// @throws No exceptions.
-  Window(const std::string& title,
-         const uint16 width,
-         const uint16 height) noexcept;
+  Window(std::string title, const uint16& width, const uint16& height) noexcept;
 
   Window(const Window& window) = delete;
   Window(Window&& window) = delete;
@@ -27,17 +25,17 @@ public:
   /// @brief Window width.
   /// @return Returns const reference to window width.
   /// @throws No exceptions.
-  const uint16& width() const noexcept;
+  [[nodiscard]] const uint16& width() const noexcept;
 
   /// @brief Window height.
   /// @return Returns const reference to window height.
   /// @throws No exceptions.
-  const uint16& height() const noexcept;
+  [[nodiscard]] const uint16& height() const noexcept;
 
   /// @brief Window title.
   /// @return Returns const reference to window title.
   /// @throws No exceptions.
-  const std::string& title() const noexcept;
+  [[nodiscard]] const std::string& title() const noexcept;
 
   /// @brief Set window width.
   /// @return Returns reference to window width.
@@ -56,12 +54,12 @@ public:
 
   /// @brief Update window title.
   /// @throws No exceptions.
-  void update_title() noexcept;
+  void update_title() const noexcept;
 
   /// @brief Window's surface.
   /// @return Returns pointer to window's surface.
   /// @throws No exceptions.
-  SDL_Surface* surface() const noexcept;
+  [[nodiscard]] SDL_Surface* surface() const noexcept;
 
   /// @brief Sets window icon in windows and linux, icon should be BMP format.
   /// @param icon_path icon file path.
@@ -72,7 +70,7 @@ public:
   /// @brief Sets dark mode to window.
   /// @return returns false if cannot be set (on platforms linux, macos).
   /// @throws No exceptions.
-  bool set_dark_theme() const noexcept;
+  [[nodiscard]] bool set_dark_theme() const noexcept;
 
   /// @brief Handles reloading of window surface, when window is resized.
   ///        This should be called when window resize event occurs.
@@ -104,7 +102,7 @@ public:
   /// @param rects pointer to SDL_Rect array.
   /// @param rects_count length of the SDL_Rect array.
   /// @throws No exceptions.
-  void update_rects(SDL_Rect* rects, int rects_count) const noexcept;
+  void update_rects(const SDL_Rect* rects, int rects_count) const noexcept;
 
   /// @brief Updates window surface (i.e swaps the updated window surface).
   /// @throws No exceptions.

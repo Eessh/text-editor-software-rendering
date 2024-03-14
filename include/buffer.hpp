@@ -127,12 +127,12 @@ public:
   /// @param init_string const reference to the string
   ///        with which the buffer should be initialized.
   /// @throws No exceptions.
-  Buffer(const std::string& init_string) noexcept;
+  explicit Buffer(const std::string& init_string) noexcept;
 
   /// @brief Creates buffer with given lines.
   /// @param lines const reference to vector of strings.
   /// @throws No exceptions.
-  Buffer(const std::vector<std::string>& lines) noexcept;
+  explicit Buffer(const std::vector<std::string>& lines) noexcept;
 
   /// @brief Destructor
   ~Buffer() = default;
@@ -408,7 +408,8 @@ private:
   /// @param line_index index of the line.
   /// @return Returns leading spaces count.
   /// @throws No exceptions.
-  uint32 _line_leading_spaces_count(const uint32& line_index) const noexcept;
+  [[nodiscard]] uint32
+  _line_leading_spaces_count(const uint32& line_index) const noexcept;
 
   /// @brief Converts leading spaces to indentation tabs.
   /// @param str mutable reference to the string.
@@ -419,7 +420,8 @@ private:
   /// @brief Wraps selection with given character.
   ///        Check for selection before using this!
   ///        This doesn't check for selection internally.
-  /// @param character the character to wrap selection with.
+  /// @param wrap_begin_character the character to insert at start of selection.
+  /// @param wrap_end_character the character to insert at end of selection.
   /// @throws No exceptions.
   void _wrap_selection_with_character(const char& wrap_begin_character,
                                       const char& wrap_end_character) noexcept;
@@ -427,10 +429,10 @@ private:
   /// @brief Tells if cursor is at bracket: (|, [|, {|
   /// @return
   /// @throws No exceptions.
-  bool _cursor_at_bracket() const noexcept;
+  [[nodiscard]] bool _cursor_at_bracket() const noexcept;
 
   /// @brief Tells if cursor is between brackets: (|), [|], {|}.
   /// @return Returns true if cursor is between brackets.
   /// @throws No exceptions.
-  bool _cursor_between_brackets() const noexcept;
+  [[nodiscard]] bool _cursor_between_brackets() const noexcept;
 };

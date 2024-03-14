@@ -70,8 +70,10 @@ int main(int argc, char** argv)
          : ""),
     ConfigManager::get_instance()->get_config_struct().window.width,
     ConfigManager::get_instance()->get_config_struct().window.height);
-  window->set_icon("assets/images/rocket.bmp");
-  window->set_dark_theme();
+  {
+    bool _ = window->set_icon("assets/images/rocket.bmp");
+    _ = window->set_dark_theme();
+  }
 
   // Creating cairo context
   CairoContext::create_instance();
@@ -108,10 +110,11 @@ int main(int argc, char** argv)
   bool redraw = true, mouse_single_tap_down = false,
        mouse_double_tap_down = false, mouse_triple_tap_down = false;
   SDL_StartTextInput();
-  while(1)
+  while(true)
   {
     double frame_start_time =
-      SDL_GetPerformanceCounter() / (double)SDL_GetPerformanceFrequency();
+      SDL_GetPerformanceCounter() /
+      static_cast<double>(SDL_GetPerformanceFrequency());
     SDL_Event event;
     if(SDL_PollEvent(&event))
     {
@@ -432,8 +435,7 @@ int main(int argc, char** argv)
       }
       else if(event.type == SDL_DROPFILE)
       {
-        bool loaded = buffer.load_from_file(event.drop.file);
-        if(loaded)
+        if(buffer.load_from_file(event.drop.file))
         {
           window->title().erase();
           window->title().append(
@@ -450,7 +452,7 @@ int main(int argc, char** argv)
     }
 
     std::vector<SDL_Rect> rects;
-    while(1)
+    while(true)
     {
       auto command_result = buffer.get_next_incremental_render_update_command();
       if(command_result == std::nullopt)
@@ -467,7 +469,7 @@ int main(int argc, char** argv)
                                      tokenizer_cache,
                                      rects);
     }
-//    window->update_rects(rects.data(), rects.size());
+    //    window->update_rects(rects.data(), rects.size());
 
     // std::vector<SDL_Rect> rects;
     // while(1)
@@ -949,14 +951,14 @@ int main(int argc, char** argv)
             font_extents.height,
             selection_color);
           // drawing middle lines selection, these lines are fully selected
-          for(uint16 row = selection.first.first + 1;
-              row < selection.second.first;
-              row++)
+          for(uint16 line_index = selection.first.first + 1;
+              line_index < selection.second.first;
+              line_index++)
           {
             RocketRender::rectangle_filled(
               line_numbers_width + 1,
-              ceil(scroll_y_offset + row * font_extents.height),
-              (buffer.line_length(row).value() + 1) *
+              ceil(scroll_y_offset + line_index * font_extents.height),
+              (buffer.line_length(line_index).value() + 1) *
                 font_extents.max_x_advance,
               font_extents.height,
               selection_color);
@@ -992,7 +994,8 @@ int main(int argc, char** argv)
       redraw = false;
 
       double frame_end_time =
-        SDL_GetPerformanceCounter() / (double)SDL_GetPerformanceFrequency();
+        SDL_GetPerformanceCounter() /
+        static_cast<double>(SDL_GetPerformanceFrequency());
       double time_elapsed = frame_end_time - frame_start_time;
       double ideal_frame_time =
         1.0f / ConfigManager::get_instance()->get_config_struct().fps;
@@ -1011,14 +1014,14 @@ int main(int argc, char** argv)
       INFO_BOII("Frame time: %lfms, Sleeping for: %lfms",
                 time_elapsed * 1000,
                 time_to_sleep);
-      SDL_Delay((uint32)time_to_sleep);
+      SDL_Delay(static_cast<uint32>(time_to_sleep));
     }
     else
     {
       window->update_rects(rects.data(), rects.size());
       TRACE_BOII("Updated %d rects", rects.size());
       INFO_BOII("Waiting for event...");
-      SDL_WaitEventTimeout(NULL, wait_time);
+      SDL_WaitEventTimeout(nullptr, wait_time);
     }
   }
 
@@ -1109,7 +1112,7 @@ void render_tokens(int32 x,
                    const uint32& line_index,
                    const cairo_font_extents_t& font_extents) noexcept
 {
-  if(tokens.size() < 1)
+  if(tokens.empty())
   {
     uint8 indent_count =
       buffer.line_tab_indent_count_to_show(line_index).value();
@@ -1385,7 +1388,7 @@ mouse_coords_to_buffer_coords(const int& x,
 
   if(x < x_offset)
   {
-    return std::make_pair(row, -1);
+    return std::make_pair(row, static_cast<int32>(-1));
   }
 
   int32 column = -1;

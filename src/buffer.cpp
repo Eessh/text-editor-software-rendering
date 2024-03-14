@@ -171,7 +171,7 @@ Buffer::line_tab_indent_count_to_show(const uint32& line_index) const noexcept
   {
     const uint32 spaces_count = _line_leading_spaces_count(line_index);
 
-    return (uint8)(spaces_count / tab_width);
+    return static_cast<uint8>(spaces_count / tab_width);
   }
 
   const uint32 above_line_spaces_count =
@@ -194,7 +194,7 @@ Buffer::line_tab_indent_count_to_show(const uint32& line_index) const noexcept
     effective_lines_spaces_count = below_line_spaces_count;
   }
 
-  return (uint8)(effective_lines_spaces_count / tab_width);
+  return static_cast<uint8>(effective_lines_spaces_count / tab_width);
 }
 
 std::pair<uint32, int32> Buffer::cursor_coords() const noexcept
@@ -348,10 +348,11 @@ Buffer::selection_slice_for_line(const uint32& line_index) const noexcept
 
   if(line_index == selection.second.first)
   {
-    return std::make_pair(-1, selection.second.second);
+    return std::make_pair(static_cast<int32>(-1), selection.second.second);
   }
 
-  return std::make_pair(-1, static_cast<int32>(_lines[line_index].size() - 1));
+  return std::make_pair(static_cast<int32>(-1),
+                        static_cast<int32>(_lines[line_index].size() - 1));
 }
 
 void Buffer::set_selection_start_coordinate(
@@ -874,7 +875,7 @@ bool Buffer::process_backspace() noexcept
       _buffer_incremental_render_update_commands.emplace_back(cmd);
     }
     {
-      TokenCacheUpdateCommand cmd;
+      TokenCacheUpdateCommand cmd{};
       cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
       cmd.row = _cursor_row;
       _token_cache_update_commands_queue.emplace_back(cmd);
@@ -886,7 +887,7 @@ bool Buffer::process_backspace() noexcept
   _cursor_col = _lines[_cursor_row - 1].size() - 1;
   _lines[_cursor_row - 1].append(_lines[_cursor_row]);
   {
-    TokenCacheUpdateCommand cmd;
+    TokenCacheUpdateCommand cmd{};
     cmd.type = TokenCacheUpdateCommandType::DELETE_LINE_CACHE;
     cmd.row = _cursor_row;
     _token_cache_update_commands_queue.emplace_back(cmd);
@@ -931,7 +932,7 @@ void Buffer::process_enter() noexcept
     _lines[_cursor_row].erase(_cursor_col + 1);
 
     // updating token cache
-    TokenCacheUpdateCommand cmd;
+    TokenCacheUpdateCommand cmd{};
     cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
     cmd.row = _cursor_row;
     _token_cache_update_commands_queue.emplace_back(cmd);
@@ -975,7 +976,7 @@ void Buffer::process_enter() noexcept
 
   // updating token cache
   {
-    TokenCacheUpdateCommand cmd;
+    TokenCacheUpdateCommand cmd{};
     cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
     cmd.row = _cursor_row;
     _token_cache_update_commands_queue.emplace_back(cmd);
@@ -1024,7 +1025,7 @@ void Buffer::insert_string(const std::string& str) noexcept
         auto sel = this->selection().value();
 
         // for inline selection, only one re-tokenization is required
-        TokenCacheUpdateCommand cmd;
+        TokenCacheUpdateCommand cmd{};
         cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
         cmd.row = sel.first.first;
         _token_cache_update_commands_queue.emplace_back(cmd);
@@ -1090,7 +1091,7 @@ void Buffer::insert_string(const std::string& str) noexcept
     _buffer_incremental_render_update_commands.push_back(cmd);
   }
   {
-    TokenCacheUpdateCommand cmd;
+    TokenCacheUpdateCommand cmd{};
     cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
     cmd.row = _cursor_row;
     _token_cache_update_commands_queue.emplace_back(cmd);
@@ -1265,7 +1266,7 @@ bool Buffer::_base_move_cursor_to_previous_word_start() noexcept
 
   int32 row = _cursor_row, col = _cursor_col;
   bool found_word = false;
-  while(1)
+  while(true)
   {
     if(col == -1)
     {
@@ -1295,8 +1296,6 @@ bool Buffer::_base_move_cursor_to_previous_word_start() noexcept
     }
     col -= 1;
   }
-
-  return false;
 }
 
 bool Buffer::_base_move_cursor_to_next_word_end() noexcept
@@ -1306,7 +1305,7 @@ bool Buffer::_base_move_cursor_to_next_word_end() noexcept
 
   int32 row = _cursor_row, col = _cursor_col;
   bool found_word = false;
-  while(1)
+  while(true)
   {
     if(col == _lines[row].size())
     {
@@ -1343,8 +1342,6 @@ bool Buffer::_base_move_cursor_to_next_word_end() noexcept
     }
     col += 1;
   }
-
-  return false;
 }
 
 void Buffer::_delete_selection() noexcept
@@ -1368,7 +1365,7 @@ void Buffer::_delete_selection() noexcept
       _buffer_incremental_render_update_commands.push_back(cmd);
     }
     {
-      TokenCacheUpdateCommand cmd;
+      TokenCacheUpdateCommand cmd{};
       cmd.type = TokenCacheUpdateCommandType::RETOKENIZE_LINE;
       cmd.row = _cursor_row;
       _token_cache_update_commands_queue.emplace_back(cmd);
@@ -1392,7 +1389,7 @@ void Buffer::_delete_selection() noexcept
                  _lines.begin() + selection.second.first + 1);
 
     {
-      TokenCacheUpdateCommand cmd;
+      TokenCacheUpdateCommand cmd{};
       cmd.type = TokenCacheUpdateCommandType::DELETE_LINES_CACHE;
       cmd.start_row = selection.first.first + 1;
       cmd.end_row = selection.second.first;

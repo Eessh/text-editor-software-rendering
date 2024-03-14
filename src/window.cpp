@@ -4,10 +4,10 @@
 #  include "../SDL2-2.26.5/x86_64-w64-mingw32/include/SDL2/SDL_syswm.h"
 #endif
 
-Window::Window(const std::string& title,
-               const uint16 width,
-               const uint16 height) noexcept
-  : _title(title)
+Window::Window(std::string title,
+               const uint16& width,
+               const uint16& height) noexcept
+  : _title(std::move(title))
   , _width(width)
   , _height(height)
   , _fullscreen(false)
@@ -38,8 +38,9 @@ Window::Window(const std::string& title,
   }
 
   // White background
-  SDL_FillRect(
-    _window_surface, NULL, SDL_MapRGB(_window_surface->format, 255, 255, 255));
+  SDL_FillRect(_window_surface,
+               nullptr,
+               SDL_MapRGB(_window_surface->format, 255, 255, 255));
 }
 
 Window::~Window() noexcept
@@ -77,7 +78,7 @@ std::string& Window::title() noexcept
   return _title;
 }
 
-void Window::update_title() noexcept
+void Window::update_title() const noexcept
 {
   SDL_SetWindowTitle(_window, _title.c_str());
 }
@@ -114,16 +115,17 @@ bool Window::set_dark_theme() const noexcept
   if(uxtheme && dwm)
   {
     typedef HRESULT (*SetWindowThemePTR)(HWND, const wchar_t*, const wchar_t*);
-    SetWindowThemePTR SetWindowTheme =
-      (SetWindowThemePTR)GetProcAddress(uxtheme, "SetWindowTheme");
+    SetWindowThemePTR SetWindowTheme = reinterpret_cast<SetWindowThemePTR>(
+      GetProcAddress(uxtheme, "SetWindowTheme"));
 
     typedef HRESULT (*DwmSetWindowAttributePTR)(HWND, DWORD, LPCVOID, DWORD);
     DwmSetWindowAttributePTR DwmSetWindowAttribute =
-      (DwmSetWindowAttributePTR)GetProcAddress(dwm, "DwmSetWindowAttribute");
+      reinterpret_cast<DwmSetWindowAttributePTR>(
+        GetProcAddress(dwm, "DwmSetWindowAttribute"));
 
     if(SetWindowTheme && DwmSetWindowAttribute)
     {
-      SetWindowTheme(hwnd, L"DarkMode_Explorer", NULL);
+      SetWindowTheme(hwnd, L"DarkMode_Explorer", nullptr);
 
       BOOL darkMode = 1;
       if(!DwmSetWindowAttribute(hwnd, 20, &darkMode, sizeof darkMode))
@@ -132,9 +134,9 @@ bool Window::set_dark_theme() const noexcept
       }
       return true;
     }
-    return true;
+    return false;
   }
-  return true;
+  return false;
 #endif
   return false;
 }
@@ -158,7 +160,7 @@ void Window::handle_maximize(const SDL_Event& event) noexcept
 void Window::clear_with_color(const SDL_Color& color) const noexcept
 {
   SDL_FillRect(_window_surface,
-               NULL,
+               nullptr,
                SDL_MapRGB(_window_surface->format, color.r, color.g, color.b));
 }
 
@@ -191,7 +193,7 @@ void Window::reload_window_surface() noexcept
   }
 }
 
-void Window::update_rects(SDL_Rect* rects, int rects_count) const noexcept
+void Window::update_rects(const SDL_Rect* rects, int rects_count) const noexcept
 {
   SDL_UpdateWindowSurfaceRects(_window, rects, rects_count);
 }

@@ -38,6 +38,9 @@ Makefile
 # Mine :)
 build
 .cache
+.idea
+cmake-build-debug
+cmake-build-release
 *.user
 *.sublime-workspace
 .lite_project.lua
