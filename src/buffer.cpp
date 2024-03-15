@@ -217,31 +217,32 @@ void Buffer::set_cursor_row(const uint32& row) noexcept
   // early return if new row is same as current row
   if(row == _cursor_row)
   {
-    if(!_has_selection)
-    {
-      return;
-    }
-
-    auto selection = this->selection().value();
-    if(row < selection.first.first || row > selection.second.first)
-    {
-      return;
-    }
+    // if(!_has_selection)
+    // {
+    //   return;
+    // }
+    //
+    // auto selection = this->selection().value();
+    // if(row < selection.first.first || row > selection.second.first)
+    // {
+    //   return;
+    // }
+    return;
   }
 
-  //  IncrementalRenderUpdateCommand cmd;
-  //  cmd.type = IncrementalRenderUpdateType::RENDER_LINES;
-  //  cmd.row_start = _cursor_row;
-  //  cmd.row_end = row;
-  //  _buffer_incremental_render_update_commands.push_back(cmd);
+  IncrementalRenderUpdateCommand cmd{};
+  cmd.type = IncrementalRenderUpdateType::RENDER_LINES;
+  cmd.row_start = _cursor_row;
+  cmd.row_end = row;
+  _buffer_incremental_render_update_commands.push_back(cmd);
 
   // less optimized one
-  IncrementalRenderUpdateCommand cmd;
-  cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
-  cmd.row_start = _cursor_row;
-  _buffer_incremental_render_update_commands.push_back(cmd);
-  cmd.row_start = row;
-  _buffer_incremental_render_update_commands.push_back(cmd);
+  // IncrementalRenderUpdateCommand cmd;
+  // cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+  // cmd.row_start = _cursor_row;
+  // _buffer_incremental_render_update_commands.push_back(cmd);
+  // cmd.row_start = row;
+  // _buffer_incremental_render_update_commands.push_back(cmd);
   DEBUG_BOII("set row: %ld", row);
   _cursor_row = row;
 }
@@ -343,7 +344,7 @@ Buffer::selection_slice_for_line(const uint32& line_index) const noexcept
   if(line_index == selection.first.first)
   {
     return std::make_pair(selection.first.second,
-                          static_cast<int32>(_lines[line_index].size() - 1));
+                          static_cast<int32>(_lines[line_index].size()));
   }
 
   if(line_index == selection.second.first)
@@ -352,7 +353,7 @@ Buffer::selection_slice_for_line(const uint32& line_index) const noexcept
   }
 
   return std::make_pair(static_cast<int32>(-1),
-                        static_cast<int32>(_lines[line_index].size() - 1));
+                        static_cast<int32>(_lines[line_index].size()));
 }
 
 void Buffer::set_selection_start_coordinate(
@@ -368,16 +369,69 @@ void Buffer::set_selection_start_coordinate(
 void Buffer::set_selection_end_coordinate(
   const std::pair<uint32, int32>& coordinate) noexcept
 {
+  if(coordinate.first < 0 || coordinate.first >= _lines.size())
+  {
+    return;
+  }
+  if(coordinate.second < -1 ||
+     coordinate.second >= _lines[coordinate.first].size())
+  {
+    return;
+  }
+
   if(_selection.first == coordinate)
   {
     _has_selection = false;
     return;
   }
 
+  DEBUG_BOII(
+    "Has-Selection: %d, Selection: {{%d, %d}, {%d, %d}}, Coordinate: {%d, %d}",
+    _has_selection,
+    _selection.first.first,
+    _selection.first.second,
+    _selection.second.first,
+    _selection.second.second,
+    coordinate.first,
+    coordinate.second);
+
+  if(_selection.first.first == coordinate.first)
+  {
+    // selection ending point is in the same row as of starting point
+    // render the line again to render updated selection
+    IncrementalRenderUpdateCommand cmd{};
+    cmd.type = IncrementalRenderUpdateType::RENDER_LINE;
+    cmd.row_start = _selection.first.first;
+    _buffer_incremental_render_update_commands.emplace_back(cmd);
+  }
+  else
+  {
+    // selection ending point is lying in different row
+    // need to render lines btw starting and ending points (including them)
+    // need to render them incrementally
+    if(!_has_selection)
+    {
+      // just push the lines to render as this is the first time
+      // we are drawing the selection
+      IncrementalRenderUpdateCommand cmd{};
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+      cmd.row_start = std::min(_selection.first.first, coordinate.first);
+      cmd.row_end = std::max(_selection.first.first, coordinate.first);
+      _buffer_incremental_render_update_commands.emplace_back(cmd);
+    }
+    else
+    {
+      // here we can render selection of lines incrementally
+      // based on last selection end point
+      IncrementalRenderUpdateCommand cmd{};
+      cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
+      cmd.row_start = std::min(_selection.second.first, coordinate.first);
+      cmd.row_end = std::max(_selection.second.first, coordinate.first);
+      _buffer_incremental_render_update_commands.emplace_back(cmd);
+    }
+  }
+
   _has_selection = true;
-
-  /// FIXME: check the row, columns before assigning the coodinate u lazy shit.
-
   _selection.second = coordinate;
 }
 

@@ -8,7 +8,7 @@ CairoContext::CairoContext() {}
 CairoContext::~CairoContext() noexcept
 {
   // Destroying font faces
-  for(auto &it: _font_map)
+  for(auto& it : _font_map)
   {
     cairo_font_face_destroy(it.second.second);
     FT_Done_Face(it.second.first);
@@ -42,12 +42,12 @@ void CairoContext::delete_instance() noexcept
 void CairoContext::initialize(Window& window) noexcept
 {
   SDL_Surface* window_surface = window.surface();
-  cairo_surface_t* cairo_surface =
-    cairo_image_surface_create_for_data(static_cast<unsigned char*>(window_surface->pixels),
-                                        CAIRO_FORMAT_RGB24,
-                                        window_surface->w,
-                                        window_surface->h,
-                                        window_surface->pitch);
+  cairo_surface_t* cairo_surface = cairo_image_surface_create_for_data(
+    static_cast<unsigned char*>(window_surface->pixels),
+    CAIRO_FORMAT_RGB24,
+    window_surface->w,
+    window_surface->h,
+    window_surface->pitch);
   cairo_surface_set_device_scale(cairo_surface, 1, 1);
   _context = cairo_create(cairo_surface);
   cairo_surface_destroy(cairo_surface);
@@ -70,12 +70,12 @@ void CairoContext::reload_context(Window& window) noexcept
 {
   cairo_destroy(_context);
   SDL_Surface* window_surface = window.surface();
-  cairo_surface_t* cairo_surface =
-    cairo_image_surface_create_for_data(static_cast<unsigned char*>(window_surface->pixels),
-                                        CAIRO_FORMAT_RGB24,
-                                        window_surface->w,
-                                        window_surface->h,
-                                        window_surface->pitch);
+  cairo_surface_t* cairo_surface = cairo_image_surface_create_for_data(
+    static_cast<unsigned char*>(window_surface->pixels),
+    CAIRO_FORMAT_RGB24,
+    window_surface->w,
+    window_surface->h,
+    window_surface->pitch);
   cairo_surface_set_device_scale(cairo_surface, 1.0, 1.0);
   _context = cairo_create(cairo_surface);
   cairo_surface_destroy(cairo_surface);

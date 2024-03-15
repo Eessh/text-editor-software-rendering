@@ -57,7 +57,7 @@ void IncrementalUpdate_RenderLine(const IncrementalRenderUpdateCommand& command,
                                   const CppTokenizerCache& tokenizer_cache,
                                   std::vector<SDL_Rect>& update_rects) noexcept
 {
-  int32 line_y =
+  const int32 line_y =
     ceil(scroll_y_offset + command.row_start * font_extents.height);
   RocketRender::rectangle_filled(
     0,
@@ -66,7 +66,7 @@ void IncrementalUpdate_RenderLine(const IncrementalRenderUpdateCommand& command,
     font_extents.height,
     hexcode_to_SDL_Color(
       ConfigManager::get_instance()->get_config_struct().colorscheme.bg));
-  float32 line_numbers_width =
+  const float32 line_numbers_width =
     (std::to_string(buffer.length()).length() + 2) * font_extents.max_x_advance;
   if(ConfigManager::get_instance()->get_config_struct().line_numbers_margin)
   {
@@ -79,7 +79,8 @@ void IncrementalUpdate_RenderLine(const IncrementalRenderUpdateCommand& command,
         ConfigManager::get_instance()->get_config_struct().colorscheme.gray));
   }
   // drawing line numbers
-  std::string number_string = std::move(std::to_string(command.row_start + 1));
+  const std::string number_string =
+    std::move(std::to_string(command.row_start + 1));
   RocketRender::text(
     (std::to_string(buffer.length()).length() - number_string.length() + 1) *
       (font_extents.max_x_advance),
@@ -138,10 +139,10 @@ void IncrementalUpdate_RenderLine(const IncrementalRenderUpdateCommand& command,
     font_extents.height,
     hexcode_to_SDL_Color(
       ConfigManager::get_instance()->get_config_struct().caret.color));
-  update_rects.push_back((SDL_Rect){0,
-                                    static_cast<int>(line_y),
-                                    static_cast<int>(window->width()),
-                                    static_cast<int>(font_extents.height)});
+  update_rects.emplace_back((SDL_Rect){0,
+                                       static_cast<int>(line_y),
+                                       static_cast<int>(window->width()),
+                                       static_cast<int>(font_extents.height)});
 }
 
 void IncrementalUpdate_RenderLines(

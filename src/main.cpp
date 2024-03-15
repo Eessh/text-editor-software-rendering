@@ -172,9 +172,9 @@ int main(int argc, char** argv)
                                         buffer);
         if(mouse_single_tap_down)
         {
-          buffer.set_selection_end_coordinate(buffer_grid_coords);
           buffer.set_cursor_row(buffer_grid_coords.first);
           buffer.set_cursor_column(buffer_grid_coords.second);
+          buffer.set_selection_end_coordinate(buffer_grid_coords);
           //          redraw = true;
         }
         else if(mouse_double_tap_down)
@@ -469,7 +469,7 @@ int main(int argc, char** argv)
                                      tokenizer_cache,
                                      rects);
     }
-    //    window->update_rects(rects.data(), rects.size());
+    // window->update_rects(rects.data(), rects.size());
 
     // std::vector<SDL_Rect> rects;
     // while(1)
