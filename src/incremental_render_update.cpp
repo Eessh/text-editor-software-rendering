@@ -118,7 +118,7 @@ void IncrementalUpdate_RenderLine(const IncrementalRenderUpdateCommand& command,
     RocketRender::rectangle_filled(
       line_numbers_width + 1 +
         (selection.first + 1) * font_extents.max_x_advance,
-      ceil(scroll_y_offset + line_y),
+      line_y,
       (selection.second - selection.first) * font_extents.max_x_advance,
       font_extents.height,
       hexcode_to_SDL_Color(ConfigManager::get_instance()
