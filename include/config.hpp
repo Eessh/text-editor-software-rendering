@@ -15,6 +15,8 @@ typedef struct config
 
   std::string code_font;
 
+  std::string font_hinting;
+
   uint8 font_size;
 
   std::string word_separators;

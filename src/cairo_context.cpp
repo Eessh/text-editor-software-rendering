@@ -1,6 +1,8 @@
 #include "../include/cairo_context.hpp"
 #include "../include/macros.hpp"
 
+#include <config_manager.hpp>
+
 CairoContext* CairoContext::_instance = nullptr;
 
 CairoContext::CairoContext() {}
@@ -97,8 +99,13 @@ bool CairoContext::load_font(const std::string& font_name_to_assign,
     return false;
   }
 
-  cairo_font_face_t* ct =
-    cairo_ft_font_face_create_for_ft_face(font, FT_LOAD_FORCE_AUTOHINT);
+  const std::string font_hinting =
+    ConfigManager::get_instance()->get_config_struct().font_hinting;
+  cairo_font_face_t* ct = cairo_ft_font_face_create_for_ft_face(
+    font,
+    font_hinting == "default"             ? FT_LOAD_DEFAULT
+    : font_hinting == "force autohinting" ? FT_LOAD_FORCE_AUTOHINT
+                                          : FT_LOAD_NO_AUTOHINT);
   _font_map.insert({font_name_to_assign, std::make_pair(font, ct)});
   return true;
 }
