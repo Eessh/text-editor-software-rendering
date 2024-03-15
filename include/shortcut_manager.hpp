@@ -54,7 +54,7 @@ public:
   static void delete_instance() noexcept;
 
   [[nodiscard]] bool add_keybinding(const std::string& modifiers,
-                                    const std::string keys,
+                                    const std::string& keys,
                                     const Command& command) noexcept;
 
   [[nodiscard]] bool remove_keybinding(const std::string& modifiers,

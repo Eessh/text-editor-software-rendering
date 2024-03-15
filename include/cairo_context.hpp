@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "../cairo-windows-1.17.2/include/cairo-ft.h"
 // #include "../freetype/freetype/freetype.h"
-#include "../freetype/ft2build.h"
+// #include "../freetype/ft2build.h"
 #include "cairo.hpp"
 #include "window.hpp"
 
@@ -69,7 +69,7 @@ public:
   /// @return Returns false if no font is assigned for given font name.
   /// @throws No exceptions.
   bool set_context_font(const std::string& font_name,
-                        const uint8 font_size) noexcept;
+                        const uint8& font_size) noexcept;
 
   /// @brief Gives the font extents of context's active font.
   /// @return Returns font extents struct (cairo_font_extents_t).

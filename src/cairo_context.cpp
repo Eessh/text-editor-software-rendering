@@ -8,10 +8,10 @@ CairoContext::CairoContext() {}
 CairoContext::~CairoContext() noexcept
 {
   // Destroying font faces
-  for(auto it = _font_map.begin(); it != _font_map.end(); it++)
+  for(auto &it: _font_map)
   {
-    cairo_font_face_destroy((*it).second.second);
-    FT_Done_Face((*it).second.first);
+    cairo_font_face_destroy(it.second.second);
+    FT_Done_Face(it.second.first);
   }
   cairo_destroy(_context);
   FT_Done_FreeType(_freetype);
@@ -43,7 +43,7 @@ void CairoContext::initialize(Window& window) noexcept
 {
   SDL_Surface* window_surface = window.surface();
   cairo_surface_t* cairo_surface =
-    cairo_image_surface_create_for_data((unsigned char*)window_surface->pixels,
+    cairo_image_surface_create_for_data(static_cast<unsigned char*>(window_surface->pixels),
                                         CAIRO_FORMAT_RGB24,
                                         window_surface->w,
                                         window_surface->h,
@@ -71,7 +71,7 @@ void CairoContext::reload_context(Window& window) noexcept
   cairo_destroy(_context);
   SDL_Surface* window_surface = window.surface();
   cairo_surface_t* cairo_surface =
-    cairo_image_surface_create_for_data((unsigned char*)window_surface->pixels,
+    cairo_image_surface_create_for_data(static_cast<unsigned char*>(window_surface->pixels),
                                         CAIRO_FORMAT_RGB24,
                                         window_surface->w,
                                         window_surface->h,
@@ -99,17 +99,14 @@ bool CairoContext::load_font(const std::string& font_name_to_assign,
 
   cairo_font_face_t* ct =
     cairo_ft_font_face_create_for_ft_face(font, FT_LOAD_FORCE_AUTOHINT);
-  _font_map.insert(
-    std::make_pair(font_name_to_assign, std::make_pair(font, ct)));
+  _font_map.insert({font_name_to_assign, std::make_pair(font, ct)});
   return true;
 }
 
 bool CairoContext::set_context_font(const std::string& font_name,
-                                    const uint8 font_size) noexcept
+                                    const uint8& font_size) noexcept
 {
-  std::unordered_map<std::string,
-                     std::pair<FT_Face, cairo_font_face_t*>>::iterator it =
-    _font_map.find(font_name);
+  auto it = _font_map.find(font_name);
   if(it == _font_map.end())
   {
     ERROR_BOII("Unable to set context font: %s, maybe it wasn't loaded!",
@@ -117,10 +114,10 @@ bool CairoContext::set_context_font(const std::string& font_name,
     return false;
   }
 
-  cairo_set_font_face(_context, (*it).second.second);
+  cairo_set_font_face(_context, it->second.second);
   cairo_set_font_size(_context, font_size);
 
-  _active_font_face = (*it).second.second;
+  _active_font_face = it->second.second;
   _active_font_size = font_size;
 
   return true;
