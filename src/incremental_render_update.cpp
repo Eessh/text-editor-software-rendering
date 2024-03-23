@@ -1,4 +1,5 @@
 #include "../include/incremental_render_update.hpp"
+#include <cmath>
 #include "../include/config_manager.hpp"
 #include "../include/rocket_render.hpp"
 #include "../include/utils.hpp"

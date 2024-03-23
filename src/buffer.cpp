@@ -1427,6 +1427,13 @@ void Buffer::_delete_selection() noexcept
   }
   else
   {
+    _lines[selection.first.first].erase(selection.first.second + 1);
+    _lines[selection.second.first].erase(0, selection.second.second + 1);
+    _lines[selection.first.first].append(_lines[selection.second.first]);
+    // deleting lines btw selection start end, which are fully selected
+    _lines.erase(_lines.begin() + selection.first.first + 1,
+                 _lines.begin() + selection.second.first + 1);
+
     {
       IncrementalRenderUpdateCommand cmd;
       cmd.type = IncrementalRenderUpdateType::RENDER_LINES_IN_RANGE;
@@ -1434,13 +1441,6 @@ void Buffer::_delete_selection() noexcept
       cmd.row_end = _lines.size() - 1;
       _buffer_incremental_render_update_commands.push_back(cmd);
     }
-
-    _lines[selection.first.first].erase(selection.first.second + 1);
-    _lines[selection.second.first].erase(0, selection.second.second + 1);
-    _lines[selection.first.first].append(_lines[selection.second.first]);
-    // deleting lines btw selection start end, which are fully selected
-    _lines.erase(_lines.begin() + selection.first.first + 1,
-                 _lines.begin() + selection.second.first + 1);
 
     {
       TokenCacheUpdateCommand cmd{};
@@ -1453,6 +1453,7 @@ void Buffer::_delete_selection() noexcept
       _token_cache_update_commands_queue.emplace_back(cmd);
     }
   }
+
   _cursor_row = selection.first.first;
   _cursor_col = selection.first.second;
   _has_selection = false;
